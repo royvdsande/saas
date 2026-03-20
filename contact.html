@@ -1,66 +1,16 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact - Digitale Binas</title>
+  <title>Contact — FitFlow SaaS</title>
   <link rel="stylesheet" href="marketing.css" />
   <link rel="icon" type="image/png" href="favicon.png" />
 </head>
 <body>
-  <header>
-    <div class="header-inner">
-      <a href="/home" class="logo">Digitale <span>Binas</span></a>
-      <nav class="nav-links">
-        <a href="/home">Home</a>
-        <a href="/over">Over</a>
-        <a href="/hoe-werkt-het">Hoe werkt het</a>
-        <a href="/binas-plus">Plus</a>
-        <a href="/contact" class="active">Contact</a>
-      </nav>
-      <a href="/" class="btn-primary">Open App</a>
-    </div>
-  </header>
-
-  <main>
-    <div class="container">
-      <h1 class="page-title">Contact</h1>
-
-      <div class="content-section">
-        <p>
-          Heeft u vragen, opmerkingen of suggesties? We horen graag van u.
-        </p>
-      </div>
-
-      <div class="contact-box">
-        <p>U kunt ons bereiken via e-mail op:</p>
-        <a href="mailto:contact@binas.app" class="contact-email">contact@binas.app</a>
-        <p style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
-            We proberen binnen 24 uur te reageren.
-        </p>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <div class="copyright" id="footer-copyright"></div>
-      <div class="footer-links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms-of-service">Voorwaarden</a>
-        <a href="/legal">Legal</a>
-        <a href="/contact">Contact</a>
-      </div>
-    </div>
-  </footer>
-  <script type="module">
-    import BINAS_CONFIG from './config.js';
-    const copyrightEl = document.getElementById('footer-copyright');
-    if (copyrightEl && BINAS_CONFIG?.copyright) {
-      copyrightEl.textContent = BINAS_CONFIG.copyright;
-    } else if (copyrightEl) {
-      copyrightEl.textContent = '© 2025 Binas.app';
-    }
-  </script>
+  <header><div class="header-inner"><a href="/home" class="logo"><span class="logo-mark">F</span>FitFlow SaaS</a><nav class="nav-links"><a href="/home">Home</a><a href="/over">About</a><a href="/hoe-werkt-het">How it works</a><a href="/binas-plus">Premium</a><a href="/contact" class="active">Contact</a></nav><a href="/" class="btn-primary">Open app</a></div></header>
+  <main class="section"><div class="container content-grid"><div class="content-card"><h1 class="page-title" style="font-size:42px;">Contact</h1><p class="lead">Questions about premium, accounts, or the admin-managed SaaS setup? Reach out and we will help.</p><div class="content-section"><h2>Email support</h2><p><a class="contact-email" href="mailto:contact@fitflow.app">contact@fitflow.app</a></p><p>We typically reply within one business day.</p></div></div><div class="contact-card"><h3>What to include</h3><p>When relevant, share the email used for your account, whether you purchased premium anonymously, and any error messages shown during checkout or sign-in.</p></div></div></main>
+  <footer><div class="footer-inner"><div class="copyright" id="footer-copyright"></div><div class="footer-links"><a href="/privacy">Privacy</a><a href="/terms-of-service">Terms</a><a href="/legal">Legal</a><a href="/contact">Contact</a></div></div></footer>
+  <script type="module">import SAAS_CONFIG from './config.js'; document.getElementById('footer-copyright').textContent = SAAS_CONFIG.copyright || '© 2026 FitFlow SaaS';</script>
 </body>
 </html>
