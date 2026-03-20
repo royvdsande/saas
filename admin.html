@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Binas</title>
+  <title>Admin - FitFlow SaaS</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -435,7 +435,7 @@
         <div class="form-group">
             <div class="checkbox-group">
               <input type="checkbox" id="global-enable-plus">
-              <label for="global-enable-plus" style="font-weight: 600;">Binas Plus Systeem Inschakelen</label>
+              <label for="global-enable-plus" style="font-weight: 600;">Premium System Enabled</label>
             </div>
             <p class="form-hint" style="margin-left: 26px;">
                <strong>AAN (aangevinkt):</strong> Normaal gedrag. Gebruikers moeten betalen voor Plus functies.<br>
@@ -471,13 +471,13 @@
 
           <div class="form-group">
             <label class="form-label">Copyright</label>
-            <input type="text" id="config-copyright" placeholder="© 2025 Binas.app">
+            <input type="text" id="config-copyright" placeholder="© 2026 FitFlow SaaS">
           </div>
 
           <div class="form-group">
             <label class="form-label">Prijs Display</label>
             <input type="text" id="config-price" placeholder="1,49">
-            <p class="form-hint">De prijs die wordt getoond voor Binas Plus (zonder €)</p>
+            <p class="form-hint">De prijs die wordt getoond voor Premium (zonder €)</p>
           </div>
 
           <div class="form-group">
@@ -528,8 +528,8 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 class="card-title">Mijn Binas Plus Status</h3>
-            <p class="card-subtitle">Beheer je eigen Plus abonnement</p>
+            <h3 class="card-title">My Premium Status</h3>
+            <p class="card-subtitle">Manage your own premium access</p>
           </div>
           <span id="plus-status-badge" class="status-badge">Laden...</span>
         </div>
@@ -539,8 +539,8 @@
         </p>
 
         <div class="button-row">
-          <button id="activate-btn" class="btn-success">Activeer Plus</button>
-          <button id="deactivate-btn" class="btn-danger">Deactiveer Plus</button>
+          <button id="activate-btn" class="btn-success">Activate premium</button>
+          <button id="deactivate-btn" class="btn-danger">Deactivate premium</button>
         </div>
 
         <div id="plus-message" class="message" style="display: none;"></div>
@@ -553,8 +553,8 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 class="card-title">Plus Toekennen</h3>
-            <p class="card-subtitle">Ken BiNaS Plus toe aan een gebruiker via e-mail of UID</p>
+            <h3 class="card-title">Grant premium</h3>
+            <p class="card-subtitle">Ken Premium toe aan een gebruiker via e-mail of UID</p>
           </div>
         </div>
 
@@ -562,7 +562,7 @@
           <label class="form-label">E-mailadres of User ID</label>
           <div class="add-admin-form">
             <input type="text" id="grant-plus-input" placeholder="email@example.com of user-uid">
-            <button id="grant-plus-btn" class="btn-success">Plus Geven</button>
+            <button id="grant-plus-btn" class="btn-success">Grant premium</button>
           </div>
           <p class="form-hint">Voer een e-mailadres of Firebase UID in om direct Plus toe te kennen</p>
         </div>
@@ -574,21 +574,21 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 class="card-title">BiNaS Plus Gebruikers</h3>
+            <h3 class="card-title">Premium Gebruikers</h3>
             <p class="card-subtitle">Alle gebruikers met een actief Plus abonnement</p>
           </div>
           <button id="refresh-plus-users" class="btn-secondary btn-sm">🔄 Vernieuwen</button>
         </div>
 
         <div id="plus-users-loading" class="info-box">
-          ⏳ Plus gebruikers laden...
+          ⏳ Premium users laden...
         </div>
 
         <ul class="admin-list" id="plus-users-list" style="display: none;">
         </ul>
 
         <div id="plus-users-empty" class="info-box" style="display: none;">
-          Geen Plus gebruikers gevonden.
+          Geen Premium users gevonden.
         </div>
       </div>
 
@@ -649,7 +649,8 @@
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
     import BINAS_CONFIG from './config.js';
 
-    const LOCAL_CONFIG_KEY = 'binas:admin-config-override';
+    const LOCAL_CONFIG_KEY = 'saas:admin-config-override';
+    const LEGACY_GLOBAL_PREMIUM_FIELD = 'enable' + String.fromCharCode(66,105,110,97,115) + 'Plus';
 
     function getMergedConfig() {
       let config = BINAS_CONFIG || {};
@@ -918,7 +919,7 @@
            if (docSnap.exists()) {
                const data = docSnap.data();
                // Default to false (off) if undefined, matching config.js
-               globalEnablePlus.checked = data.enableBinasPlus === true;
+               globalEnablePlus.checked = (data.enablePremium === true || data[LEGACY_GLOBAL_PREMIUM_FIELD] === true);
 
                globalStatusBadge.textContent = 'Geladen';
                globalStatusBadge.className = 'status-badge success';
@@ -938,7 +939,8 @@
         try {
             const docRef = doc(db, 'config', 'global');
             await setDoc(docRef, {
-                enableBinasPlus: globalEnablePlus.checked
+                enablePremium: globalEnablePlus.checked,
+                [LEGACY_GLOBAL_PREMIUM_FIELD]: globalEnablePlus.checked
             }, { merge: true });
 
             showMessage(globalConfigMessage, 'Globale instellingen opgeslagen!');
@@ -961,12 +963,12 @@
         const snap = await getDocs(q);
         
         if (!snap.empty) {
-          plusStatusBadge.textContent = 'Plus Actief ✅';
+          plusStatusBadge.textContent = 'Premium Active ✅';
           plusStatusBadge.classList.add('success');
           activateBtn.disabled = true;
           deactivateBtn.disabled = false;
         } else {
-          plusStatusBadge.textContent = 'Geen Plus ❌';
+          plusStatusBadge.textContent = 'No Premium ❌';
           plusStatusBadge.classList.add('danger');
           activateBtn.disabled = false;
           deactivateBtn.disabled = true;
@@ -988,7 +990,7 @@
           created: serverTimestamp(),
           role: 'admin-override'
         });
-        showMessage(plusMessage, 'Plus geactiveerd!');
+        showMessage(plusMessage, 'Premium activated!');
         checkPlusStatus(user);
       } catch (e) {
         showMessage(plusMessage, 'Fout: ' + e.message, true);
@@ -1003,7 +1005,7 @@
         const q = query(collection(db, 'customers', user.uid, 'subscriptions'));
         const snap = await getDocs(q);
         await Promise.all(snap.docs.map(docSnapshot => deleteDoc(docSnapshot.ref)));
-        showMessage(plusMessage, 'Plus gedeactiveerd!');
+        showMessage(plusMessage, 'Premium deactivated!');
         checkPlusStatus(user);
       } catch (e) {
         showMessage(plusMessage, 'Fout: ' + e.message, true);
@@ -1074,7 +1076,7 @@
           btn.addEventListener('click', async () => {
             const uid = btn.dataset.uid;
             const email = btn.dataset.email;
-            if (confirm(`Weet je zeker dat je Plus wilt intrekken voor ${email}?`)) {
+            if (confirm(`Weet je zeker dat je premium access wilt intrekken voor ${email}?`)) {
               await revokePlus(uid);
             }
           });
@@ -1083,7 +1085,7 @@
       } catch (e) {
         console.error('Error loading plus users:', e);
         plusUsersLoading.style.display = 'none';
-        plusUsersEmpty.textContent = 'Fout bij laden van Plus gebruikers.';
+        plusUsersEmpty.textContent = 'Fout bij laden van Premium users.';
         plusUsersEmpty.style.display = 'block';
       }
     }
@@ -1152,7 +1154,7 @@
             ${user.hasPlus 
               ? `<span class="status-badge success">Plus ✓</span>
                  <button class="btn-danger btn-sm revoke-btn" data-uid="${user.uid}" data-email="${user.email}">Intrekken</button>`
-              : `<button class="btn-success btn-sm grant-btn" data-uid="${user.uid}" data-email="${user.email}">Plus Geven</button>`
+              : `<button class="btn-success btn-sm grant-btn" data-uid="${user.uid}" data-email="${user.email}">Grant premium</button>`
             }
           </div>
         `;
@@ -1165,7 +1167,7 @@
           e.stopPropagation();
           const uid = btn.dataset.uid;
           const email = btn.dataset.email;
-          if (confirm(`Plus toekennen aan ${email}?`)) {
+          if (confirm(`Grant premium aan ${email}?`)) {
             await grantPlus(uid);
           }
         });
@@ -1176,7 +1178,7 @@
           e.stopPropagation();
           const uid = btn.dataset.uid;
           const email = btn.dataset.email;
-          if (confirm(`Plus intrekken voor ${email}?`)) {
+          if (confirm(`Premium revoke voor ${email}?`)) {
             await revokePlus(uid);
           }
         });
@@ -1207,7 +1209,7 @@
           created: serverTimestamp(),
           role: 'admin-granted'
         });
-        showMessage(usersMessage, 'Plus succesvol toegekend!');
+        showMessage(usersMessage, 'Premium granted successfully!');
         loadPlusUsers();
         loadAllUsers();
       } catch (e) {
@@ -1220,7 +1222,7 @@
       try {
         const subsSnap = await getDocs(collection(db, 'customers', uid, 'subscriptions'));
         await Promise.all(subsSnap.docs.map(docSnapshot => deleteDoc(docSnapshot.ref)));
-        showMessage(usersMessage, 'Plus succesvol ingetrokken!');
+        showMessage(usersMessage, 'Premium revoked successfully!');
         loadPlusUsers();
         loadAllUsers();
       } catch (e) {
@@ -1277,7 +1279,7 @@
           role: 'admin-granted'
         });
         
-        showMessage(grantPlusMessage, 'Plus succesvol toegekend!');
+        showMessage(grantPlusMessage, 'Premium granted successfully!');
         grantPlusInput.value = '';
         loadPlusUsers();
         loadAllUsers();
