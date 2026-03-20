@@ -1,70 +1,16 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Over Digitale Binas</title>
+  <title>About — FitFlow SaaS</title>
   <link rel="stylesheet" href="marketing.css" />
   <link rel="icon" type="image/png" href="favicon.png" />
 </head>
 <body>
-  <header>
-    <div class="header-inner">
-      <a href="/home" class="logo">Digitale <span>Binas</span></a>
-      <nav class="nav-links">
-        <a href="/home">Home</a>
-        <a href="/over" class="active">Over</a>
-        <a href="/hoe-werkt-het">Hoe werkt het</a>
-        <a href="/binas-plus">Plus</a>
-        <a href="/contact">Contact</a>
-      </nav>
-      <a href="/" class="btn-primary">Open App</a>
-    </div>
-  </header>
-
-  <main>
-    <div class="container">
-      <h1 class="page-title">Over Digitale Binas</h1>
-
-      <div class="content-section">
-        <p>
-          Digitale Binas is ontstaan uit de behoefte om het gebruik van het bekende informatieboek voor de exacte vakken efficiënter te maken. In plaats van fysiek bladeren of zoeken in een trage PDF, biedt deze tool een razendsnelle zoekfunctie en directe navigatie.
-        </p>
-        <p>
-          Onze missie is om scholieren en studenten te helpen sneller en effectiever te werken tijdens hun studie van natuurkunde, scheikunde en biologie.
-        </p>
-      </div>
-
-      <div class="content-section">
-        <h2>Waarom Digitale Binas?</h2>
-        <ul>
-            <li><strong>Snelheid:</strong> Vind elke tabel binnen milliseconden.</li>
-            <li><strong>Gemak:</strong> Altijd en overal toegang op je laptop, tablet of telefoon.</li>
-            <li><strong>Innovatie:</strong> Met Binas Plus brengen we AI-hulp naar je studiemateriaal.</li>
-        </ul>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <div class="copyright" id="footer-copyright"></div>
-      <div class="footer-links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms-of-service">Voorwaarden</a>
-        <a href="/legal">Legal</a>
-        <a href="/contact">Contact</a>
-      </div>
-    </div>
-  </footer>
-  <script type="module">
-    import BINAS_CONFIG from './config.js';
-    const copyrightEl = document.getElementById('footer-copyright');
-    if (copyrightEl && BINAS_CONFIG?.copyright) {
-      copyrightEl.textContent = BINAS_CONFIG.copyright;
-    } else if (copyrightEl) {
-      copyrightEl.textContent = '© 2025 Binas.app';
-    }
-  </script>
+  <header><div class="header-inner"><a href="/home" class="logo"><span class="logo-mark">F</span>FitFlow SaaS</a><nav class="nav-links"><a href="/home">Home</a><a href="/over" class="active">About</a><a href="/hoe-werkt-het">How it works</a><a href="/binas-plus">Premium</a><a href="/contact">Contact</a></nav><a href="/" class="btn-primary">Open app</a></div></header>
+  <main class="section"><div class="container content-grid"><div class="content-card"><h1 class="page-title" style="font-size:42px;">About FitFlow SaaS</h1><p class="lead">FitFlow SaaS is the redesigned frontend layer for this product. It replaces the legacy viewer experience with a cleaner SaaS interface while keeping the existing operational backend intact.</p><div class="content-section"><h2>Why this migration?</h2><p>The product already had working Firebase authentication, Firestore data structures, Stripe payments, and account/admin tooling. The migration focuses on modernizing the user experience instead of rebuilding critical infrastructure.</p></div><div class="content-section"><h2>What stayed the same?</h2><ul><li>The same Firebase project and auth domain.</li><li>The same Firestore customer, subscription, and user documents.</li><li>The same Stripe price and checkout-session workflow.</li><li>The same admin panel and security rules.</li></ul></div></div><div class="page-card"><h3>Migration principles</h3><p>Keep stable backend logic, simplify the surface area, and present account, premium, and billing flows in a UI that looks like a modern SaaS product.</p></div></div></main>
+  <footer><div class="footer-inner"><div class="copyright" id="footer-copyright"></div><div class="footer-links"><a href="/privacy">Privacy</a><a href="/terms-of-service">Terms</a><a href="/legal">Legal</a><a href="/contact">Contact</a></div></div></footer>
+  <script type="module">import SAAS_CONFIG from './config.js'; document.getElementById('footer-copyright').textContent = SAAS_CONFIG.copyright || '© 2026 FitFlow SaaS';</script>
 </body>
 </html>
