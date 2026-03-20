@@ -2,397 +2,177 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-  <title>Digitale Binas 7e editie – snelle tabelzoeker</title>
-  <meta
-    name="description"
-    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
-  />
-  <link rel="canonical" href="https://www.binas.app" />
-  <meta property="og:title" content="Digitale Binas 7e editie – snelle tabelzoeker" />
-  <meta
-    property="og:description"
-    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
-  />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.binas.app" />
-  <meta property="og:image" content="https://www.binas.app/favicon.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Digitale Binas 7e editie – snelle tabelzoeker" />
-  <meta
-    name="twitter:description"
-    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
-  />
-  <meta name="twitter:image" content="https://www.binas.app/favicon.png" />
-  <script
-    async
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4589261139322889"
-    crossorigin="anonymous"
-  ></script>
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Digitale Binas",
-      "url": "https://www.binas.app",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://www.binas.app/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-  </script>
-  <!-- Google tag (gtag.js) -->
-  <script
-    async
-    src="https://www.googletagmanager.com/gtag/js?id=G-7WTWRM9WYZ"
-  ></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      dataLayer.push(arguments);
-    }
-    gtag("js", new Date());
-
-    gtag("config", "G-7WTWRM9WYZ");
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SaaS App Dashboard</title>
+  <meta name="description" content="A clean SaaS dashboard starter with authentication, premium billing, and admin tooling." />
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="layout">
-    <aside class="icon-sidebar" aria-label="Extra menu">
-      <div class="icon-sidebar-top">
-          <button class="icon-sidebar-btn active" id="btn-menu-toc" title="Inhoudsopgave">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
-          <button class="icon-sidebar-btn" id="btn-menu-favorites" title="Favorieten">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-          </button>
-          <button class="icon-sidebar-btn" id="btn-menu-chat" title="AI Chat">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-          </button>
+  <div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-brand">
+        <a href="/home" class="brand-mark">SaaS <span>App</span></a>
+        <p class="brand-copy">Simple starter for dashboards and internal tools.</p>
       </div>
-      <div class="icon-sidebar-spacer"></div>
-      <div class="icon-sidebar-bottom">
-          <button id="plus-indicator" class="plus-indicator" type="button" title="Binas Plus actief" aria-label="Binas Plus actief" hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </button>
-          <button class="plus-promo-btn" id="btn-menu-purchase" title="Upgrade naar Binas Plus" hidden>
-            <span class="plus-promo-label">Plus</span>
-            <span class="plus-promo-features">
-              <span class="plus-promo-text" id="plus-promo-text">Geen advertenties</span>
-            </span>
-          </button>
-          <div class="icon-sidebar-divider"></div>
-          <button class="icon-sidebar-btn account-btn" id="btn-menu-account" title="Account">
-            <div class="account-circle"></div>
-          </button>
-          <button class="icon-sidebar-btn" id="btn-menu-settings" title="Instellingen">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-          </button>
+
+      <nav class="sidebar-nav" aria-label="Dashboard navigation">
+        <button class="sidebar-link active" data-section="overview">Overview</button>
+        <button class="sidebar-link" data-section="analytics">Analytics</button>
+        <button class="sidebar-link" data-section="automation">Automation</button>
+        <button class="sidebar-link" data-section="customers">Customers</button>
+        <button class="sidebar-link" data-section="settings">Settings</button>
+      </nav>
+
+      <div class="sidebar-card premium-card">
+        <p class="eyebrow">Premium</p>
+        <h2 id="premium-status-title">Premium feature locked</h2>
+        <p id="premium-status-copy">Upgrade to unlock billing-backed premium access.</p>
+        <button id="open-billing-modal" class="button button-primary">View pricing</button>
+      </div>
+
+      <div class="sidebar-card account-card">
+        <p class="eyebrow">Account</p>
+        <div class="account-state">
+          <strong id="sidebar-account-name">Guest</strong>
+          <span id="sidebar-account-email">Not logged in</span>
+        </div>
+        <div class="account-actions">
+          <a href="/home" class="button button-secondary">Sign in</a>
+          <a href="/admin.html" id="sidebar-admin-link" class="button button-secondary" hidden>Admin panel</a>
+          <button id="sidebar-logout" class="button button-ghost" hidden>Log out</button>
+        </div>
       </div>
     </aside>
-    <aside class="sidebar" aria-label="Inhoud van Binas">
-      <div class="sidebar-top">
-        <div class="nav-header">
-          <div class="search-row">
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="7.5" />
-                <line x1="17" y1="17" x2="21" y2="21" />
-              </svg>
-              <input id="nav-search" type="search" placeholder="Zoek in tabellen" />
-            </div>
-            <button class="icon-button" id="nav-dialog-open" type="button" aria-label="Open grote weergave van de inhoud">
-              <span aria-hidden="true">⤢</span>
-            </button>
-          </div>
+
+    <main class="dashboard-main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Dashboard</p>
+          <h1 id="dashboard-title">Welcome to your SaaS workspace</h1>
         </div>
-      </div>
-        <div class="nav-area">
-          <div class="nav-scroll">
-            <ul class="nav-list" id="nav-list" aria-live="polite"></ul>
-            <div id="favorites-view" class="favorites-view" hidden>
-              <div class="favorites-header">
-                <h3 class="favorites-title">Favorieten</h3>
-                <button id="btn-add-folder" class="icon-button" title="Map aanmaken" style="width: 32px; height: 32px; border-radius: 8px;">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                    <line x1="12" y1="11" x2="12" y2="17"></line>
-                    <line x1="9" y1="14" x2="15" y2="14"></line>
-                  </svg>
-                </button>
-              </div>
-              <ul class="nav-list" id="favorites-list" aria-live="polite" style="padding: 0 12px;">
-                <li style="padding: 12px; color: var(--text-muted); text-align: center;">Nog geen favorieten.</li>
-              </ul>
+        <div class="topbar-actions">
+          <a href="/pricing" class="button button-secondary">Pricing</a>
+          <a href="/home" class="button button-primary">Landing page</a>
+        </div>
+      </header>
+
+      <section class="content-grid">
+        <article class="content-card section-panel active" id="section-overview">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h3>Main workspace</h3>
             </div>
-            <div id="chat-container" hidden style="height: 100%;">
-                <div class="chat-embed" id="voiceflow-chat"></div>
+            <span class="section-badge">Blank</span>
+          </div>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Drop your first widget or module here.</p>
+          </div>
+        </article>
+
+        <article class="content-card section-panel" id="section-analytics" hidden>
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Analytics</p>
+              <h3>Reports</h3>
             </div>
-            <div id="chat-placeholder" class="upsell-container" hidden>
-                <svg class="upsell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 20h9"></path>
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-                <h3 class="upsell-title">AI Assistent</h3>
-                <p class="upsell-text">Stel vragen over tabellen en formules. Ontgrendel de AI Assistent met Binas Plus.</p>
-                <button class="upsell-button" id="btn-buy-plus-chat">Ontgrendel voor <span class="config-price">€1,49</span></button>
+            <span class="section-badge">Blank</span>
+          </div>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Add reports here.</p>
+          </div>
+        </article>
+
+        <article class="content-card section-panel" id="section-automation" hidden>
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Automation</p>
+              <h3>Workflows</h3>
+            </div>
+            <span class="section-badge">Blank</span>
+          </div>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Add automations here.</p>
+          </div>
+        </article>
+
+        <article class="content-card section-panel" id="section-customers" hidden>
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Customers</p>
+              <h3>People</h3>
+            </div>
+            <span class="section-badge">Blank</span>
+          </div>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Add customer data here.</p>
+          </div>
+        </article>
+
+        <article class="content-card section-panel" id="section-settings" hidden>
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Settings</p>
+              <h3>System configuration</h3>
+            </div>
+            <span class="section-badge">Live</span>
+          </div>
+          <div class="settings-stack">
+            <div class="settings-row">
+              <span>Application version</span>
+              <strong id="settings-version-info"></strong>
+            </div>
+            <div class="settings-row">
+              <span>Premium billing</span>
+              <strong id="settings-premium-info">Unavailable</strong>
+            </div>
+            <div class="settings-row">
+              <span>Current account</span>
+              <strong id="settings-user-info">Guest</strong>
             </div>
           </div>
-        </div>
-    </aside>
-    <div class="viewer">
-      <div class="viewer-area">
-        <div class="viewer-frame-wrapper">
-          <iframe id="pdf-viewer-frame" title="Binas PDF" loading="lazy" allowfullscreen></iframe>
-        </div>
+        </article>
+
+        <aside class="status-column">
+          <article class="content-card status-card">
+            <p class="eyebrow">Premium</p>
+            <strong class="status-value" id="premium-status-pill">Checking…</strong>
+            <p class="status-copy" id="premium-status-detail">We verify access using the existing Stripe + Firebase flow.</p>
+            <button id="hero-upgrade-button" class="button button-primary button-block">Unlock premium</button>
+          </article>
+
+          <article class="content-card status-card">
+            <p class="eyebrow">Authentication</p>
+            <strong class="status-value" id="account-name">Guest</strong>
+            <p class="status-copy" id="account-email">Use the landing page to sign in.</p>
+            <div class="account-inline-actions">
+              <a href="/home" class="button button-secondary">Open sign-in</a>
+              <button id="dashboard-logout" class="button button-secondary" hidden>Log out</button>
+            </div>
+          </article>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="billing-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="billing-modal-title">
+      <button class="modal-close" id="billing-modal-close" aria-label="Close">×</button>
+      <p class="eyebrow">Pricing</p>
+      <h2 id="billing-modal-title">Premium feature access</h2>
+      <p class="modal-copy">Use the existing Stripe checkout backend here when customers unlock premium access.</p>
+      <div class="pricing-box">
+        <span class="pricing-was">Was <span class="config-original-price">€2,99</span></span>
+        <strong class="pricing-now">Now <span class="config-price">€1,49</span></strong>
+        <span class="pricing-discount"><span class="config-discount-badge">50% OFF</span></span>
       </div>
+      <div class="status-banner" id="billing-message">Sign in on the landing page to start checkout.</div>
+      <button id="start-checkout" class="button button-primary button-block">Start Stripe checkout</button>
     </div>
   </div>
 
-  <button class="sidebar-toggle-floating" id="sidebar-toggle-floating" type="button" aria-label="Zijbalk tonen of verbergen">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="20" height="20">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </button>
-
-  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
-  <div class="nav-dialog" id="nav-dialog" aria-hidden="true" role="dialog" aria-label="Grote weergave van de inhoud">
-    <div class="nav-dialog-content">
-      <div class="nav-dialog-header">
-          <div class="nav-dialog-title-group">
-            <div class="nav-dialog-title">Inhoud</div>
-          </div>
-        <button class="icon-button" id="nav-dialog-close" type="button" aria-label="Sluit de inhoudsweergave">×</button>
-      </div>
-      <div class="search-box nav-dialog-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="7.5" />
-          <line x1="17" y1="17" x2="21" y2="21" />
-        </svg>
-        <input id="nav-dialog-search" type="search" placeholder="Zoek in tabellen" />
-      </div>
-      <div class="nav-dialog-list-wrapper">
-        <ul class="nav-list" id="nav-dialog-list" aria-live="polite"></ul>
-      </div>
-    </div>
-  </div>
-  <div class="footer-note">Gemaakt door Roy van der Sande</div>
-
-  <!-- Settings Overlay -->
-  <div class="nav-dialog" id="settings-overlay" aria-hidden="true" role="dialog">
-    <div class="nav-dialog-content overlay-small">
-      <div class="nav-dialog-header">
-         <div class="nav-dialog-title">Instellingen</div>
-         <button class="icon-button" id="settings-close">×</button>
-      </div>
-      <div class="overlay-body">
-         <div class="overlay-section">
-            <!-- Admin button - only visible for admin user -->
-            <a href="/admin.html" class="primary-button" id="btn-admin-link" style="display: block; text-align: center; text-decoration: none; margin-bottom: 12px;" hidden>
-               Admin Dashboard
-            </a>
-            
-            <div style="padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border);">
-               <p id="settings-version-info" style="margin: 0; font-size: 13px; color: var(--text-muted);">
-                  <!-- Wordt gevuld door config -->
-               </p>
-            </div>
-         </div>
-         <div class="overlay-section" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-            <div id="settings-links-container" style="display: flex; flex-direction: column; gap: 8px;">
-               <a href="/home" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Home</a>
-               <a href="/contact" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Contact</a>
-               <a href="/privacy" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Privacy Policy</a>
-               <a href="/terms-of-service" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Algemene Voorwaarden</a>
-               <a href="/legal" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Legal Statement</a>
-            </div>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Account Overlay -->
-  <div class="nav-dialog" id="account-overlay" aria-hidden="true" role="dialog">
-    <div class="nav-dialog-content overlay-small">
-      <div class="nav-dialog-header">
-         <div class="nav-dialog-title">Account</div>
-         <button class="icon-button" id="account-close">×</button>
-      </div>
-      <div class="overlay-body">
-         <div class="auth-user-row">
-         <div class="auth-user-meta">
-            <div class="auth-label">Ingelogd als</div>
-            <div class="auth-name" id="overlay-auth-name" hidden></div>
-            <div class="auth-email" id="overlay-auth-email">Niet ingelogd</div>
-         </div>
-            <button class="secondary-button" id="overlay-logout" hidden>Uitloggen</button>
-         </div>
-<div class="overlay-section" id="overlay-login-section">
-            <label class="premium-label">Inloggen</label>
-<div style="display:flex; gap:8px; flex-direction:column; margin-bottom:12px;">
-                <button id="btn-login-google" class="secondary-button" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px;">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84.81-.58z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                  Google
-                </button>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom: 12px;">
-                <div style="flex:1; height:1px; background:var(--border);"></div>
-                <span style="font-size:10px; color:var(--text-muted); font-weight:600;">OF EMAIL</span>
-                <div style="flex:1; height:1px; background:var(--border);"></div>
-            </div>
-            <div class="premium-input-row">
-               <input id="overlay-login-input" type="email" placeholder="jij@example.com">
-               <button class="primary-button" id="overlay-login-btn">Link sturen</button>
-            </div>
-            <div id="overlay-login-msg" class="premium-status-message"></div>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Purchase Overlay - Binas Plus -->
-  <div class="nav-dialog" id="purchase-overlay" aria-hidden="true" role="dialog">
-    <div class="purchase-modal">
-      <!-- Header -->
-      <div class="purchase-modal-header">
-         <span class="purchase-modal-title">Binas Plus</span>
-         <button class="purchase-modal-close" id="purchase-close" aria-label="Sluiten">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-               <line x1="18" y1="6" x2="6" y2="18"></line>
-               <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-         </button>
-      </div>
-      
-      <!-- Body -->
-      <div class="purchase-modal-body">
-         <!-- Social Proof -->
-         <div class="purchase-social-proof">
-            <span class="purchase-stars">★★★★★</span>
-           <span class="purchase-users">Gebruikt door 3,5K+ scholieren en docenten.</span>
-         </div>
-         
-         <!-- Title & Subtitle -->
-         <h2 class="purchase-modal-heading">Studeer slimmer, niet harder</h2>
-         <p class="purchase-modal-subtitle">
-            Ontgrendel alle premium functies voor de prijs van een frikandelbroodje. <strong>Eenmalig, voor altijd.</strong>
-         </p>
-         
-         <!-- Features -->
-         <div class="purchase-features">
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>100% Focus</strong> – Leer zonder irritante advertenties</span>
-            </div>
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>AI Assistent</strong> – Stel een vraag, vind direct de juiste tabel</span>
-            </div>
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>Kopieer & Plak</strong> – Maak razendsnel samenvattingen</span>
-            </div>
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>Bewaar formules</strong> – Je belangrijkste tabellen bij de hand</span>
-            </div>
-         </div>
-         
-         <!-- Price Display -->
-         <div class="purchase-price-display">
-            <span class="purchase-price-badge config-discount-badge">50% KORTING</span>
-            <span class="purchase-price-was">van <span class="config-original-price">€2,99</span></span>
-            <span class="purchase-price-now">voor <strong class="config-price">€1,49</strong></span>
-         </div>
-         
-         <!-- Account Info (logged in) -->
-         <div class="purchase-account-box" id="purchase-logged-in-section" hidden>
-            <div class="purchase-account-avatar" id="purchase-avatar">
-               <!-- Filled by JS: profile photo or initial -->
-            </div>
-            <div class="purchase-account-info-text">
-               <span class="purchase-account-email" id="purchase-account-email"></span>
-               <span class="purchase-account-notice">Je aankoop wordt gekoppeld aan dit account</span>
-            </div>
-            <input id="purchase-email" type="hidden">
-         </div>
-         
-         <!-- Logged out section placeholder -->
-         <div id="purchase-logged-out-section"></div>
-         
-         <!-- CTA Button -->
-         <button class="purchase-cta-button" id="btn-start-checkout">
-            <span class="purchase-cta-main">Koop nu voor <span class="config-price">€1,49</span></span>
-            <span class="purchase-cta-sub">Eenmalige betaling • Voor altijd toegang</span>
-            <div class="purchase-loading-dots">
-               <span class="purchase-loading-dot"></span>
-               <span class="purchase-loading-dot"></span>
-               <span class="purchase-loading-dot"></span>
-            </div>
-         </button>
-         
-         <!-- Status message -->
-         <div id="purchase-msg" class="purchase-status-message"></div>
-         
-         <!-- Trust Badge -->
-         <div class="purchase-trust-badge">
-            <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
-               <circle cx="12" cy="12" r="10" fill="#10b981"/>
-               <path d="M8 12l3 3 5-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Veilige checkout via Stripe</span>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Context Menu -->
-  <div id="context-menu" class="context-menu" hidden>
-    <button id="ctx-favorite-btn" class="context-menu-item">Markeer als favoriet</button>
-  </div>
-
-  <script type="module" src="script.js"></script>
-  <script type="text/javascript">
-    (function (d, t) {
-      var v = d.createElement(t),
-        s = d.getElementsByTagName(t)[0];
-      v.onload = function () {
-        window.voiceflow.chat.load({
-          verify: { projectID: '695d726b746c58e164e40f1c' },
-          url: 'https://general-runtime.voiceflow.com',
-          versionID: 'production',
-          voice: {
-            url: 'https://runtime-api.voiceflow.com',
-          },
-          render: {
-            mode: 'embedded',
-            target: document.getElementById('voiceflow-chat'),
-          },
-        });
-      };
-      v.src = 'https://cdn.voiceflow.com/widget-next/bundle.mjs';
-      v.type = 'text/javascript';
-      s.parentNode.insertBefore(v, s);
-    })(document, 'script');
-  </script>
+  <div class="footer-note" id="footer-credit">Ready for customization</div>
+  <script type="module" src="./script.js"></script>
 </body>
 </html>

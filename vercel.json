@@ -1,10 +1,3 @@
 {
-  "cleanUrls": true,
-  "redirects": [
-    {
-      "source": "/ads.txt",
-      "destination": "https://srv.adstxtmanager.com/19390/www.binas.app",
-      "permanent": true
-    }
-  ]
+  "cleanUrls": true
 }
