@@ -2,397 +2,355 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-  <title>Digitale Binas 7e editie – snelle tabelzoeker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitFlow – auth, billing en dashboard</title>
   <meta
     name="description"
-    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
+    content="FitFlow combineert de bestaande Firebase auth-, Firestore- en Stripe-logica met de nieuwe SaaS-template UI."
   />
-  <link rel="canonical" href="https://www.binas.app" />
-  <meta property="og:title" content="Digitale Binas 7e editie – snelle tabelzoeker" />
-  <meta
-    property="og:description"
-    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
   />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.binas.app" />
-  <meta property="og:image" content="https://www.binas.app/favicon.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Digitale Binas 7e editie – snelle tabelzoeker" />
-  <meta
-    name="twitter:description"
-    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
-  />
-  <meta name="twitter:image" content="https://www.binas.app/favicon.png" />
-  <script
-    async
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4589261139322889"
-    crossorigin="anonymous"
-  ></script>
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Digitale Binas",
-      "url": "https://www.binas.app",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://www.binas.app/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-  </script>
-  <!-- Google tag (gtag.js) -->
-  <script
-    async
-    src="https://www.googletagmanager.com/gtag/js?id=G-7WTWRM9WYZ"
-  ></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      dataLayer.push(arguments);
-    }
-    gtag("js", new Date());
-
-    gtag("config", "G-7WTWRM9WYZ");
-  </script>
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="layout">
-    <aside class="icon-sidebar" aria-label="Extra menu">
-      <div class="icon-sidebar-top">
-          <button class="icon-sidebar-btn active" id="btn-menu-toc" title="Inhoudsopgave">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
-          <button class="icon-sidebar-btn" id="btn-menu-favorites" title="Favorieten">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-          </button>
-          <button class="icon-sidebar-btn" id="btn-menu-chat" title="AI Chat">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-          </button>
+  <div id="page-landing" class="page active">
+    <nav class="nav">
+      <button class="nav-logo button-reset" data-route="page-landing">
+        <div class="nav-logo-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg>
+        </div>
+        FitFlow
+      </button>
+      <div class="nav-links">
+        <span class="nav-link">Product <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        <button class="nav-link button-reset" data-route="page-pricing">Pricing</button>
+        <span class="nav-link">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="nav-link">Company <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
       </div>
-      <div class="icon-sidebar-spacer"></div>
-      <div class="icon-sidebar-bottom">
-          <button id="plus-indicator" class="plus-indicator" type="button" title="Binas Plus actief" aria-label="Binas Plus actief" hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </button>
-          <button class="plus-promo-btn" id="btn-menu-purchase" title="Upgrade naar Binas Plus" hidden>
-            <span class="plus-promo-label">Plus</span>
-            <span class="plus-promo-features">
-              <span class="plus-promo-text" id="plus-promo-text">Geen advertenties</span>
-            </span>
-          </button>
-          <div class="icon-sidebar-divider"></div>
-          <button class="icon-sidebar-btn account-btn" id="btn-menu-account" title="Account">
-            <div class="account-circle"></div>
-          </button>
-          <button class="icon-sidebar-btn" id="btn-menu-settings" title="Instellingen">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-          </button>
+      <div class="nav-actions">
+        <button class="nav-link button-reset nav-auth-logged-out" data-route="page-signin">Log in</button>
+        <button class="btn btn-primary nav-auth-logged-out" data-route="page-signup">Get started</button>
+        <button class="nav-link button-reset nav-auth-logged-in hidden" data-route="page-dashboard">Dashboard</button>
+        <button class="btn btn-outline nav-auth-logged-in hidden" id="nav-open-account">Account</button>
       </div>
-    </aside>
-    <aside class="sidebar" aria-label="Inhoud van Binas">
-      <div class="sidebar-top">
-        <div class="nav-header">
-          <div class="search-row">
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="7.5" />
-                <line x1="17" y1="17" x2="21" y2="21" />
-              </svg>
-              <input id="nav-search" type="search" placeholder="Zoek in tabellen" />
-            </div>
-            <button class="icon-button" id="nav-dialog-open" type="button" aria-label="Open grote weergave van de inhoud">
-              <span aria-hidden="true">⤢</span>
-            </button>
-          </div>
+      <button class="nav-burger" id="burger-landing" data-menu-target="menu-landing" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="mobile-menu" id="menu-landing">
+      <div class="mobile-menu-link" data-route="page-pricing">Pricing</div>
+      <div class="mobile-menu-link">Product</div>
+      <div class="mobile-menu-link">Resources</div>
+      <div class="mobile-menu-link">Company</div>
+      <div class="mobile-menu-actions">
+        <button class="btn btn-outline btn-full nav-auth-logged-out" data-route="page-signin">Log in</button>
+        <button class="btn btn-primary btn-full nav-auth-logged-out" data-route="page-signup">Get started</button>
+        <button class="btn btn-outline btn-full nav-auth-logged-in hidden" data-route="page-dashboard">Dashboard</button>
+        <button class="btn btn-primary btn-full nav-auth-logged-in hidden" id="mobile-open-account">Account</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-badge">
+        <div class="hero-avatars"><div class="hero-avatar">A</div><div class="hero-avatar">B</div><div class="hero-avatar">C</div><div class="hero-avatar">D</div><div class="hero-avatar">E</div></div>
+        <span class="star">★</span><span>trusted by 750+ developers</span>
+      </div>
+      <h1>Building your Next.js SaaS just got unfairly easy</h1>
+      <p>Gebruik exact dezelfde auth-, account- en Stripe-flow als je bestaande app, maar dan in de FitFlow UI waar je van houdt.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary btn-lg" data-route="page-signup">Get FitFlow →</button>
+        <button class="btn btn-outline btn-lg" data-route="page-pricing">See pricing ↗</button>
+      </div>
+    </section>
+
+    <div class="tech-strip">
+      <p>Crafted with the tools you love</p>
+      <div class="tech-logos">
+        <div class="tech-item"><div class="tech-icon">▲</div><span>Vercel</span></div>
+        <div class="tech-item"><div class="tech-icon">🔥</div><span>Firebase</span></div>
+        <div class="tech-item"><div class="tech-icon">◈</div><span>Firestore</span></div>
+        <div class="tech-item"><div class="tech-icon">💳</div><span>Stripe</span></div>
+        <div class="tech-item"><div class="tech-icon">TS</div><span>Magic Links</span></div>
+        <div class="tech-item"><div class="tech-icon">⚛</div><span>Google Auth</span></div>
+        <div class="tech-item"><div class="tech-icon">⛨</div><span>Account UI</span></div>
+        <div class="tech-item"><div class="tech-icon">△</div><span>Premium Sync</span></div>
+        <div class="tech-item"><div class="tech-icon">✦</div><span>Serverless</span></div>
+        <div class="tech-item"><div class="tech-icon">⟳</div><span>Realtime</span></div>
+      </div>
+    </div>
+
+    <section class="section">
+      <p class="section-label">Features</p>
+      <h2 class="section-title">Alles wat je nodig hebt om te shippen</h2>
+      <p class="section-sub">Auth, billing, account status en premium access zitten direct in de nieuwe FitFlow experience.</p>
+      <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">🔐</div><h3>Authentication</h3><p>Google login en email magic links op basis van je bestaande Firebase-flow.</p></div>
+        <div class="feature-card"><div class="feature-icon">🧾</div><h3>Checkout</h3><p>Stripe checkout blijft gekoppeld aan Firestore en je bestaande customer records.</p></div>
+        <div class="feature-card"><div class="feature-icon">👤</div><h3>Accounts</h3><p>Ingelogde status, profieldata, logout en account-overzicht in één dashboard-shell.</p></div>
+        <div class="feature-card"><div class="feature-icon">⚡</div><h3>Premium Sync</h3><p>Premium-status blijft werken via users, customers, payments en subscriptions.</p></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><h3>Dashboard</h3><p>De dashboard-UI uit FitFlow toont live account- en billingstatus in plaats van dummy content.</p></div>
+        <div class="feature-card"><div class="feature-icon">🧱</div><h3>Template-first</h3><p>De visuele FitFlow-stijl blijft leidend, terwijl de oude Binas-viewerlogica verdwijnt.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      <p>© 2026 FitFlow Inc. All rights reserved.</p>
+      <div class="footer-links"><a href="/privacy">Privacy</a><a href="/terms-of-service">Terms</a><a href="/contact">Documentation</a><a class="footer-route" data-route="page-pricing">Pricing</a></div>
+    </footer>
+  </div>
+
+  <div id="page-pricing" class="page">
+    <div class="pricing-page-body">
+      <nav class="nav" style="background:rgba(249,249,249,.94)">
+        <button class="nav-logo button-reset" data-route="page-landing">
+          <div class="nav-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow
+        </button>
+        <div class="nav-links">
+          <button class="nav-link button-reset" data-route="page-landing">← Home</button>
+          <span class="nav-link" style="color:var(--black);font-weight:500">Pricing</span>
+          <span class="nav-link">Resources</span><span class="nav-link">Company</span>
+        </div>
+        <div class="nav-actions">
+          <button class="nav-link button-reset nav-auth-logged-out" data-route="page-signin">Log in</button>
+          <button class="btn btn-primary nav-auth-logged-out" data-route="page-signup">Get started</button>
+          <button class="nav-link button-reset nav-auth-logged-in hidden" data-route="page-dashboard">Dashboard</button>
+          <button class="btn btn-outline nav-auth-logged-in hidden pricing-account-btn">Account</button>
+        </div>
+        <button class="nav-burger" id="burger-pricing" data-menu-target="menu-pricing" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+      <div class="mobile-menu" id="menu-pricing">
+        <div class="mobile-menu-link" data-route="page-landing">← Homepage</div>
+        <div class="mobile-menu-link" style="font-weight:600">Pricing</div>
+        <div class="mobile-menu-actions">
+          <button class="btn btn-outline btn-full nav-auth-logged-out" data-route="page-signin">Log in</button>
+          <button class="btn btn-primary btn-full nav-auth-logged-out" data-route="page-signup">Get started</button>
+          <button class="btn btn-outline btn-full nav-auth-logged-in hidden" data-route="page-dashboard">Dashboard</button>
+          <button class="btn btn-primary btn-full nav-auth-logged-in hidden pricing-account-btn">Account</button>
         </div>
       </div>
-        <div class="nav-area">
-          <div class="nav-scroll">
-            <ul class="nav-list" id="nav-list" aria-live="polite"></ul>
-            <div id="favorites-view" class="favorites-view" hidden>
-              <div class="favorites-header">
-                <h3 class="favorites-title">Favorieten</h3>
-                <button id="btn-add-folder" class="icon-button" title="Map aanmaken" style="width: 32px; height: 32px; border-radius: 8px;">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                    <line x1="12" y1="11" x2="12" y2="17"></line>
-                    <line x1="9" y1="14" x2="15" y2="14"></line>
-                  </svg>
-                </button>
-              </div>
-              <ul class="nav-list" id="favorites-list" aria-live="polite" style="padding: 0 12px;">
-                <li style="padding: 12px; color: var(--text-muted); text-align: center;">Nog geen favorieten.</li>
-              </ul>
+
+      <div class="pricing-hero">
+        <h1>Pricing</h1>
+        <p>Simple, transparante pricing die direct verbonden is met je bestaande Stripe checkout en premium-status.</p>
+        <div class="billing-toggle">
+          <button class="toggle-btn active" id="toggle-monthly">Monthly</button>
+          <button class="toggle-btn" id="toggle-yearly">Yearly <span class="toggle-badge">-20%</span></button>
+        </div>
+      </div>
+
+      <div class="pricing-cards-wrap">
+        <div class="p-card">
+          <div class="p-card-head"><h3>Free</h3></div>
+          <div class="p-price">€ 0,00 <span>/mo</span></div>
+          <p class="p-desc">Voor bezoekers die alleen de basis willen.</p>
+          <ul class="p-feats">
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Landing page toegang</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Account aanmaken</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Google of email login</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Basis account dashboard</li>
+          </ul>
+          <div class="p-card-cta"><button class="btn btn-outline btn-full" data-route="page-signup">Get Started Free</button></div>
+        </div>
+        <div class="p-card" style="border-color:var(--black)">
+          <div class="p-card-head"><h3>Pro</h3><span class="p-card-badge">Most popular</span></div>
+          <div class="p-price" id="pro-price">€ 1,49 <span>/eenmalig</span></div>
+          <p class="p-desc">De bestaande premium-flow, nu in de FitFlow UI.</p>
+          <ul class="p-feats">
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bestaande Stripe checkout</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Premium-status sync</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Firestore customer records</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Account-gekoppelde aankoop</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Anon checkout fallback</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Direct zichtbaar in dashboard</li>
+          </ul>
+          <div class="p-card-cta"><button class="btn btn-primary btn-full" id="pricing-checkout-btn">Start checkout</button></div>
+        </div>
+        <div class="p-card">
+          <div class="p-card-head"><h3>Account</h3></div>
+          <div class="p-price"><span id="pricing-account-plan">Free plan</span></div>
+          <p class="p-desc" id="pricing-account-copy">Log in om je account en premium-status te synchroniseren.</p>
+          <ul class="p-feats">
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Google provider</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email magic link</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Realtime account state</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Sign out & session control</li>
+          </ul>
+          <div class="p-card-cta"><button class="btn btn-outline btn-full" data-route="page-signin">Open account</button></div>
+        </div>
+      </div>
+
+      <div class="pricing-status-wrap">
+        <div id="pricing-status" class="auth-status" hidden></div>
+      </div>
+
+      <div class="faq-section">
+        <h2>Questions &amp; Answers</h2>
+        <div class="faq-list">
+          <div class="faq-item"><button class="faq-q">Do I need a credit card to start the free trial?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Voor de gratis account-flow niet. Voor premium gebruik je dezelfde Stripe checkout als in de bestaande app.</div></div>
+          <div class="faq-item"><button class="faq-q">Can my whole team use the same account?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Nog niet — deze migratie richt zich op auth, checkout, premium-status en accountbeheer.</div></div>
+          <div class="faq-item"><button class="faq-q">What payment methods do you accept?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Stripe verwerkt nog steeds de betaling, net als in de bestaande setup.</div></div>
+          <div class="faq-item"><button class="faq-q">Can I change plans later?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Deze migratie behoudt de bestaande premium-activatie en accountkoppeling. Extra planbeheer kan later worden toegevoegd.</div></div>
+        </div>
+      </div>
+      <footer style="background:var(--gray-50)">
+        <p>© 2026 FitFlow Inc.</p>
+        <div class="footer-links"><a href="/privacy">Privacy</a><a href="/terms-of-service">Terms</a><a class="footer-route" data-route="page-landing">← Homepage</a></div>
+      </footer>
+    </div>
+  </div>
+
+  <div id="page-signin" class="page">
+    <div class="auth-page">
+      <button class="auth-logo button-reset" data-route="page-landing">
+        <div class="auth-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow
+      </button>
+      <div class="auth-card">
+        <h2>Sign in to your account</h2>
+        <p class="auth-sub">Welcome back! Gebruik Google of ontvang een magic link per e-mail.</p>
+        <form id="signin-form">
+          <div class="field"><label>Email</label><div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="signin-email" type="email" placeholder="you@example.com" autocomplete="email"></div></div>
+          <div class="field">
+            <div class="field-row"><label>Password</label><span class="forgot" id="signin-mode-toggle">Magic link only</span></div>
+            <div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input type="password" placeholder="••••••••" autocomplete="current-password"><svg style="cursor:pointer" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          </div>
+          <button class="auth-submit" id="signin-submit" type="submit">Send magic link</button>
+        </form>
+        <div id="signin-status" class="auth-status" hidden></div>
+        <div class="divider">Or continue with</div>
+        <button class="social-btn" id="signin-google"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
+        <div class="auth-footer">Don't have an account? <a data-route="page-signup">Sign up</a></div>
+      </div>
+      <div class="auth-back">← <span data-route="page-landing">Back to homepage</span></div>
+    </div>
+  </div>
+
+  <div id="page-signup" class="page">
+    <div class="auth-page">
+      <button class="auth-logo button-reset" data-route="page-landing">
+        <div class="auth-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow
+      </button>
+      <div class="auth-card">
+        <h2>Create your account</h2>
+        <p class="auth-sub">We sturen een magic link en bewaren desgewenst je naam voor je eerste sessie.</p>
+        <form id="signup-form">
+          <div class="field"><label>Name</label><div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><input id="signup-name" type="text" autocomplete="name"></div></div>
+          <div class="field"><label>Email</label><div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input id="signup-email" type="email" autocomplete="email"></div></div>
+          <div class="field">
+            <label>Password</label>
+            <div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input type="password" autocomplete="new-password"><svg style="cursor:pointer" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="pw-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Magic-link onboarding gebruikt geen wachtwoordopslag.</div>
+          </div>
+          <button class="auth-submit" id="signup-submit" type="submit">Create account</button>
+        </form>
+        <div id="signup-status" class="auth-status" hidden></div>
+        <div class="divider">Or continue with</div>
+        <button class="social-btn" id="signup-google"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
+        <div class="auth-footer">Already have an account? <a data-route="page-signin">Sign in</a></div>
+      </div>
+      <div class="auth-back">← <span data-route="page-landing">Back to homepage</span></div>
+    </div>
+  </div>
+
+  <div id="page-dashboard" class="page">
+    <div class="sidebar-overlay" id="overlay-dash"></div>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar-dash">
+        <div class="sidebar-header"><div class="sidebar-workspace"><div class="workspace-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow Core<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;color:var(--gray-400)"><path d="m6 9 6 6 6-6"/></svg></div></div>
+        <div class="sidebar-section">
+          <p class="sidebar-section-label">Application</p>
+          <button class="sidebar-link active button-reset" data-dashboard-view="overview"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dashboard</button>
+          <button class="sidebar-link button-reset" data-dashboard-view="billing"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Billing</button>
+          <button class="sidebar-link button-reset" data-dashboard-view="members"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account</button>
+          <button class="sidebar-link button-reset" id="dashboard-sidebar-checkout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 17v4"/><path d="M8 17v4"/></svg>Upgrade</button>
+        </div>
+        <div class="sidebar-section">
+          <p class="sidebar-section-label">Settings</p>
+          <button class="sidebar-link button-reset" data-route="page-pricing"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Pricing</button>
+          <a class="sidebar-link" href="/contact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Support</a>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-user-wrap">
+          <div class="ctx-menu" id="dashboard-account-menu">
+            <div class="ctx-user-row"><div class="ctx-user-name" id="ctx-user-name">Gast gebruiker</div><div class="ctx-user-email" id="ctx-user-email">Niet ingelogd</div></div>
+            <div class="ctx-group">
+              <div class="ctx-item" id="ctx-open-billing"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Billing</span><span class="ctx-shortcut">⌘B</span></div>
+              <div class="ctx-item" id="ctx-open-pricing"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/></svg>Pricing</span><span class="ctx-shortcut">⌘P</span></div>
             </div>
-            <div id="chat-container" hidden style="height: 100%;">
-                <div class="chat-embed" id="voiceflow-chat"></div>
-            </div>
-            <div id="chat-placeholder" class="upsell-container" hidden>
-                <svg class="upsell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 20h9"></path>
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-                <h3 class="upsell-title">AI Assistent</h3>
-                <p class="upsell-text">Stel vragen over tabellen en formules. Ontgrendel de AI Assistent met Binas Plus.</p>
-                <button class="upsell-button" id="btn-buy-plus-chat">Ontgrendel voor <span class="config-price">€1,49</span></button>
+            <div class="ctx-group"><div class="ctx-item danger" id="dashboard-signout"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</span><span class="ctx-shortcut">⇧⌘S</span></div></div>
+          </div>
+          <div class="sidebar-user" id="dashboard-user-trigger"><div class="user-avatar" id="dashboard-user-avatar">R</div><div class="user-info"><div class="user-name" id="dashboard-user-name">Roy van der Sande</div><div class="user-email" id="dashboard-user-email">mail@royvds.nl</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray-400)"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+        </div>
+      </aside>
+
+      <div class="main-area">
+        <div class="topbar">
+          <button class="topbar-menu-btn" id="dashboard-open-sidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+          Dashboard
+        </div>
+        <div class="main-content">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap">
+            <h2 class="dash-title" id="dashboard-greeting" style="margin-bottom:0">Good afternoon 👋</h2>
+            <button class="btn btn-primary" id="dashboard-checkout-cta">Upgrade to Pro</button>
+          </div>
+          <div id="dashboard-status" class="auth-status" hidden></div>
+          <div class="stats-grid">
+            <div class="stat-card"><p class="stat-label">Plan</p><p class="stat-value" id="stat-plan">Free</p><p class="stat-change" id="stat-plan-copy">Premium niet actief</p></div>
+            <div class="stat-card"><p class="stat-label">Provider</p><p class="stat-value" id="stat-provider">Email</p><p class="stat-change up" id="stat-provider-copy">Magic link login</p></div>
+            <div class="stat-card"><p class="stat-label">Customer</p><p class="stat-value" id="stat-customer">—</p><p class="stat-change" id="stat-customer-copy">Nog niet gesynchroniseerd</p></div>
+            <div class="stat-card"><p class="stat-label">Firestore</p><p class="stat-value" id="stat-firestore">Ready</p><p class="stat-change" id="stat-firestore-copy">Verbonden met accountstatus</p></div>
+          </div>
+          <div class="data-card">
+            <div class="data-card-header"><h3>Account & billing activity</h3><button class="btn btn-outline" id="table-cta" style="font-size:13px;padding:6px 12px">Open pricing</button></div>
+            <table class="members-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th></tr></thead>
+              <tbody id="dashboard-table-body"></tbody>
+            </table>
+          </div>
+          <div style="margin-top:14px;text-align:right"><span style="font-size:13px;color:var(--gray-400);cursor:pointer" data-route="page-landing">← Back to homepage</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-shell hidden" id="account-modal-shell" aria-hidden="true">
+    <div class="modal-backdrop" id="account-modal-backdrop"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+      <div class="data-card-header modal-header"><h3 id="account-modal-title">Account</h3><button class="button-reset modal-close" id="account-modal-close">×</button></div>
+      <div class="modal-body">
+        <div class="modal-summary">
+          <div class="user-avatar modal-avatar" id="modal-avatar">A</div>
+          <div>
+            <div class="ctx-user-name" id="modal-user-name">Gast gebruiker</div>
+            <div class="ctx-user-email" id="modal-user-email">Niet ingelogd</div>
+          </div>
+        </div>
+        <div class="modal-grid">
+          <div class="modal-panel">
+            <p class="stat-label">Plan</p>
+            <p class="modal-plan" id="modal-plan">Free</p>
+            <p class="section-sub small" id="modal-plan-copy">Log in en start checkout om premium te activeren.</p>
+          </div>
+          <div class="modal-panel">
+            <p class="stat-label">Acties</p>
+            <div class="modal-actions">
+              <button class="btn btn-primary btn-full" id="modal-checkout-btn">Start checkout</button>
+              <button class="btn btn-outline btn-full" id="modal-dashboard-btn">Open dashboard</button>
+              <button class="btn btn-outline btn-full" id="modal-logout-btn">Sign out</button>
             </div>
           </div>
         </div>
-    </aside>
-    <div class="viewer">
-      <div class="viewer-area">
-        <div class="viewer-frame-wrapper">
-          <iframe id="pdf-viewer-frame" title="Binas PDF" loading="lazy" allowfullscreen></iframe>
-        </div>
+        <div id="modal-status" class="auth-status" hidden></div>
       </div>
     </div>
-  </div>
-
-  <button class="sidebar-toggle-floating" id="sidebar-toggle-floating" type="button" aria-label="Zijbalk tonen of verbergen">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="20" height="20">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </button>
-
-  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
-  <div class="nav-dialog" id="nav-dialog" aria-hidden="true" role="dialog" aria-label="Grote weergave van de inhoud">
-    <div class="nav-dialog-content">
-      <div class="nav-dialog-header">
-          <div class="nav-dialog-title-group">
-            <div class="nav-dialog-title">Inhoud</div>
-          </div>
-        <button class="icon-button" id="nav-dialog-close" type="button" aria-label="Sluit de inhoudsweergave">×</button>
-      </div>
-      <div class="search-box nav-dialog-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="7.5" />
-          <line x1="17" y1="17" x2="21" y2="21" />
-        </svg>
-        <input id="nav-dialog-search" type="search" placeholder="Zoek in tabellen" />
-      </div>
-      <div class="nav-dialog-list-wrapper">
-        <ul class="nav-list" id="nav-dialog-list" aria-live="polite"></ul>
-      </div>
-    </div>
-  </div>
-  <div class="footer-note">Gemaakt door Roy van der Sande</div>
-
-  <!-- Settings Overlay -->
-  <div class="nav-dialog" id="settings-overlay" aria-hidden="true" role="dialog">
-    <div class="nav-dialog-content overlay-small">
-      <div class="nav-dialog-header">
-         <div class="nav-dialog-title">Instellingen</div>
-         <button class="icon-button" id="settings-close">×</button>
-      </div>
-      <div class="overlay-body">
-         <div class="overlay-section">
-            <!-- Admin button - only visible for admin user -->
-            <a href="/admin.html" class="primary-button" id="btn-admin-link" style="display: block; text-align: center; text-decoration: none; margin-bottom: 12px;" hidden>
-               Admin Dashboard
-            </a>
-            
-            <div style="padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border);">
-               <p id="settings-version-info" style="margin: 0; font-size: 13px; color: var(--text-muted);">
-                  <!-- Wordt gevuld door config -->
-               </p>
-            </div>
-         </div>
-         <div class="overlay-section" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-            <div id="settings-links-container" style="display: flex; flex-direction: column; gap: 8px;">
-               <a href="/home" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Home</a>
-               <a href="/contact" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Contact</a>
-               <a href="/privacy" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Privacy Policy</a>
-               <a href="/terms-of-service" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Algemene Voorwaarden</a>
-               <a href="/legal" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Legal Statement</a>
-            </div>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Account Overlay -->
-  <div class="nav-dialog" id="account-overlay" aria-hidden="true" role="dialog">
-    <div class="nav-dialog-content overlay-small">
-      <div class="nav-dialog-header">
-         <div class="nav-dialog-title">Account</div>
-         <button class="icon-button" id="account-close">×</button>
-      </div>
-      <div class="overlay-body">
-         <div class="auth-user-row">
-         <div class="auth-user-meta">
-            <div class="auth-label">Ingelogd als</div>
-            <div class="auth-name" id="overlay-auth-name" hidden></div>
-            <div class="auth-email" id="overlay-auth-email">Niet ingelogd</div>
-         </div>
-            <button class="secondary-button" id="overlay-logout" hidden>Uitloggen</button>
-         </div>
-<div class="overlay-section" id="overlay-login-section">
-            <label class="premium-label">Inloggen</label>
-<div style="display:flex; gap:8px; flex-direction:column; margin-bottom:12px;">
-                <button id="btn-login-google" class="secondary-button" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px;">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84.81-.58z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                  Google
-                </button>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom: 12px;">
-                <div style="flex:1; height:1px; background:var(--border);"></div>
-                <span style="font-size:10px; color:var(--text-muted); font-weight:600;">OF EMAIL</span>
-                <div style="flex:1; height:1px; background:var(--border);"></div>
-            </div>
-            <div class="premium-input-row">
-               <input id="overlay-login-input" type="email" placeholder="jij@example.com">
-               <button class="primary-button" id="overlay-login-btn">Link sturen</button>
-            </div>
-            <div id="overlay-login-msg" class="premium-status-message"></div>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Purchase Overlay - Binas Plus -->
-  <div class="nav-dialog" id="purchase-overlay" aria-hidden="true" role="dialog">
-    <div class="purchase-modal">
-      <!-- Header -->
-      <div class="purchase-modal-header">
-         <span class="purchase-modal-title">Binas Plus</span>
-         <button class="purchase-modal-close" id="purchase-close" aria-label="Sluiten">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-               <line x1="18" y1="6" x2="6" y2="18"></line>
-               <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-         </button>
-      </div>
-      
-      <!-- Body -->
-      <div class="purchase-modal-body">
-         <!-- Social Proof -->
-         <div class="purchase-social-proof">
-            <span class="purchase-stars">★★★★★</span>
-           <span class="purchase-users">Gebruikt door 3,5K+ scholieren en docenten.</span>
-         </div>
-         
-         <!-- Title & Subtitle -->
-         <h2 class="purchase-modal-heading">Studeer slimmer, niet harder</h2>
-         <p class="purchase-modal-subtitle">
-            Ontgrendel alle premium functies voor de prijs van een frikandelbroodje. <strong>Eenmalig, voor altijd.</strong>
-         </p>
-         
-         <!-- Features -->
-         <div class="purchase-features">
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>100% Focus</strong> – Leer zonder irritante advertenties</span>
-            </div>
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>AI Assistent</strong> – Stel een vraag, vind direct de juiste tabel</span>
-            </div>
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>Kopieer & Plak</strong> – Maak razendsnel samenvattingen</span>
-            </div>
-            <div class="purchase-feature">
-               <span class="purchase-feature-icon">✓</span>
-               <span class="purchase-feature-text"><strong>Bewaar formules</strong> – Je belangrijkste tabellen bij de hand</span>
-            </div>
-         </div>
-         
-         <!-- Price Display -->
-         <div class="purchase-price-display">
-            <span class="purchase-price-badge config-discount-badge">50% KORTING</span>
-            <span class="purchase-price-was">van <span class="config-original-price">€2,99</span></span>
-            <span class="purchase-price-now">voor <strong class="config-price">€1,49</strong></span>
-         </div>
-         
-         <!-- Account Info (logged in) -->
-         <div class="purchase-account-box" id="purchase-logged-in-section" hidden>
-            <div class="purchase-account-avatar" id="purchase-avatar">
-               <!-- Filled by JS: profile photo or initial -->
-            </div>
-            <div class="purchase-account-info-text">
-               <span class="purchase-account-email" id="purchase-account-email"></span>
-               <span class="purchase-account-notice">Je aankoop wordt gekoppeld aan dit account</span>
-            </div>
-            <input id="purchase-email" type="hidden">
-         </div>
-         
-         <!-- Logged out section placeholder -->
-         <div id="purchase-logged-out-section"></div>
-         
-         <!-- CTA Button -->
-         <button class="purchase-cta-button" id="btn-start-checkout">
-            <span class="purchase-cta-main">Koop nu voor <span class="config-price">€1,49</span></span>
-            <span class="purchase-cta-sub">Eenmalige betaling • Voor altijd toegang</span>
-            <div class="purchase-loading-dots">
-               <span class="purchase-loading-dot"></span>
-               <span class="purchase-loading-dot"></span>
-               <span class="purchase-loading-dot"></span>
-            </div>
-         </button>
-         
-         <!-- Status message -->
-         <div id="purchase-msg" class="purchase-status-message"></div>
-         
-         <!-- Trust Badge -->
-         <div class="purchase-trust-badge">
-            <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
-               <circle cx="12" cy="12" r="10" fill="#10b981"/>
-               <path d="M8 12l3 3 5-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Veilige checkout via Stripe</span>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Context Menu -->
-  <div id="context-menu" class="context-menu" hidden>
-    <button id="ctx-favorite-btn" class="context-menu-item">Markeer als favoriet</button>
   </div>
 
   <script type="module" src="script.js"></script>
-  <script type="text/javascript">
-    (function (d, t) {
-      var v = d.createElement(t),
-        s = d.getElementsByTagName(t)[0];
-      v.onload = function () {
-        window.voiceflow.chat.load({
-          verify: { projectID: '695d726b746c58e164e40f1c' },
-          url: 'https://general-runtime.voiceflow.com',
-          versionID: 'production',
-          voice: {
-            url: 'https://runtime-api.voiceflow.com',
-          },
-          render: {
-            mode: 'embedded',
-            target: document.getElementById('voiceflow-chat'),
-          },
-        });
-      };
-      v.src = 'https://cdn.voiceflow.com/widget-next/bundle.mjs';
-      v.type = 'text/javascript';
-      s.parentNode.insertBefore(v, s);
-    })(document, 'script');
-  </script>
 </body>
 </html>
