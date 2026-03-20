@@ -1,709 +1,398 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FitFlow – Build your SaaS faster</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --black: #0a0a0a; --white: #ffffff;
-    --gray-50: #f9f9f9; --gray-100: #f2f2f2; --gray-200: #e5e5e5;
-    --gray-300: #d4d4d4; --gray-400: #a3a3a3; --gray-500: #737373;
-    --gray-600: #525252; --gray-700: #404040;
-    --radius: 10px; --radius-sm: 6px; --radius-lg: 14px; --radius-full: 9999px;
-    --nav-h: 56px;
-  }
-  html { font-family: 'Geist', -apple-system, sans-serif; }
-  body { background: var(--white); color: var(--black); -webkit-font-smoothing: antialiased; }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <title>Digitale Binas 7e editie – snelle tabelzoeker</title>
+  <meta
+    name="description"
+    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
+  />
+  <link rel="canonical" href="https://www.binas.app" />
+  <meta property="og:title" content="Digitale Binas 7e editie – snelle tabelzoeker" />
+  <meta
+    property="og:description"
+    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.binas.app" />
+  <meta property="og:image" content="https://www.binas.app/favicon.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Digitale Binas 7e editie – snelle tabelzoeker" />
+  <meta
+    name="twitter:description"
+    content="Digitale Binas 7e editie – zoek razendsnel in alle tabellen en spring direct naar de juiste pagina in de PDF-viewer op www.binas.app."
+  />
+  <meta name="twitter:image" content="https://www.binas.app/favicon.png" />
+  <script
+    async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4589261139322889"
+    crossorigin="anonymous"
+  ></script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Digitale Binas",
+      "url": "https://www.binas.app",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.binas.app/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-7WTWRM9WYZ"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
 
-  /* SHARED */
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 9px 18px; border-radius: var(--radius-full);
-    font-size: 14px; font-weight: 500; cursor: pointer;
-    transition: all .15s; text-decoration: none; border: none; font-family: inherit;
-    white-space: nowrap; -webkit-tap-highlight-color: transparent;
-  }
-  .btn-primary { background: var(--black); color: var(--white); }
-  .btn-primary:hover { background: var(--gray-700); }
-  .btn-outline { background: var(--white); color: var(--black); border: 1.5px solid var(--gray-200); }
-  .btn-outline:hover { border-color: var(--gray-400); background: var(--gray-50); }
-  .btn-lg { padding: 12px 22px; font-size: 15px; }
-  .btn-full { width: 100%; justify-content: center; }
-
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* NAV */
-  .nav {
-    position: sticky; top: 0; z-index: 200;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px; height: var(--nav-h);
-    background: rgba(255,255,255,.94); backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--gray-100);
-  }
-  .nav-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: var(--black); cursor: pointer; }
-  .nav-logo-icon { width: 28px; height: 28px; background: var(--black); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .nav-links { display: flex; align-items: center; gap: 4px; }
-  .nav-link { padding: 6px 12px; font-size: 14px; color: var(--gray-600); border-radius: var(--radius-sm); transition: all .12s; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-  .nav-link:hover { background: var(--gray-100); color: var(--black); }
-  .nav-actions { display: flex; align-items: center; gap: 8px; }
-  .nav-burger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; background: none; border: none; cursor: pointer; border-radius: var(--radius-sm); padding: 6px; -webkit-tap-highlight-color: transparent; }
-  .nav-burger span { display: block; height: 1.5px; background: var(--black); border-radius: 2px; transition: all .2s; }
-  .nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-  .nav-burger.open span:nth-child(2) { opacity: 0; }
-  .nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
-  /* Mobile nav dropdown */
-  .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: var(--white); z-index: 190; border-top: 1px solid var(--gray-100); box-shadow: 0 8px 24px rgba(0,0,0,.08); animation: slideDown .18s ease; }
-  @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-  .mobile-menu.open { display: block; }
-  .mobile-menu-link { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; font-size: 15px; color: var(--black); cursor: pointer; border-bottom: 1px solid var(--gray-100); -webkit-tap-highlight-color: transparent; }
-  .mobile-menu-link:active { background: var(--gray-50); }
-  .mobile-menu-actions { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
-
-  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-
-  /* LANDING */
-  .hero { max-width: 760px; padding: 64px 24px 52px; animation: fadeUp .5s ease both; }
-  .hero-badge { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 13px; color: var(--gray-600); }
-  .hero-avatars { display: flex; }
-  .hero-avatar { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; margin-left: -6px; background: var(--gray-200); font-size: 10px; display: flex; align-items: center; justify-content: center; color: var(--gray-600); }
-  .hero-avatar:first-child { margin-left: 0; }
-  .star { color: #f59e0b; font-size: 12px; }
-  .hero h1 { font-size: clamp(36px, 8vw, 68px); font-weight: 900; line-height: 1.08; letter-spacing: -2px; margin-bottom: 18px; }
-  .hero p { font-size: 16px; line-height: 1.65; color: var(--gray-500); margin-bottom: 28px; }
-  .hero-ctas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-  .tech-strip { padding: 28px 24px 48px; }
-  .tech-strip p { font-size: 13px; color: var(--gray-400); margin-bottom: 14px; }
-  .tech-logos { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .tech-item { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-400); }
-  .tech-icon { width: 34px; height: 34px; background: var(--gray-100); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-
-  .section { padding: 64px 24px; border-top: 1px solid var(--gray-100); }
-  .section-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 10px; }
-  .section-title { font-size: clamp(24px, 5vw, 38px); font-weight: 800; letter-spacing: -1.2px; margin-bottom: 10px; }
-  .section-sub { font-size: 15px; color: var(--gray-500); line-height: 1.65; }
-
-  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; background: var(--gray-200); margin-top: 40px; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; }
-  .feature-card { background: var(--white); padding: 24px 26px; transition: background .15s; }
-  .feature-card:hover { background: var(--gray-50); }
-  .feature-icon { width: 36px; height: 36px; background: var(--gray-100); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-bottom: 14px; }
-  .feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 7px; }
-  .feature-card p { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
-
-  footer { border-top: 1px solid var(--gray-100); padding: 28px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
-  footer p { font-size: 13px; color: var(--gray-400); }
-  .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
-  .footer-links a { font-size: 13px; color: var(--gray-400); text-decoration: none; cursor: pointer; }
-  .footer-links a:hover { color: var(--black); }
-
-  /* PRICING */
-  .pricing-page-body { background: var(--gray-50); min-height: 100vh; }
-  .pricing-hero { text-align: center; padding: 64px 24px 40px; }
-  .pricing-hero h1 { font-size: clamp(48px, 12vw, 88px); font-weight: 800; letter-spacing: -3px; margin-bottom: 14px; }
-  .pricing-hero p { font-size: 15px; color: var(--gray-500); line-height: 1.65; max-width: 420px; margin: 0 auto 28px; }
-  .billing-toggle { display: inline-flex; align-items: center; background: var(--gray-200); border-radius: var(--radius-full); padding: 4px; gap: 2px; }
-  .toggle-btn { padding: 8px 18px; border-radius: var(--radius-full); font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; font-family: inherit; color: var(--gray-500); transition: all .2s; display: flex; align-items: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
-  .toggle-btn.active { background: var(--black); color: var(--white); }
-  .toggle-badge { background: var(--gray-300); color: var(--gray-600); font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: var(--radius-full); }
-  .toggle-btn.active .toggle-badge { background: rgba(255,255,255,.2); color: rgba(255,255,255,.8); }
-
-  .pricing-cards-wrap { padding: 0 20px 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; max-width: 980px; margin: 36px auto 0; }
-  .p-card { background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg); padding: 26px; display: flex; flex-direction: column; transition: border-color .15s, box-shadow .15s; }
-  .p-card:hover { border-color: var(--gray-300); box-shadow: 0 4px 16px rgba(0,0,0,.06); }
-  .p-card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
-  .p-card h3 { font-size: 18px; font-weight: 700; }
-  .p-card-badge { background: var(--gray-100); color: var(--gray-600); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-full); white-space: nowrap; }
-  .p-price { font-size: 28px; font-weight: 800; letter-spacing: -.8px; margin: 8px 0 4px; }
-  .p-price span { font-size: 14px; font-weight: 400; color: var(--gray-500); }
-  .p-desc { font-size: 14px; color: var(--gray-500); margin-bottom: 20px; }
-  .p-feats { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-  .p-feats li { font-size: 14px; color: var(--gray-600); display: flex; align-items: center; gap: 9px; }
-  .p-check { width: 15px; height: 15px; flex-shrink: 0; color: var(--black); }
-  .p-card-cta { margin-top: auto; }
-
-  .faq-section { padding: 56px 24px; max-width: 980px; margin: 0 auto; }
-  .faq-section h2 { font-size: clamp(28px, 7vw, 52px); font-weight: 800; letter-spacing: -1.5px; margin-bottom: 28px; }
-  .faq-list { border-top: 1px solid var(--gray-200); }
-  .faq-item { border-bottom: 1px solid var(--gray-200); }
-  .faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 18px 0; font-size: 15px; font-weight: 500; cursor: pointer; background: none; border: none; text-align: left; font-family: inherit; color: var(--black); gap: 14px; -webkit-tap-highlight-color: transparent; }
-  .faq-icon { width: 20px; height: 20px; flex-shrink: 0; color: var(--gray-500); transition: transform .2s; }
-  .faq-item.open .faq-icon { transform: rotate(45deg); }
-  .faq-a { font-size: 14px; color: var(--gray-500); line-height: 1.7; padding-bottom: 18px; display: none; }
-  .faq-item.open .faq-a { display: block; }
-
-  /* AUTH */
-  .auth-page { min-height: 100vh; background: var(--gray-50); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-  .auth-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; margin-bottom: 28px; cursor: pointer; }
-  .auth-logo-icon { width: 30px; height: 30px; background: var(--black); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-  .auth-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px 24px; width: 100%; max-width: 400px; animation: fadeUp .4s ease both; }
-  .auth-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
-  .auth-sub { font-size: 14px; color: var(--gray-500); margin-bottom: 22px; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-  .field-wrap { display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); padding: 0 12px; transition: border-color .15s; }
-  .field-wrap:focus-within { border-color: var(--black); }
-  .field-wrap svg { color: var(--gray-400); flex-shrink: 0; }
-  .field-wrap input { flex: 1; padding: 11px 0; font-size: 16px; border: none; outline: none; background: transparent; font-family: inherit; color: var(--black); }
-  .field-wrap input::placeholder { color: var(--gray-400); }
-  .field-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .field-row label { font-size: 13px; font-weight: 500; }
-  .forgot { font-size: 13px; color: var(--gray-500); text-decoration: underline; cursor: pointer; }
-  .pw-hint { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 12px; color: var(--gray-400); }
-  .auth-submit { width: 100%; padding: 12px; background: var(--black); color: white; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; margin-bottom: 18px; transition: background .15s; -webkit-tap-highlight-color: transparent; }
-  .auth-submit:hover { background: var(--gray-700); }
-  .divider { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); margin-bottom: 14px; }
-  .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--gray-200); }
-  .social-btn { width: 100%; padding: 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); background: white; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color .15s; -webkit-tap-highlight-color: transparent; }
-  .social-btn:hover { border-color: var(--gray-400); background: var(--gray-50); }
-  .auth-footer { text-align: center; margin-top: 18px; font-size: 14px; color: var(--gray-500); }
-  .auth-footer a { color: var(--black); font-weight: 600; text-decoration: underline; cursor: pointer; }
-  .auth-back { margin-top: 16px; font-size: 13px; color: var(--gray-400); }
-  .auth-back span { cursor: pointer; text-decoration: underline; }
-
-  /* APP SHELL */
-  .app-shell { display: flex; height: 100vh; overflow: hidden; }
-
-  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.28); z-index: 149; }
-  .sidebar-overlay.open { display: block; }
-
-  .sidebar { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--gray-200); background: var(--white); transition: transform .25s ease; z-index: 150; }
-  .sidebar-header { padding: 13px 16px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; }
-  .sidebar-workspace { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; cursor: pointer; flex: 1; min-width: 0; }
-  .workspace-icon { width: 26px; height: 26px; background: var(--black); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .sidebar-section { padding: 14px 8px 4px; }
-  .sidebar-section-label { font-size: 11px; font-weight: 600; color: var(--gray-400); letter-spacing: .06em; text-transform: uppercase; padding: 0 8px 8px; }
-  .sidebar-link { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm); font-size: 14px; color: var(--gray-600); cursor: pointer; transition: all .12s; margin-bottom: 1px; -webkit-tap-highlight-color: transparent; }
-  .sidebar-link:hover, .sidebar-link:active { background: var(--gray-100); color: var(--black); }
-  .sidebar-link.active { background: var(--gray-100); color: var(--black); font-weight: 500; }
-  .sidebar-spacer { flex: 1; }
-
-  .sidebar-user-wrap { position: relative; }
-  .sidebar-user { padding: 12px 16px; border-top: 1px solid var(--gray-100); display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background .12s; -webkit-tap-highlight-color: transparent; }
-  .sidebar-user:hover { background: var(--gray-50); }
-  .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--black); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
-  .user-info { flex: 1; min-width: 0; }
-  .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-email { font-size: 12px; color: var(--gray-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .ctx-menu { position: absolute; bottom: calc(100% + 6px); left: 8px; right: 8px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); box-shadow: 0 8px 24px rgba(0,0,0,.1); overflow: hidden; z-index: 200; display: none; }
-  .ctx-menu.open { display: block; animation: fadeUp .15s ease both; }
-  .ctx-user-row { padding: 14px 16px 12px; border-bottom: 1px solid var(--gray-100); }
-  .ctx-user-name { font-size: 14px; font-weight: 600; }
-  .ctx-user-email { font-size: 12px; color: var(--gray-400); }
-  .ctx-group { padding: 6px 0; border-bottom: 1px solid var(--gray-100); }
-  .ctx-group:last-child { border-bottom: none; }
-  .ctx-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; font-size: 14px; cursor: pointer; transition: background .1s; -webkit-tap-highlight-color: transparent; }
-  .ctx-item:hover, .ctx-item:active { background: var(--gray-50); }
-  .ctx-item-label { display: flex; align-items: center; gap: 8px; }
-  .ctx-shortcut { font-size: 12px; color: var(--gray-400); font-family: monospace; }
-  .ctx-item.danger { color: #dc2626; }
-
-  .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-  .topbar { height: 50px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; padding: 0 20px; font-size: 14px; font-weight: 500; gap: 12px; flex-shrink: 0; }
-  .topbar-menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 5px; border-radius: var(--radius-sm); color: var(--gray-600); -webkit-tap-highlight-color: transparent; }
-  .main-content { flex: 1; overflow-y: auto; padding: 24px 20px; }
-  .dash-title { font-size: 20px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 20px; }
-
-  .empty-card { border: 1.5px dashed var(--gray-200); border-radius: var(--radius-lg); padding: 52px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .empty-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 7px; }
-  .empty-card p { font-size: 14px; color: var(--gray-400); margin-bottom: 18px; }
-
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-  .stat-card { border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px; }
-  .stat-label { font-size: 12px; color: var(--gray-400); font-weight: 500; margin-bottom: 5px; }
-  .stat-value { font-size: 24px; font-weight: 800; letter-spacing: -1px; }
-  .stat-change { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
-  .stat-change.up { color: #16a34a; }
-
-  .data-card { border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; }
-  .data-card-header { padding: 14px 18px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
-  .data-card-header h3 { font-size: 14px; font-weight: 600; }
-
-  .members-table { width: 100%; border-collapse: collapse; }
-  .members-table thead th { text-align: left; padding: 10px 18px; font-size: 11px; color: var(--gray-400); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; border-bottom: 1px solid var(--gray-100); }
-  .members-table tbody tr { transition: background .1s; }
-  .members-table tbody tr:hover { background: var(--gray-50); }
-  .members-table tbody td { padding: 12px 18px; font-size: 14px; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); }
-  .members-table tbody tr:last-child td { border-bottom: none; }
-
-  .badge { display: inline-block; padding: 3px 10px; border-radius: var(--radius-full); font-size: 12px; font-weight: 500; }
-  .badge-green { background: #dcfce7; color: #16a34a; }
-  .badge-yellow { background: #fef9c3; color: #a16207; }
-  .badge-gray { background: var(--gray-100); color: var(--gray-600); }
-
-  /* ═══════════════════════
-     MOBILE BREAKPOINTS
-  ═══════════════════════ */
-  @media (max-width: 768px) {
-    /* Nav */
-    .nav { padding: 0 16px; }
-    .nav-links, .nav-actions { display: none; }
-    .nav-burger { display: flex; }
-
-    /* Landing */
-    .hero { padding: 40px 16px 36px; }
-    .hero h1 { letter-spacing: -1.5px; }
-    .hero-ctas { flex-direction: column; align-items: stretch; }
-    .hero-ctas .btn { justify-content: center; }
-    .tech-strip { padding: 22px 16px 38px; }
-    .tech-logos { gap: 12px; }
-    .section { padding: 48px 16px; }
-    .features-grid { grid-template-columns: 1fr; }
-    footer { padding: 24px 16px; flex-direction: column; align-items: flex-start; }
-
-    /* Pricing */
-    .pricing-hero { padding: 48px 16px 30px; }
-    .pricing-cards-wrap { padding: 0 16px 48px; grid-template-columns: 1fr; }
-    .faq-section { padding: 48px 16px; }
-
-    /* Auth */
-    .auth-page { justify-content: flex-start; padding-top: 40px; }
-    .auth-card { padding: 24px 18px; }
-
-    /* Sidebar → slide-in drawer */
-    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,.1); }
-    .sidebar.open { transform: translateX(0); }
-    .topbar-menu-btn { display: flex; align-items: center; justify-content: center; }
-
-    /* Dashboard */
-    .main-content { padding: 18px 14px; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .stat-value { font-size: 22px; }
-    .dash-title { font-size: 18px; }
-
-    /* Members table → stacked cards */
-    .members-table thead { display: none; }
-    .members-table tbody tr { display: block; padding: 14px 16px; border-bottom: 1px solid var(--gray-100); }
-    .members-table tbody tr:last-child { border-bottom: none; }
-    .members-table tbody td { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; border: none; font-size: 13px; }
-    .members-table tbody td::before { content: attr(data-label); font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .04em; margin-right: 8px; flex-shrink: 0; }
-    .members-table tbody td:first-child { font-size: 14px; font-weight: 600; padding-bottom: 6px; }
-    .members-table tbody td:first-child::before { display: none; }
-
-    /* Context menu: hide keyboard shortcuts */
-    .ctx-shortcut { display: none; }
-  }
-
-  @media (max-width: 480px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .toggle-btn { padding: 7px 12px; font-size: 13px; }
-    .pricing-hero h1 { letter-spacing: -2px; }
-  }
-</style>
+    gtag("config", "G-7WTWRM9WYZ");
+  </script>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-<!-- ① LANDING -->
-<div id="page-landing" class="page active">
-  <nav class="nav">
-    <div class="nav-logo" onclick="showPage('page-landing')">
-      <div class="nav-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>
-      FitFlow
-    </div>
-    <div class="nav-links">
-      <span class="nav-link">Product <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      <span class="nav-link" onclick="showPage('page-pricing')">Pricing</span>
-      <span class="nav-link">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      <span class="nav-link">Company <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-    </div>
-    <div class="nav-actions">
-      <span class="nav-link" onclick="showPage('page-signin')">Log in</span>
-      <button class="btn btn-primary" onclick="showPage('page-signup')">Get started</button>
-    </div>
-    <button class="nav-burger" id="burger-landing" onclick="toggleMobileMenu('menu-landing','burger-landing')" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
-  <div class="mobile-menu" id="menu-landing">
-    <div class="mobile-menu-link" onclick="showPage('page-pricing');closeMobileMenus()">Pricing</div>
-    <div class="mobile-menu-link">Product</div>
-    <div class="mobile-menu-link">Resources</div>
-    <div class="mobile-menu-link">Company</div>
-    <div class="mobile-menu-actions">
-      <button class="btn btn-outline btn-full" onclick="showPage('page-signin');closeMobileMenus()">Log in</button>
-      <button class="btn btn-primary btn-full" onclick="showPage('page-signup');closeMobileMenus()">Get started</button>
-    </div>
-  </div>
-
-  <section class="hero">
-    <div class="hero-badge">
-      <div class="hero-avatars"><div class="hero-avatar">A</div><div class="hero-avatar">B</div><div class="hero-avatar">C</div><div class="hero-avatar">D</div><div class="hero-avatar">E</div></div>
-      <span class="star">★</span><span>trusted by 750+ developers</span>
-    </div>
-    <h1>Building your Next.js SaaS just got unfairly easy</h1>
-    <p>Save countless hours of development time and focus on what matters to your customers with our production-grade Next.js SaaS starter kit.</p>
-    <div class="hero-ctas">
-      <button class="btn btn-primary btn-lg" onclick="showPage('page-signup')">Get FitFlow →</button>
-      <button class="btn btn-outline btn-lg" onclick="showPage('page-signin')">See Demo ↗</button>
-    </div>
-  </section>
-
-  <div class="tech-strip">
-    <p>Crafted with the tools you love</p>
-    <div class="tech-logos">
-      <div class="tech-item"><div class="tech-icon">▲</div><span>Next.js</span></div>
-      <div class="tech-item"><div class="tech-icon">⚛</div><span>React</span></div>
-      <div class="tech-item"><div class="tech-icon">◈</div><span>Radix UI</span></div>
-      <div class="tech-item"><div class="tech-icon">≋</div><span>Tailwind</span></div>
-      <div class="tech-item"><div class="tech-icon">TS</div><span>TypeScript</span></div>
-      <div class="tech-item"><div class="tech-icon">⬡</div><span>tRPC</span></div>
-      <div class="tech-item"><div class="tech-icon">⛨</div><span>Better Auth</span></div>
-      <div class="tech-item"><div class="tech-icon">△</div><span>Prisma</span></div>
-      <div class="tech-item"><div class="tech-icon">✦</div><span>AI SDK</span></div>
-      <div class="tech-item"><div class="tech-icon">⟳</div><span>React Query</span></div>
-    </div>
-  </div>
-
-  <section class="section">
-    <p class="section-label">Features</p>
-    <h2 class="section-title">Everything you need to ship</h2>
-    <p class="section-sub">All the boring infrastructure is already built. Auth, billing, orgs, emails — done.</p>
-    <div class="features-grid">
-      <div class="feature-card"><div class="feature-icon">🔐</div><h3>Authentication</h3><p>Email/password and social login. Sessions, magic links, 2FA — all handled.</p></div>
-      <div class="feature-card"><div class="feature-icon">🏢</div><h3>Organizations</h3><p>Multi-tenant by default. Invite members, manage roles and permissions per org.</p></div>
-      <div class="feature-card"><div class="feature-icon">💳</div><h3>Billing</h3><p>Stripe with plans, usage limits, webhooks, and a customer portal.</p></div>
-      <div class="feature-card"><div class="feature-icon">✉️</div><h3>Transactional Email</h3><p>Beautiful email templates with React Email + Resend. Welcome, reset, invite — included.</p></div>
-      <div class="feature-card"><div class="feature-icon">📊</div><h3>Analytics</h3><p>Built-in dashboard with key metrics. Plug in PostHog or Plausible in minutes.</p></div>
-      <div class="feature-card"><div class="feature-icon">🤖</div><h3>AI Ready</h3><p>Vercel AI SDK wired up. Add streaming chat or embeddings in minutes.</p></div>
-    </div>
-  </section>
-
-  <footer>
-    <p>© 2026 FitFlow Inc. All rights reserved.</p>
-    <div class="footer-links"><a>Privacy</a><a>Terms</a><a>Documentation</a><a onclick="showPage('page-pricing')">Pricing</a></div>
-  </footer>
-</div>
-
-<!-- ② PRICING -->
-<div id="page-pricing" class="page">
-  <div class="pricing-page-body">
-    <nav class="nav" style="background:rgba(249,249,249,.94)">
-      <div class="nav-logo" onclick="showPage('page-landing')">
-        <div class="nav-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow
+  <div class="layout">
+    <aside class="icon-sidebar" aria-label="Extra menu">
+      <div class="icon-sidebar-top">
+          <button class="icon-sidebar-btn active" id="btn-menu-toc" title="Inhoudsopgave">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <button class="icon-sidebar-btn" id="btn-menu-favorites" title="Favorieten">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+          <button class="icon-sidebar-btn" id="btn-menu-chat" title="AI Chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
       </div>
-      <div class="nav-links">
-        <span class="nav-link" onclick="showPage('page-landing')">← Home</span>
-        <span class="nav-link" style="color:var(--black);font-weight:500">Pricing</span>
-        <span class="nav-link">Resources</span><span class="nav-link">Company</span>
-      </div>
-      <div class="nav-actions">
-        <span class="nav-link" onclick="showPage('page-signin')">Log in</span>
-        <button class="btn btn-primary" onclick="showPage('page-signup')">Get started</button>
-      </div>
-      <button class="nav-burger" id="burger-pricing" onclick="toggleMobileMenu('menu-pricing','burger-pricing')" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </nav>
-    <div class="mobile-menu" id="menu-pricing">
-      <div class="mobile-menu-link" onclick="showPage('page-landing');closeMobileMenus()">← Homepage</div>
-      <div class="mobile-menu-link" style="font-weight:600">Pricing</div>
-      <div class="mobile-menu-actions">
-        <button class="btn btn-outline btn-full" onclick="showPage('page-signin');closeMobileMenus()">Log in</button>
-        <button class="btn btn-primary btn-full" onclick="showPage('page-signup');closeMobileMenus()">Get started</button>
-      </div>
-    </div>
-
-    <div class="pricing-hero">
-      <h1>Pricing</h1>
-      <p>Simple, transparent pricing that scales with your business. Start free and upgrade as you grow.</p>
-      <div class="billing-toggle">
-        <button class="toggle-btn active" id="toggle-monthly" onclick="setBilling('monthly')">Monthly</button>
-        <button class="toggle-btn" id="toggle-yearly" onclick="setBilling('yearly')">Yearly <span class="toggle-badge">-20%</span></button>
-      </div>
-    </div>
-
-    <div class="pricing-cards-wrap">
-      <div class="p-card">
-        <div class="p-card-head"><h3>Free</h3></div>
-        <div class="p-price">US$ 0,00 <span>/mo</span></div>
-        <p class="p-desc">Get started with basic features</p>
-        <ul class="p-feats">
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Up to 3 projects</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Basic analytics</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Community support</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>1 GB storage</li>
-        </ul>
-        <div class="p-card-cta"><button class="btn btn-outline btn-full" onclick="showPage('page-signup')">Get Started Free</button></div>
-      </div>
-      <div class="p-card" style="border-color:var(--black)">
-        <div class="p-card-head"><h3>Pro</h3><span class="p-card-badge">Most popular</span></div>
-        <div class="p-price" id="pro-price">US$ 29,00 <span>/mo</span></div>
-        <p class="p-desc">For growing teams</p>
-        <ul class="p-feats">
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unlimited team members</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Advanced analytics</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>100 GB storage</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Custom integrations</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API access</li>
-        </ul>
-        <div class="p-card-cta"><button class="btn btn-primary btn-full" onclick="showPage('page-signup')">Start free trial</button></div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-head"><h3>Lifetime</h3></div>
-        <div class="p-price">US$ 499,00 <span>one-time</span></div>
-        <p class="p-desc">Pay once, use forever</p>
-        <ul class="p-feats">
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Everything in Pro</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Lifetime updates</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Priority support for 1 year</li>
-          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>100 GB storage</li>
-        </ul>
-        <div class="p-card-cta"><button class="btn btn-outline btn-full" onclick="showPage('page-signup')">Start free trial</button></div>
-      </div>
-    </div>
-
-    <div class="faq-section">
-      <h2>Questions &amp; Answers</h2>
-      <div class="faq-list">
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Do I need a credit card to start the free trial?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">No, you can start the free trial without a credit card. You'll only be asked for payment details when you decide to upgrade.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Can my whole team use the same account?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Yes! Our Pro and Lifetime plans support unlimited team members. Manage roles and permissions from the organization settings.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What payment methods do you accept?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">All major credit and debit cards (Visa, Mastercard, Amex) and PayPal. Payments are processed securely through Stripe.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Can I change plans later?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Yes. Upgrade or downgrade at any time from billing settings. Upgrades take effect immediately and we prorate the remaining days.</div></div>
-      </div>
-    </div>
-    <footer style="background:var(--gray-50)">
-      <p>© 2026 FitFlow Inc.</p>
-      <div class="footer-links"><a>Privacy</a><a>Terms</a><a onclick="showPage('page-landing')">← Homepage</a></div>
-    </footer>
-  </div>
-</div>
-
-<!-- ③ SIGN-IN -->
-<div id="page-signin" class="page">
-  <div class="auth-page">
-    <div class="auth-logo" onclick="showPage('page-landing')">
-      <div class="auth-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow
-    </div>
-    <div class="auth-card">
-      <h2>Sign in to your account</h2>
-      <p class="auth-sub">Welcome back! Please sign in to continue.</p>
-      <div class="field"><label>Email</label><div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input type="email" placeholder="you@example.com" autocomplete="email"></div></div>
-      <div class="field">
-        <div class="field-row"><label>Password</label><span class="forgot">Forgot password?</span></div>
-        <div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input type="password" placeholder="••••••••" autocomplete="current-password"><svg style="cursor:pointer" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-      </div>
-      <button class="auth-submit" onclick="showPage('page-dashboard')">Sign in</button>
-      <div class="divider">Or continue with</div>
-      <button class="social-btn" onclick="showPage('page-dashboard')"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
-      <div class="auth-footer">Don't have an account? <a onclick="showPage('page-signup')">Sign up</a></div>
-    </div>
-    <div class="auth-back">← <span onclick="showPage('page-landing')">Back to homepage</span></div>
-  </div>
-</div>
-
-<!-- ④ SIGN-UP -->
-<div id="page-signup" class="page">
-  <div class="auth-page">
-    <div class="auth-logo" onclick="showPage('page-landing')">
-      <div class="auth-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow
-    </div>
-    <div class="auth-card">
-      <h2>Create your account</h2>
-      <p class="auth-sub">Please fill in the details to get started.</p>
-      <div class="field"><label>Name</label><div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><input type="text" autocomplete="name"></div></div>
-      <div class="field"><label>Email</label><div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><input type="email" autocomplete="email"></div></div>
-      <div class="field">
-        <label>Password</label>
-        <div class="field-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input type="password" autocomplete="new-password"><svg style="cursor:pointer" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-        <div class="pw-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>8 or more characters</div>
-      </div>
-      <button class="auth-submit" onclick="showPage('page-orgs')">Create account</button>
-      <div class="divider">Or continue with</div>
-      <button class="social-btn" onclick="showPage('page-orgs')"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</button>
-      <div class="auth-footer">Already have an account? <a onclick="showPage('page-signin')">Sign in</a></div>
-    </div>
-    <div class="auth-back">← <span onclick="showPage('page-landing')">Back to homepage</span></div>
-  </div>
-</div>
-
-<!-- ⑤ ORGS -->
-<div id="page-orgs" class="page">
-  <div class="sidebar-overlay" id="overlay-orgs" onclick="closeSidebar('sidebar-orgs','overlay-orgs')"></div>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar-orgs">
-      <div class="sidebar-header"><div class="sidebar-workspace"><div class="workspace-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>Personal<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;color:var(--gray-400)"><path d="m18 15-6-6-6 6"/></svg></div></div>
-      <div class="sidebar-section">
-        <p class="sidebar-section-label">Application</p>
-        <a class="sidebar-link active" onclick="closeSidebar('sidebar-orgs','overlay-orgs')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
-      </div>
-      <div class="sidebar-section">
-        <p class="sidebar-section-label">Settings</p>
-        <a class="sidebar-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
-        <a class="sidebar-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Security</a>
-        <a class="sidebar-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Sessions</a>
-      </div>
-      <div class="sidebar-spacer"></div>
-      <div class="sidebar-user-wrap">
-        <div class="ctx-menu" id="ctx-orgs">
-          <div class="ctx-user-row"><div class="ctx-user-name">Roy van der Sande</div><div class="ctx-user-email">mail@royvds.nl</div></div>
-          <div class="ctx-group"><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</span><span class="ctx-shortcut">⇧⌘P</span></div><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Command Menu</span><span class="ctx-shortcut">⌘K</span></div></div>
-          <div class="ctx-group"><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Theme</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></div><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Homepage</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div></div>
-          <div class="ctx-group"><div class="ctx-item danger" onclick="showPage('page-signin')"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</span><span class="ctx-shortcut">⇧⌘S</span></div></div>
-        </div>
-        <div class="sidebar-user" onclick="toggleCtx('ctx-orgs')"><div class="user-avatar">R</div><div class="user-info"><div class="user-name">Roy van der Sande</div><div class="user-email">mail@royvds.nl</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray-400)"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+      <div class="icon-sidebar-spacer"></div>
+      <div class="icon-sidebar-bottom">
+          <button id="plus-indicator" class="plus-indicator" type="button" title="Binas Plus actief" aria-label="Binas Plus actief" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </button>
+          <button class="plus-promo-btn" id="btn-menu-purchase" title="Upgrade naar Binas Plus" hidden>
+            <span class="plus-promo-label">Plus</span>
+            <span class="plus-promo-features">
+              <span class="plus-promo-text" id="plus-promo-text">Geen advertenties</span>
+            </span>
+          </button>
+          <div class="icon-sidebar-divider"></div>
+          <button class="icon-sidebar-btn account-btn" id="btn-menu-account" title="Account">
+            <div class="account-circle"></div>
+          </button>
+          <button class="icon-sidebar-btn" id="btn-menu-settings" title="Instellingen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
       </div>
     </aside>
-    <div class="main-area">
-      <div class="topbar">
-        <button class="topbar-menu-btn" onclick="openSidebar('sidebar-orgs','overlay-orgs')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-        Home
-      </div>
-      <div class="main-content">
-        <h2 class="dash-title">Your Organizations</h2>
-        <div class="empty-card">
-          <h3>No Organization</h3>
-          <p>Create an organization to get started.</p>
-          <button class="btn btn-primary" onclick="showPage('page-dashboard')">Create an Organization</button>
+    <aside class="sidebar" aria-label="Inhoud van Binas">
+      <div class="sidebar-top">
+        <div class="nav-header">
+          <div class="search-row">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="7.5" />
+                <line x1="17" y1="17" x2="21" y2="21" />
+              </svg>
+              <input id="nav-search" type="search" placeholder="Zoek in tabellen" />
+            </div>
+            <button class="icon-button" id="nav-dialog-open" type="button" aria-label="Open grote weergave van de inhoud">
+              <span aria-hidden="true">⤢</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ⑥ DASHBOARD -->
-<div id="page-dashboard" class="page">
-  <div class="sidebar-overlay" id="overlay-dash" onclick="closeSidebar('sidebar-dash','overlay-dash')"></div>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar-dash">
-      <div class="sidebar-header"><div class="sidebar-workspace"><div class="workspace-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow Corp<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;color:var(--gray-400)"><path d="m6 9 6 6 6-6"/></svg></div></div>
-      <div class="sidebar-section">
-        <p class="sidebar-section-label">Application</p>
-        <a class="sidebar-link active" onclick="closeSidebar('sidebar-dash','overlay-dash')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dashboard</a>
-        <a class="sidebar-link" onclick="closeSidebar('sidebar-dash','overlay-dash')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Members</a>
-        <a class="sidebar-link" onclick="closeSidebar('sidebar-dash','overlay-dash')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Billing</a>
-        <a class="sidebar-link" onclick="closeSidebar('sidebar-dash','overlay-dash')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Support</a>
-      </div>
-      <div class="sidebar-section">
-        <p class="sidebar-section-label">Settings</p>
-        <a class="sidebar-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Organization</a>
-        <a class="sidebar-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
-      </div>
-      <div class="sidebar-spacer"></div>
-      <div class="sidebar-user-wrap">
-        <div class="ctx-menu" id="ctx-dash">
-          <div class="ctx-user-row"><div class="ctx-user-name">Roy van der Sande</div><div class="ctx-user-email">mail@royvds.nl</div></div>
-          <div class="ctx-group"><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</span><span class="ctx-shortcut">⇧⌘P</span></div><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Command Menu</span><span class="ctx-shortcut">⌘K</span></div></div>
-          <div class="ctx-group"><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Theme</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></div><div class="ctx-item"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Homepage</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div></div>
-          <div class="ctx-group"><div class="ctx-item danger" onclick="showPage('page-signin')"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</span><span class="ctx-shortcut">⇧⌘S</span></div></div>
+        <div class="nav-area">
+          <div class="nav-scroll">
+            <ul class="nav-list" id="nav-list" aria-live="polite"></ul>
+            <div id="favorites-view" class="favorites-view" hidden>
+              <div class="favorites-header">
+                <h3 class="favorites-title">Favorieten</h3>
+                <button id="btn-add-folder" class="icon-button" title="Map aanmaken" style="width: 32px; height: 32px; border-radius: 8px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    <line x1="12" y1="11" x2="12" y2="17"></line>
+                    <line x1="9" y1="14" x2="15" y2="14"></line>
+                  </svg>
+                </button>
+              </div>
+              <ul class="nav-list" id="favorites-list" aria-live="polite" style="padding: 0 12px;">
+                <li style="padding: 12px; color: var(--text-muted); text-align: center;">Nog geen favorieten.</li>
+              </ul>
+            </div>
+            <div id="chat-container" hidden style="height: 100%;">
+                <div class="chat-embed" id="voiceflow-chat"></div>
+            </div>
+            <div id="chat-placeholder" class="upsell-container" hidden>
+                <svg class="upsell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <h3 class="upsell-title">AI Assistent</h3>
+                <p class="upsell-text">Stel vragen over tabellen en formules. Ontgrendel de AI Assistent met Binas Plus.</p>
+                <button class="upsell-button" id="btn-buy-plus-chat">Ontgrendel voor <span class="config-price">€1,49</span></button>
+            </div>
+          </div>
         </div>
-        <div class="sidebar-user" onclick="toggleCtx('ctx-dash')"><div class="user-avatar">R</div><div class="user-info"><div class="user-name">Roy van der Sande</div><div class="user-email">mail@royvds.nl</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray-400)"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-      </div>
     </aside>
-
-    <div class="main-area">
-      <div class="topbar">
-        <button class="topbar-menu-btn" onclick="openSidebar('sidebar-dash','overlay-dash')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-        Dashboard
-      </div>
-      <div class="main-content">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap">
-          <h2 class="dash-title" style="margin-bottom:0">Good afternoon, Roy 👋</h2>
-          <button class="btn btn-primary">+ New project</button>
+    <div class="viewer">
+      <div class="viewer-area">
+        <div class="viewer-frame-wrapper">
+          <iframe id="pdf-viewer-frame" title="Binas PDF" loading="lazy" allowfullscreen></iframe>
         </div>
-        <div class="stats-grid">
-          <div class="stat-card"><p class="stat-label">Revenue</p><p class="stat-value">$4,280</p><p class="stat-change up">↑ 12%</p></div>
-          <div class="stat-card"><p class="stat-label">Active Users</p><p class="stat-value">1,429</p><p class="stat-change up">↑ 8%</p></div>
-          <div class="stat-card"><p class="stat-label">Churn Rate</p><p class="stat-value">2.1%</p><p class="stat-change">↓ 0.3%</p></div>
-          <div class="stat-card"><p class="stat-label">Open Tickets</p><p class="stat-value">7</p><p class="stat-change">3 need reply</p></div>
-        </div>
-        <div class="data-card">
-          <div class="data-card-header"><h3>Recent Members</h3><button class="btn btn-outline" style="font-size:13px;padding:6px 12px">View all</button></div>
-          <table class="members-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td data-label="Name"><strong>Roy van der Sande</strong></td><td data-label="Email">mail@royvds.nl</td><td data-label="Role">Owner</td><td data-label="Joined">Mar 20, 2026</td><td data-label="Status"><span class="badge badge-green">Active</span></td></tr>
-              <tr><td data-label="Name">Sarah Chen</td><td data-label="Email">sarah@fitflow.io</td><td data-label="Role">Admin</td><td data-label="Joined">Mar 18, 2026</td><td data-label="Status"><span class="badge badge-green">Active</span></td></tr>
-              <tr><td data-label="Name">James Okoro</td><td data-label="Email">james@fitflow.io</td><td data-label="Role">Member</td><td data-label="Joined">Mar 15, 2026</td><td data-label="Status"><span class="badge badge-yellow">Invited</span></td></tr>
-              <tr><td data-label="Name">Lena Müller</td><td data-label="Email">lena@fitflow.io</td><td data-label="Role">Member</td><td data-label="Joined">Mar 10, 2026</td><td data-label="Status"><span class="badge badge-green">Active</span></td></tr>
-              <tr><td data-label="Name">Alex Dupont</td><td data-label="Email">alex@fitflow.io</td><td data-label="Role">Viewer</td><td data-label="Joined">Mar 5, 2026</td><td data-label="Status"><span class="badge badge-gray">Inactive</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div style="margin-top:14px;text-align:right"><span style="font-size:13px;color:var(--gray-400);cursor:pointer" onclick="showPage('page-landing')">← Back to homepage</span></div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    window.scrollTo(0, 0);
-    document.querySelectorAll('.ctx-menu').forEach(m => m.classList.remove('open'));
-    closeMobileMenus();
-  }
+  <button class="sidebar-toggle-floating" id="sidebar-toggle-floating" type="button" aria-label="Zijbalk tonen of verbergen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="20" height="20">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
 
-  function toggleMobileMenu(menuId, burgerId) {
-    const menu = document.getElementById(menuId);
-    const burger = document.getElementById(burgerId);
-    const isOpen = menu.classList.contains('open');
-    closeMobileMenus();
-    if (!isOpen) { menu.classList.add('open'); burger.classList.add('open'); }
-  }
-  function closeMobileMenus() {
-    document.querySelectorAll('.mobile-menu').forEach(m => m.classList.remove('open'));
-    document.querySelectorAll('.nav-burger').forEach(b => b.classList.remove('open'));
-  }
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+  <div class="nav-dialog" id="nav-dialog" aria-hidden="true" role="dialog" aria-label="Grote weergave van de inhoud">
+    <div class="nav-dialog-content">
+      <div class="nav-dialog-header">
+          <div class="nav-dialog-title-group">
+            <div class="nav-dialog-title">Inhoud</div>
+          </div>
+        <button class="icon-button" id="nav-dialog-close" type="button" aria-label="Sluit de inhoudsweergave">×</button>
+      </div>
+      <div class="search-box nav-dialog-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7.5" />
+          <line x1="17" y1="17" x2="21" y2="21" />
+        </svg>
+        <input id="nav-dialog-search" type="search" placeholder="Zoek in tabellen" />
+      </div>
+      <div class="nav-dialog-list-wrapper">
+        <ul class="nav-list" id="nav-dialog-list" aria-live="polite"></ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-note">Gemaakt door Roy van der Sande</div>
 
-  function openSidebar(sId, oId) {
-    document.getElementById(sId).classList.add('open');
-    document.getElementById(oId).classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeSidebar(sId, oId) {
-    document.getElementById(sId).classList.remove('open');
-    document.getElementById(oId).classList.remove('open');
-    document.body.style.overflow = '';
-    document.querySelectorAll('.ctx-menu').forEach(m => m.classList.remove('open'));
-  }
+  <!-- Settings Overlay -->
+  <div class="nav-dialog" id="settings-overlay" aria-hidden="true" role="dialog">
+    <div class="nav-dialog-content overlay-small">
+      <div class="nav-dialog-header">
+         <div class="nav-dialog-title">Instellingen</div>
+         <button class="icon-button" id="settings-close">×</button>
+      </div>
+      <div class="overlay-body">
+         <div class="overlay-section">
+            <!-- Admin button - only visible for admin user -->
+            <a href="/admin.html" class="primary-button" id="btn-admin-link" style="display: block; text-align: center; text-decoration: none; margin-bottom: 12px;" hidden>
+               Admin Dashboard
+            </a>
+            
+            <div style="padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border);">
+               <p id="settings-version-info" style="margin: 0; font-size: 13px; color: var(--text-muted);">
+                  <!-- Wordt gevuld door config -->
+               </p>
+            </div>
+         </div>
+         <div class="overlay-section" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <div id="settings-links-container" style="display: flex; flex-direction: column; gap: 8px;">
+               <a href="/home" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Home</a>
+               <a href="/contact" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Contact</a>
+               <a href="/privacy" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Privacy Policy</a>
+               <a href="/terms-of-service" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Algemene Voorwaarden</a>
+               <a href="/legal" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Legal Statement</a>
+            </div>
+         </div>
+      </div>
+    </div>
+  </div>
 
-  function setBilling(mode) {
-    document.getElementById('toggle-monthly').classList.toggle('active', mode==='monthly');
-    document.getElementById('toggle-yearly').classList.toggle('active', mode==='yearly');
-    document.getElementById('pro-price').innerHTML = mode==='monthly' ? 'US$ 29,00 <span>/mo</span>' : 'US$ 23,00 <span>/mo</span>';
-  }
+  <!-- Account Overlay -->
+  <div class="nav-dialog" id="account-overlay" aria-hidden="true" role="dialog">
+    <div class="nav-dialog-content overlay-small">
+      <div class="nav-dialog-header">
+         <div class="nav-dialog-title">Account</div>
+         <button class="icon-button" id="account-close">×</button>
+      </div>
+      <div class="overlay-body">
+         <div class="auth-user-row">
+         <div class="auth-user-meta">
+            <div class="auth-label">Ingelogd als</div>
+            <div class="auth-name" id="overlay-auth-name" hidden></div>
+            <div class="auth-email" id="overlay-auth-email">Niet ingelogd</div>
+         </div>
+            <button class="secondary-button" id="overlay-logout" hidden>Uitloggen</button>
+         </div>
+<div class="overlay-section" id="overlay-login-section">
+            <label class="premium-label">Inloggen</label>
+<div style="display:flex; gap:8px; flex-direction:column; margin-bottom:12px;">
+                <button id="btn-login-google" class="secondary-button" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px;">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84.81-.58z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Google
+                </button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom: 12px;">
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+                <span style="font-size:10px; color:var(--text-muted); font-weight:600;">OF EMAIL</span>
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+            </div>
+            <div class="premium-input-row">
+               <input id="overlay-login-input" type="email" placeholder="jij@example.com">
+               <button class="primary-button" id="overlay-login-btn">Link sturen</button>
+            </div>
+            <div id="overlay-login-msg" class="premium-status-message"></div>
+         </div>
+      </div>
+    </div>
+  </div>
 
-  function toggleFaq(btn) {
-    const item = btn.parentElement;
-    const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
-  }
+  <!-- Purchase Overlay - Binas Plus -->
+  <div class="nav-dialog" id="purchase-overlay" aria-hidden="true" role="dialog">
+    <div class="purchase-modal">
+      <!-- Header -->
+      <div class="purchase-modal-header">
+         <span class="purchase-modal-title">Binas Plus</span>
+         <button class="purchase-modal-close" id="purchase-close" aria-label="Sluiten">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+               <line x1="18" y1="6" x2="6" y2="18"></line>
+               <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+         </button>
+      </div>
+      
+      <!-- Body -->
+      <div class="purchase-modal-body">
+         <!-- Social Proof -->
+         <div class="purchase-social-proof">
+            <span class="purchase-stars">★★★★★</span>
+           <span class="purchase-users">Gebruikt door 3,5K+ scholieren en docenten.</span>
+         </div>
+         
+         <!-- Title & Subtitle -->
+         <h2 class="purchase-modal-heading">Studeer slimmer, niet harder</h2>
+         <p class="purchase-modal-subtitle">
+            Ontgrendel alle premium functies voor de prijs van een frikandelbroodje. <strong>Eenmalig, voor altijd.</strong>
+         </p>
+         
+         <!-- Features -->
+         <div class="purchase-features">
+            <div class="purchase-feature">
+               <span class="purchase-feature-icon">✓</span>
+               <span class="purchase-feature-text"><strong>100% Focus</strong> – Leer zonder irritante advertenties</span>
+            </div>
+            <div class="purchase-feature">
+               <span class="purchase-feature-icon">✓</span>
+               <span class="purchase-feature-text"><strong>AI Assistent</strong> – Stel een vraag, vind direct de juiste tabel</span>
+            </div>
+            <div class="purchase-feature">
+               <span class="purchase-feature-icon">✓</span>
+               <span class="purchase-feature-text"><strong>Kopieer & Plak</strong> – Maak razendsnel samenvattingen</span>
+            </div>
+            <div class="purchase-feature">
+               <span class="purchase-feature-icon">✓</span>
+               <span class="purchase-feature-text"><strong>Bewaar formules</strong> – Je belangrijkste tabellen bij de hand</span>
+            </div>
+         </div>
+         
+         <!-- Price Display -->
+         <div class="purchase-price-display">
+            <span class="purchase-price-badge config-discount-badge">50% KORTING</span>
+            <span class="purchase-price-was">van <span class="config-original-price">€2,99</span></span>
+            <span class="purchase-price-now">voor <strong class="config-price">€1,49</strong></span>
+         </div>
+         
+         <!-- Account Info (logged in) -->
+         <div class="purchase-account-box" id="purchase-logged-in-section" hidden>
+            <div class="purchase-account-avatar" id="purchase-avatar">
+               <!-- Filled by JS: profile photo or initial -->
+            </div>
+            <div class="purchase-account-info-text">
+               <span class="purchase-account-email" id="purchase-account-email"></span>
+               <span class="purchase-account-notice">Je aankoop wordt gekoppeld aan dit account</span>
+            </div>
+            <input id="purchase-email" type="hidden">
+         </div>
+         
+         <!-- Logged out section placeholder -->
+         <div id="purchase-logged-out-section"></div>
+         
+         <!-- CTA Button -->
+         <button class="purchase-cta-button" id="btn-start-checkout">
+            <span class="purchase-cta-main">Koop nu voor <span class="config-price">€1,49</span></span>
+            <span class="purchase-cta-sub">Eenmalige betaling • Voor altijd toegang</span>
+            <div class="purchase-loading-dots">
+               <span class="purchase-loading-dot"></span>
+               <span class="purchase-loading-dot"></span>
+               <span class="purchase-loading-dot"></span>
+            </div>
+         </button>
+         
+         <!-- Status message -->
+         <div id="purchase-msg" class="purchase-status-message"></div>
+         
+         <!-- Trust Badge -->
+         <div class="purchase-trust-badge">
+            <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+               <circle cx="12" cy="12" r="10" fill="#10b981"/>
+               <path d="M8 12l3 3 5-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Veilige checkout via Stripe</span>
+         </div>
+      </div>
+    </div>
+  </div>
 
-  function toggleCtx(id) {
-    const menu = document.getElementById(id);
-    const wasOpen = menu.classList.contains('open');
-    document.querySelectorAll('.ctx-menu').forEach(m => m.classList.remove('open'));
-    if (!wasOpen) menu.classList.add('open');
-  }
+  <!-- Context Menu -->
+  <div id="context-menu" class="context-menu" hidden>
+    <button id="ctx-favorite-btn" class="context-menu-item">Markeer als favoriet</button>
+  </div>
 
-  document.addEventListener('click', e => {
-    if (!e.target.closest('.sidebar-user-wrap')) document.querySelectorAll('.ctx-menu').forEach(m => m.classList.remove('open'));
-    if (!e.target.closest('.nav')) closeMobileMenus();
-  });
-
-  // Swipe left to close sidebar on mobile
-  let tx = 0;
-  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
-  document.addEventListener('touchend', e => {
-    if (tx - e.changedTouches[0].clientX > 60) {
-      ['sidebar-orgs','sidebar-dash'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el?.classList.contains('open')) closeSidebar(id, id.replace('sidebar-','overlay-'));
-      });
-    }
-  }, { passive: true });
-</script>
+  <script type="module" src="script.js"></script>
+  <script type="text/javascript">
+    (function (d, t) {
+      var v = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+      v.onload = function () {
+        window.voiceflow.chat.load({
+          verify: { projectID: '695d726b746c58e164e40f1c' },
+          url: 'https://general-runtime.voiceflow.com',
+          versionID: 'production',
+          voice: {
+            url: 'https://runtime-api.voiceflow.com',
+          },
+          render: {
+            mode: 'embedded',
+            target: document.getElementById('voiceflow-chat'),
+          },
+        });
+      };
+      v.src = 'https://cdn.voiceflow.com/widget-next/bundle.mjs';
+      v.type = 'text/javascript';
+      s.parentNode.insertBefore(v, s);
+    })(document, 'script');
+  </script>
 </body>
 </html>
