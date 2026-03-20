@@ -1,13 +1,13 @@
-// Binas App Configuration
+// SaaS App Configuration
 // ========================
 // Pas deze instellingen aan om de app te configureren.
 
-const BINAS_CONFIG = {
+const APP_CONFIG = {
   // Versie informatie
   version: "Versie 1.0.0",
   
   // Copyright tekst
-  copyright: "2026 Binas.app",
+  copyright: "© 2026 SaaS App",
   
   // Credit zichtbaarheid
   // true = "Gemaakt door Roy van der Sande" wordt getoond
@@ -15,7 +15,7 @@ const BINAS_CONFIG = {
   showCredit: false,
   
   // Prijs configuratie
-  // De prijs die wordt weergegeven voor Binas Plus
+  // De prijs die wordt weergegeven voor Premium
   priceDisplay: "1,49",
   
   // Sale configuratie
@@ -35,14 +35,15 @@ const BINAS_CONFIG = {
   // Email adressen die toegang hebben tot het admin panel
   primaryAdmin: "mail@royvds.nl",
 // Global Feature Flags
-  // enableBinasPlus: true = Plus systeem actief (betalen voor extra functies)
-  // enableBinasPlus: false = Iedereen heeft Plus functies, geen upsells, geen gold UI
+  // enableBinasPlus: true = premium systeem actief (betalen voor extra functies)
+  // enableBinasPlus: false = iedereen heeft premium functies, geen upsells
   enableBinasPlus: false
 };
 
 // Export voor gebruik in andere scripts
 if (typeof window !== 'undefined') {
-  window.BINAS_CONFIG = BINAS_CONFIG;
+  window.APP_CONFIG = APP_CONFIG;
+  window.BINAS_CONFIG = APP_CONFIG;
 }
 
-export default BINAS_CONFIG;
+export default APP_CONFIG;

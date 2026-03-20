@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Binas</title>
+  <title>Admin - SaaS App</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -435,11 +435,11 @@
         <div class="form-group">
             <div class="checkbox-group">
               <input type="checkbox" id="global-enable-plus">
-              <label for="global-enable-plus" style="font-weight: 600;">Binas Plus Systeem Inschakelen</label>
+              <label for="global-enable-plus" style="font-weight: 600;">Premium systeem inschakelen</label>
             </div>
             <p class="form-hint" style="margin-left: 26px;">
-               <strong>AAN (aangevinkt):</strong> Normaal gedrag. Gebruikers moeten betalen voor Plus functies.<br>
-               <strong>UIT (uitgevinkt):</strong> Iedereen heeft Plus functies gratis. Geen upsells, geen gouden UI. Instellingen links verborgen.
+               <strong>AAN (aangevinkt):</strong> Normaal gedrag. Gebruikers moeten betalen voor premium functies.<br>
+               <strong>UIT (uitgevinkt):</strong> Iedereen heeft premium functies gratis. Geen upsells. Instellingen links verborgen.
             </p>
         </div>
 
@@ -471,13 +471,13 @@
 
           <div class="form-group">
             <label class="form-label">Copyright</label>
-            <input type="text" id="config-copyright" placeholder="© 2025 Binas.app">
+            <input type="text" id="config-copyright" placeholder="© 2026 SaaS App">
           </div>
 
           <div class="form-group">
             <label class="form-label">Prijs Display</label>
             <input type="text" id="config-price" placeholder="1,49">
-            <p class="form-hint">De prijs die wordt getoond voor Binas Plus (zonder €)</p>
+            <p class="form-hint">De prijs die wordt getoond voor Premium (zonder €)</p>
           </div>
 
           <div class="form-group">
@@ -500,7 +500,7 @@
 
           <div class="form-group">
             <label class="form-label">Firebase Auth Domein</label>
-            <input type="text" id="config-auth-domain" placeholder="account.binas.app">
+            <input type="text" id="config-auth-domain" placeholder="account.example-saas-app.com">
             <p class="form-hint">Het custom domein dat Firebase Auth gebruikt</p>
           </div>
 
@@ -528,19 +528,19 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 class="card-title">Mijn Binas Plus Status</h3>
-            <p class="card-subtitle">Beheer je eigen Plus abonnement</p>
+            <h3 class="card-title">Mijn Premium Status</h3>
+            <p class="card-subtitle">Beheer je eigen premium toegang</p>
           </div>
           <span id="plus-status-badge" class="status-badge">Laden...</span>
         </div>
 
         <p style="color: var(--text-muted); margin-bottom: 16px;">
-          Als admin kun je je eigen Plus status handmatig activeren of deactiveren voor test doeleinden.
+          Als admin kun je je eigen premium status handmatig activeren of deactiveren voor testdoeleinden.
         </p>
 
         <div class="button-row">
-          <button id="activate-btn" class="btn-success">Activeer Plus</button>
-          <button id="deactivate-btn" class="btn-danger">Deactiveer Plus</button>
+          <button id="activate-btn" class="btn-success">Activeer premium</button>
+          <button id="deactivate-btn" class="btn-danger">Deactiveer premium</button>
         </div>
 
         <div id="plus-message" class="message" style="display: none;"></div>
@@ -553,8 +553,8 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 class="card-title">Plus Toekennen</h3>
-            <p class="card-subtitle">Ken BiNaS Plus toe aan een gebruiker via e-mail of UID</p>
+            <h3 class="card-title">Premium toekennen</h3>
+            <p class="card-subtitle">Ken premium toegang toe aan een gebruiker via e-mail of UID</p>
           </div>
         </div>
 
@@ -574,7 +574,7 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 class="card-title">BiNaS Plus Gebruikers</h3>
+            <h3 class="card-title">Premium gebruikers</h3>
             <p class="card-subtitle">Alle gebruikers met een actief Plus abonnement</p>
           </div>
           <button id="refresh-plus-users" class="btn-secondary btn-sm">🔄 Vernieuwen</button>
@@ -647,12 +647,12 @@
       query, 
       where 
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-    import BINAS_CONFIG from './config.js';
+    import APP_CONFIG from './config.js';
 
     const LOCAL_CONFIG_KEY = 'binas:admin-config-override';
 
     function getMergedConfig() {
-      let config = BINAS_CONFIG || {};
+      let config = APP_CONFIG || {};
       const localConfig = localStorage.getItem(LOCAL_CONFIG_KEY);
       if (localConfig) {
         try {
