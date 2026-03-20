@@ -24,58 +24,31 @@
   </header>
 
   <main>
-    <section class="hero hero-grid">
+    <section class="hero hero-grid compact-landing">
       <div class="hero-copy">
-        <p class="hero-label">Reusable SaaS boilerplate</p>
-        <h1>Start with auth, billing, and admin already in place.</h1>
-        <p>
-          This starter keeps the existing Firebase auth flow, Stripe premium logic, and admin panel in a simpler SaaS layout.
-        </p>
+        <p class="hero-label">SaaS boilerplate</p>
+        <h1>Auth, billing, and admin are already connected.</h1>
         <div class="hero-actions">
-          <a href="/" class="btn-primary">Go to dashboard</a>
-          <a href="/pricing" class="btn-secondary">View pricing</a>
+          <a href="/" class="btn-secondary">Open dashboard</a>
         </div>
       </div>
 
       <div class="auth-card">
         <p class="hero-label">Authentication</p>
-        <h2>Sign in from the landing page</h2>
-        <p class="auth-copy">Use Google or an email magic link. Your session carries into the dashboard and admin flow.</p>
-
+        <h2>Sign in</h2>
         <div class="auth-status" id="auth-status">Not signed in.</div>
         <button id="btn-login-google" class="btn-primary auth-button">Continue with Google</button>
 
         <div class="auth-divider"><span>or</span></div>
 
-        <label class="auth-label" for="email-input">Work email</label>
+        <label class="auth-label" for="email-input">Email</label>
         <div class="auth-row">
           <input id="email-input" type="email" placeholder="you@example.com" />
           <button id="email-login-btn" class="btn-secondary">Send link</button>
         </div>
 
         <div class="auth-actions-inline">
-          <a href="/" class="btn-secondary">Open dashboard</a>
           <button id="logout-btn" class="btn-secondary" hidden>Log out</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="container section-block">
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <h3>Authentication included</h3>
-          <p>Keep Firebase sign-in, logout, and session persistence while adapting the UI to your own product.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">💳</div>
-          <h3>Premium billing ready</h3>
-          <p>Use the existing Stripe premium routes as the billing foundation for paid plans and entitlements.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🛠️</div>
-          <h3>Admin panel preserved</h3>
-          <p>Role-based admin access remains available for account management, configuration, and support workflows.</p>
         </div>
       </div>
     </section>

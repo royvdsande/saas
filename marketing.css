@@ -307,3 +307,8 @@ footer {
 
   .auth-row { grid-template-columns: 1fr; }
 }
+
+
+.compact-landing {
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+}

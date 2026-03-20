@@ -231,7 +231,7 @@ button, input { font: inherit; }
 
 .content-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) 280px;
   gap: 12px;
   align-items: start;
 }
@@ -377,4 +377,30 @@ body.modal-open { overflow: hidden; }
   }
 
   .footer-note { padding-top: 0; }
+}
+
+
+.status-column {
+  display: grid;
+  gap: 12px;
+}
+
+.status-card {
+  padding: 18px;
+}
+
+.status-value {
+  display: block;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.status-copy {
+  margin: 8px 0 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.compact-placeholder {
+  min-height: 180px;
 }

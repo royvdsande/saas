@@ -27,7 +27,7 @@
       <div class="sidebar-card premium-card">
         <p class="eyebrow">Premium</p>
         <h2 id="premium-status-title">Premium feature locked</h2>
-        <p id="premium-status-copy">Upgrade to unlock billing-backed premium access for your template.</p>
+        <p id="premium-status-copy">Upgrade to unlock billing-backed premium access.</p>
         <button id="open-billing-modal" class="button button-primary">View pricing</button>
       </div>
 
@@ -57,43 +57,6 @@
         </div>
       </header>
 
-      <section class="hero-banner">
-        <div>
-          <p class="eyebrow">Starter layout</p>
-          <h2>Simple dashboard foundation</h2>
-          <p>
-            The old product-specific interface is gone. What remains is a compact app shell with auth, premium checks, and admin access ready for your own modules.
-          </p>
-        </div>
-        <div class="hero-banner-actions">
-          <button id="hero-upgrade-button" class="button button-primary">Unlock premium</button>
-          <a href="/contact" class="button button-secondary">Contact sales</a>
-        </div>
-      </section>
-
-      <section class="metrics-grid" aria-label="Key metrics">
-        <article class="metric-card">
-          <p class="metric-label">Active projects</p>
-          <strong class="metric-value">12</strong>
-          <span class="metric-meta">Demo placeholder widget</span>
-        </article>
-        <article class="metric-card">
-          <p class="metric-label">Monthly revenue</p>
-          <strong class="metric-value">€8.4K</strong>
-          <span class="metric-meta">Swap for your live billing data</span>
-        </article>
-        <article class="metric-card">
-          <p class="metric-label">Tasks automated</p>
-          <strong class="metric-value">248</strong>
-          <span class="metric-meta">Connect your workflow engine here</span>
-        </article>
-        <article class="metric-card premium-highlight">
-          <p class="metric-label">Premium status</p>
-          <strong class="metric-value" id="premium-status-pill">Checking…</strong>
-          <span class="metric-meta" id="premium-status-detail">We verify access using the existing Stripe + Firebase flow.</span>
-        </article>
-      </section>
-
       <section class="content-grid">
         <article class="content-card section-panel active" id="section-overview">
           <div class="section-header">
@@ -103,8 +66,8 @@
             </div>
             <span class="section-badge">Blank</span>
           </div>
-          <div class="placeholder-panel">
-            <p>Start here with your own charts, tables, or onboarding blocks.</p>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Drop your first widget or module here.</p>
           </div>
         </article>
 
@@ -112,12 +75,12 @@
           <div class="section-header">
             <div>
               <p class="eyebrow">Analytics</p>
-              <h3>Reporting canvas</h3>
+              <h3>Reports</h3>
             </div>
             <span class="section-badge">Blank</span>
           </div>
-          <div class="placeholder-panel">
-            <p>Add reports and metrics here.</p>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Add reports here.</p>
           </div>
         </article>
 
@@ -125,12 +88,12 @@
           <div class="section-header">
             <div>
               <p class="eyebrow">Automation</p>
-              <h3>Workflow hub</h3>
+              <h3>Workflows</h3>
             </div>
             <span class="section-badge">Blank</span>
           </div>
-          <div class="placeholder-panel">
-            <p>Add automations and background jobs here.</p>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Add automations here.</p>
           </div>
         </article>
 
@@ -138,12 +101,12 @@
           <div class="section-header">
             <div>
               <p class="eyebrow">Customers</p>
-              <h3>Relationship workspace</h3>
+              <h3>People</h3>
             </div>
             <span class="section-badge">Blank</span>
           </div>
-          <div class="placeholder-panel">
-            <p>Add customer lists, notes, or support data here.</p>
+          <div class="placeholder-panel compact-placeholder">
+            <p>Add customer data here.</p>
           </div>
         </article>
 
@@ -171,26 +134,24 @@
           </div>
         </article>
 
-        <article class="content-card account-panel">
-          <div class="section-header">
-            <div>
-              <p class="eyebrow">Authentication</p>
-              <h3>Account snapshot</h3>
-            </div>
-            <span class="section-badge">Preserved</span>
-          </div>
-          <div class="account-overview">
-            <div>
-              <p class="account-label">Signed in as</p>
-              <strong id="account-name">Guest</strong>
-              <p id="account-email">Use the landing page to sign in with Google or email link.</p>
-            </div>
+        <aside class="status-column">
+          <article class="content-card status-card">
+            <p class="eyebrow">Premium</p>
+            <strong class="status-value" id="premium-status-pill">Checking…</strong>
+            <p class="status-copy" id="premium-status-detail">We verify access using the existing Stripe + Firebase flow.</p>
+            <button id="hero-upgrade-button" class="button button-primary button-block">Unlock premium</button>
+          </article>
+
+          <article class="content-card status-card">
+            <p class="eyebrow">Authentication</p>
+            <strong class="status-value" id="account-name">Guest</strong>
+            <p class="status-copy" id="account-email">Use the landing page to sign in.</p>
             <div class="account-inline-actions">
-              <a href="/home" class="button button-primary">Open sign-in</a>
+              <a href="/home" class="button button-secondary">Open sign-in</a>
               <button id="dashboard-logout" class="button button-secondary" hidden>Log out</button>
             </div>
-          </div>
-        </article>
+          </article>
+        </aside>
       </section>
     </main>
   </div>
@@ -200,9 +161,7 @@
       <button class="modal-close" id="billing-modal-close" aria-label="Close">×</button>
       <p class="eyebrow">Pricing</p>
       <h2 id="billing-modal-title">Premium feature access</h2>
-      <p class="modal-copy">
-        Use the existing Stripe checkout backend here when customers unlock premium access.
-      </p>
+      <p class="modal-copy">Use the existing Stripe checkout backend here when customers unlock premium access.</p>
       <div class="pricing-box">
         <span class="pricing-was">Was <span class="config-original-price">€2,99</span></span>
         <strong class="pricing-now">Now <span class="config-price">€1,49</span></strong>
