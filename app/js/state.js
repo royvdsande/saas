@@ -45,6 +45,7 @@ export const state = {
   currentPageId: "page-public",
   signinMode: "password",
   currentBillingPeriod: "monthly",
+  promoCode: null,
   firebaseApp: null,
   auth: null,
   firestore: null,

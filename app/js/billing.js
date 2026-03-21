@@ -57,6 +57,12 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       sessionData.customer_email = state.auth.currentUser.email;
     }
 
+    if (state.promoCode) {
+      sessionData.discounts = [{ promotion_code: state.promoCode }];
+    } else {
+      sessionData.allow_promotion_codes = true;
+    }
+
     const sessionsRef = collection(state.firestore, "customers", state.auth.currentUser.uid, "checkout_sessions");
     const docRef = await addDoc(sessionsRef, sessionData);
 
@@ -76,6 +82,36 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
   } catch (error) {
     setStatus(statusTarget, `Fout bij checkout: ${error.message}`, "error");
     checkoutButtons.forEach((button) => setLoadingState(button, false));
+  }
+}
+
+export async function applyPromoCode(code, statusEl, button) {
+  const trimmed = (code || '').trim();
+  if (!trimmed) {
+    setStatus(statusEl, "Voer een actiecode in.", "error");
+    return;
+  }
+  setLoadingState(button, true, "Controleren...");
+  setStatus(statusEl, "", "info");
+  try {
+    const res = await fetch("/api/validate-promo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: trimmed }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      state.promoCode = null;
+      setStatus(statusEl, data.message || "Ongeldige actiecode.", "error");
+      return;
+    }
+    state.promoCode = data.id;
+    setStatus(statusEl, `✓ ${data.discount}`, "success");
+  } catch {
+    state.promoCode = null;
+    setStatus(statusEl, "Kon de code niet controleren. Probeer later opnieuw.", "error");
+  } finally {
+    setLoadingState(button, false);
   }
 }
 

@@ -28,3 +28,11 @@
 .faq-item.open .faq-icon { transform: rotate(45deg); }
 .faq-a { font-size: 14px; color: var(--gray-500); line-height: 1.7; padding-bottom: 18px; display: none; }
 .faq-item.open .faq-a { display: block; }
+
+/* ===== Promo code ===== */
+.promo-code-wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 24px; }
+.promo-code-row { display: flex; gap: 8px; align-items: center; }
+.promo-field-wrap { display: flex; align-items: center; gap: 10px; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 0 12px; background: var(--white); flex: 1; max-width: 280px; height: 40px; }
+.promo-field-wrap svg { color: var(--gray-400); flex-shrink: 0; }
+.promo-field-wrap input { border: none; outline: none; background: transparent; font-size: 14px; font-family: inherit; width: 100%; color: var(--black); }
+.promo-field-wrap input::placeholder { color: var(--gray-400); }

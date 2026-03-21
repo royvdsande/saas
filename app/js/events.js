@@ -19,7 +19,7 @@ import {
   signInWithEmailPassword,
   signInWithGoogle,
 } from "./auth.js";
-import { startCheckout, openBillingPortal } from "./billing.js";
+import { startCheckout, openBillingPortal, applyPromoCode } from "./billing.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
 import {
   updateUserName,
@@ -126,6 +126,17 @@ export function bindEvents() {
         navigate(view === "billing" ? "/app/billing" : "/app/");
       }
     });
+  });
+
+  // Billing promo code
+  const billingPromoInput = document.getElementById("billing-promo-input");
+  const billingPromoBtn = document.getElementById("billing-promo-btn");
+  const billingPromoStatus = document.getElementById("billing-promo-status");
+  billingPromoBtn?.addEventListener("click", () =>
+    applyPromoCode(billingPromoInput?.value, billingPromoStatus, billingPromoBtn)
+  );
+  billingPromoInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") applyPromoCode(billingPromoInput.value, billingPromoStatus, billingPromoBtn);
   });
 
   // Billing portal
