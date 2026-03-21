@@ -1,3 +1,7 @@
+import {
+  multiFactor,
+  TotpMultiFactorGenerator,
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state, BINAS_CONFIG } from "./state.js";
 import { els } from "./elements.js";
 import {
@@ -244,6 +248,18 @@ export function updateSecurityTab() {
       ? "Stel eerst een wachtwoord in voordat je Google ontkoppelt."
       : "";
   }
+
+  // 2FA status
+  let hasTOTP = false;
+  try {
+    const enrolled = multiFactor(state.currentUser).enrolledFactors;
+    hasTOTP = enrolled.some((f) => f.factorId === TotpMultiFactorGenerator.FACTOR_ID);
+  } catch { /* MFA not available */ }
+
+  const twoFaOff = document.getElementById("settings-2fa-off");
+  const twoFaOn = document.getElementById("settings-2fa-on");
+  if (twoFaOff) twoFaOff.classList.toggle("hidden", hasTOTP);
+  if (twoFaOn) twoFaOn.classList.toggle("hidden", !hasTOTP);
 }
 
 export function _showSettingsTabDirect(tabName) {

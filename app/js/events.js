@@ -31,6 +31,10 @@ import {
   performDeleteAccount,
   updateUserPassword,
   toggleGoogleLink,
+  startTotpEnrollment,
+  confirmTotpEnrollment,
+  closeTotpEnrollModal,
+  unenrollTotp,
 } from "./settings.js";
 
 export function bindEvents() {
@@ -203,6 +207,23 @@ export function bindEvents() {
   // Security: Google link/unlink
   els.settingsGoogleLinkBtn?.addEventListener("click", () =>
     toggleGoogleLink(els.settingsLinkStatus, els.settingsGoogleLinkBtn)
+  );
+
+  // Security: 2FA
+  els.settingsEnable2faBtn?.addEventListener("click", () =>
+    startTotpEnrollment(els.settings2faStatus, els.settingsEnable2faBtn)
+  );
+  els.settingsDisable2faBtn?.addEventListener("click", () =>
+    unenrollTotp(els.settings2faStatus, els.settingsDisable2faBtn)
+  );
+  els.totpEnrollCancel?.addEventListener("click", closeTotpEnrollModal);
+  els.totpEnrollBackdrop?.addEventListener("click", closeTotpEnrollModal);
+  els.totpEnrollConfirm?.addEventListener("click", () =>
+    confirmTotpEnrollment(
+      els.totpVerifyCode?.value || "",
+      els.totpEnrollStatus,
+      els.totpEnrollConfirm
+    )
   );
 
   // Sessions: sign out

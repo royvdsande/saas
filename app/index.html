@@ -257,6 +257,30 @@
                 <div id="settings-security-status" class="auth-status" hidden></div>
               </div>
             </div>
+            <!-- Two-factor authentication -->
+            <div class="sc-card" id="settings-2fa-card">
+              <div class="sc-card-header">
+                <h3>Two-factor authentication</h3>
+                <p>Add an extra layer of security to your account using an authenticator app.</p>
+              </div>
+              <div class="sc-card-body">
+                <div id="settings-2fa-off">
+                  <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px">Two-factor authentication is not enabled yet. We recommend enabling it to keep your account secure.</p>
+                  <button class="btn btn-primary" id="settings-enable-2fa-btn">Enable 2FA</button>
+                </div>
+                <div id="settings-2fa-on" class="hidden">
+                  <div class="connected-row" style="margin-bottom:14px">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      <span style="font-size:14px;font-weight:500">Authenticator app</span>
+                    </div>
+                    <span class="badge badge-green">Active</span>
+                  </div>
+                  <button class="btn btn-outline" id="settings-disable-2fa-btn" style="color:#dc2626;border-color:#fca5a5">Disable 2FA</button>
+                </div>
+                <div id="settings-2fa-status" class="auth-status" hidden></div>
+              </div>
+            </div>
             <!-- Connected accounts -->
             <div class="sc-card">
               <div class="sc-card-header"><h3>Connected accounts</h3><p>Sign in faster to your account by linking it to Google.</p></div>
@@ -327,6 +351,33 @@
           </div>
         </div>
         <div id="modal-status" class="auth-status" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTP enrollment modal -->
+  <div class="modal-shell hidden" id="totp-enroll-modal">
+    <div class="modal-backdrop" id="totp-enroll-backdrop"></div>
+    <div class="modal-card confirm-modal-card" style="width:min(460px,calc(100% - 32px))" role="dialog" aria-modal="true">
+      <div class="modal-body" style="padding:32px">
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:8px">Set up two-factor authentication</h3>
+        <p style="font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:20px">Scan the QR code below with your authenticator app (e.g. Google Authenticator, Authy).</p>
+        <div id="totp-qr-wrap" style="display:flex;justify-content:center;margin-bottom:16px">
+          <canvas id="totp-qr-canvas" style="border-radius:8px"></canvas>
+        </div>
+        <div id="totp-secret-wrap" style="margin-bottom:16px">
+          <p style="font-size:12px;color:var(--gray-400);margin-bottom:6px">Can't scan? Enter this key manually:</p>
+          <code id="totp-secret-key" style="font-size:13px;background:var(--gray-100);padding:8px 12px;border-radius:6px;display:block;word-break:break-all;letter-spacing:1px"></code>
+        </div>
+        <div class="field" style="margin-bottom:20px">
+          <label>Verification code</label>
+          <input class="sc-input" id="totp-verify-code" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="text-align:center;font-size:18px;letter-spacing:6px">
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-outline" id="totp-enroll-cancel">Cancel</button>
+          <button class="btn btn-primary" id="totp-enroll-confirm">Verify & Enable</button>
+        </div>
+        <div id="totp-enroll-status" class="auth-status" hidden></div>
       </div>
     </div>
   </div>

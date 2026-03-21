@@ -8,6 +8,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  getMultiFactorResolver,
+  TotpMultiFactorGenerator,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state, plusLocalKey, storedEmailKey, initFirebase } from "./state.js";
 import { els } from "./elements.js";
@@ -15,6 +17,55 @@ import { setStatus, setLoadingState, getFirebaseErrorMessage } from "./utils.js"
 import { navigate } from "./router.js";
 import { hasLocalPlusStatus, savePlusStatusToCloud, checkCloudPlusStatus, getDashboardContext } from "./premium.js";
 import { updateAccountSurfaces } from "./dashboard.js";
+
+// MFA state
+let _mfaResolver = null;
+
+function showMfaChallenge() {
+  const authCard = document.querySelector(".auth-card:not(#mfa-challenge)");
+  const mfaCard = document.getElementById("mfa-challenge");
+  if (authCard) authCard.classList.add("hidden");
+  if (mfaCard) mfaCard.classList.remove("hidden");
+}
+
+export function cancelMfaChallenge() {
+  _mfaResolver = null;
+  const authCard = document.querySelector(".auth-card:not(#mfa-challenge)");
+  const mfaCard = document.getElementById("mfa-challenge");
+  if (mfaCard) mfaCard.classList.add("hidden");
+  if (authCard) authCard.classList.remove("hidden");
+}
+
+export async function verifyMfaCode(code, statusEl, button) {
+  if (!_mfaResolver) return;
+  if (!code || code.length !== 6) {
+    setStatus(statusEl, "Voer een 6-cijferige code in.", "error");
+    return;
+  }
+  setLoadingState(button, true, "Verifiëren...");
+  setStatus(statusEl, "", "info");
+  try {
+    const totpHint = _mfaResolver.hints.find(
+      (h) => h.factorId === TotpMultiFactorGenerator.FACTOR_ID
+    );
+    if (!totpHint) {
+      setStatus(statusEl, "Geen TOTP-factor gevonden.", "error");
+      return;
+    }
+    const assertion = TotpMultiFactorGenerator.assertionForSignIn(
+      totpHint.uid,
+      code
+    );
+    const result = await _mfaResolver.resolveSignIn(assertion);
+    state.currentUser = result.user;
+    _mfaResolver = null;
+    navigate("/app/");
+  } catch (error) {
+    setStatus(statusEl, "Ongeldige of verlopen code. Probeer opnieuw.", "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
 
 export async function sendMagicLink(email, statusEl, submitButton, mode = "signin") {
   if (!email) {
@@ -101,8 +152,13 @@ export async function signInWithEmailPassword(email, password, statusEl, button)
     state.currentUser = result.user;
     navigate("/app/");
   } catch (error) {
-    const msg = getFirebaseErrorMessage(error.code);
-    setStatus(statusEl, msg, "error");
+    if (error.code === "auth/multi-factor-auth-required") {
+      _mfaResolver = getMultiFactorResolver(state.auth, error);
+      showMfaChallenge();
+    } else {
+      const msg = getFirebaseErrorMessage(error.code);
+      setStatus(statusEl, msg, "error");
+    }
   } finally {
     setLoadingState(button, false);
   }
@@ -119,9 +175,14 @@ export async function signInWithGoogle(statusEl, button) {
     state.currentUser = result.user;
     navigate("/app/");
   } catch (error) {
-    const msg = getFirebaseErrorMessage(error.code);
-    if (msg) {
-      setStatus(statusEl, msg, "error");
+    if (error.code === "auth/multi-factor-auth-required") {
+      _mfaResolver = getMultiFactorResolver(state.auth, error);
+      showMfaChallenge();
+    } else {
+      const msg = getFirebaseErrorMessage(error.code);
+      if (msg) {
+        setStatus(statusEl, msg, "error");
+      }
     }
   } finally {
     setLoadingState(button, false);

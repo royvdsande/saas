@@ -7,6 +7,8 @@ import {
   signUpWithEmailPassword,
   sendMagicLink,
   refreshAccountState,
+  verifyMfaCode,
+  cancelMfaChallenge,
 } from "/app/js/auth.js";
 import { els } from "/app/js/elements.js";
 import { setSigninMode } from "/app/js/ui.js";
@@ -53,6 +55,20 @@ function bindAuthEvents() {
 
   els.signinGoogle?.addEventListener("click", () => signInWithGoogle(els.signinStatus, els.signinGoogle));
   els.signupGoogle?.addEventListener("click", () => signInWithGoogle(els.signupStatus, els.signupGoogle));
+
+  // MFA challenge
+  const mfaVerifyBtn = document.getElementById("mfa-verify-btn");
+  const mfaCodeInput = document.getElementById("mfa-code");
+  const mfaStatus = document.getElementById("mfa-status");
+  const mfaBackBtn = document.getElementById("mfa-back-btn");
+
+  mfaVerifyBtn?.addEventListener("click", () =>
+    verifyMfaCode(mfaCodeInput?.value || "", mfaStatus, mfaVerifyBtn)
+  );
+  mfaBackBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    cancelMfaChallenge();
+  });
 }
 
 async function init() {

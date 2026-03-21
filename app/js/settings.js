@@ -9,6 +9,8 @@ import {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  multiFactor,
+  TotpMultiFactorGenerator,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state } from "./state.js";
 import { els } from "./elements.js";
@@ -165,6 +167,100 @@ export async function toggleGoogleLink(statusEl, button) {
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     if (msg) setStatus(statusEl, msg, "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+/* ===== TOTP 2FA ===== */
+let _totpSecret = null;
+
+export function closeTotpEnrollModal() {
+  document.getElementById("totp-enroll-modal")?.classList.add("hidden");
+  _totpSecret = null;
+}
+
+export async function startTotpEnrollment(statusEl, button) {
+  if (!state.currentUser) return;
+  setLoadingState(button, true, "Laden...");
+  setStatus(statusEl, "", "info");
+  try {
+    const session = await multiFactor(state.currentUser).getSession();
+    _totpSecret = await TotpMultiFactorGenerator.generateSecret(session);
+
+    const qrUrl = _totpSecret.generateQrCodeUrl(
+      state.currentUser.email,
+      "FitFlow"
+    );
+
+    // Render QR code
+    const canvas = document.getElementById("totp-qr-canvas");
+    if (canvas) {
+      const QRCode = await import("https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm");
+      await QRCode.toCanvas(canvas, qrUrl, { width: 200, margin: 2 });
+    }
+
+    // Show secret key for manual entry
+    const keyEl = document.getElementById("totp-secret-key");
+    if (keyEl) keyEl.textContent = _totpSecret.secretKey;
+
+    // Clear previous code input
+    const codeInput = document.getElementById("totp-verify-code");
+    if (codeInput) codeInput.value = "";
+
+    // Show modal
+    document.getElementById("totp-enroll-modal")?.classList.remove("hidden");
+  } catch (error) {
+    setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+export async function confirmTotpEnrollment(code, statusEl, button) {
+  if (!_totpSecret || !state.currentUser) return;
+  if (!code || code.length !== 6) {
+    setStatus(statusEl, "Voer een 6-cijferige code in.", "error");
+    return;
+  }
+  setLoadingState(button, true, "Verifiëren...");
+  setStatus(statusEl, "", "info");
+  try {
+    const assertion = TotpMultiFactorGenerator.assertionForEnrollment(_totpSecret, code);
+    await multiFactor(state.currentUser).enroll(assertion, "Authenticator app");
+    closeTotpEnrollModal();
+    updateSecurityTab();
+    setStatus(
+      document.getElementById("settings-2fa-status"),
+      "Twee-factor authenticatie is ingeschakeld.",
+      "success"
+    );
+  } catch (error) {
+    setStatus(statusEl, "Ongeldige code. Probeer opnieuw.", "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+export async function unenrollTotp(statusEl, button) {
+  if (!state.currentUser) return;
+  const enrolledFactors = multiFactor(state.currentUser).enrolledFactors;
+  const totpFactor = enrolledFactors.find(
+    (f) => f.factorId === TotpMultiFactorGenerator.FACTOR_ID
+  );
+  if (!totpFactor) return;
+  setLoadingState(button, true, "Uitschakelen...");
+  setStatus(statusEl, "", "info");
+  try {
+    await multiFactor(state.currentUser).unenroll(totpFactor);
+    updateSecurityTab();
+    setStatus(statusEl, "Twee-factor authenticatie is uitgeschakeld.", "success");
+  } catch (error) {
+    const msg =
+      error.code === "auth/requires-recent-login"
+        ? "Log opnieuw in om 2FA uit te schakelen."
+        : getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
   } finally {
     setLoadingState(button, false);
   }

@@ -82,6 +82,7 @@ export function getFirebaseErrorMessage(code) {
     "auth/cancelled-popup-request": null,
     "auth/popup-blocked": "Popup geblokkeerd. Sta popups toe voor deze site.",
     "auth/requires-recent-login": "Log opnieuw in om deze actie uit te voeren.",
+    "auth/multi-factor-auth-required": null,
   };
   if (code in messages) return messages[code];
   return "Er is iets misgegaan. Probeer het opnieuw.";
