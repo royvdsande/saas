@@ -60,6 +60,8 @@ let currentPlanLabel = "Free";
 let dashboardContext = null;
 let currentPageId = "page-landing";
 let signinMode = "password"; // "password" | "magic"
+let currentBillingPeriod = "monthly"; // "monthly" | "yearly"
+let _routeInitialized = false;
 
 const firebaseAuthDomain = BINAS_CONFIG?.authDomain || "account.binas.app";
 const firebaseConfig = {
@@ -141,14 +143,11 @@ const els = {
   statFirestore: document.getElementById("stat-firestore"),
   statFirestoreCopy: document.getElementById("stat-firestore-copy"),
   tableCta: document.getElementById("table-cta"),
-  dashboardViewLinks: document.querySelectorAll("[data-dashboard-view]"),
   pricingToggleMonthly: document.getElementById("toggle-monthly"),
   pricingToggleYearly: document.getElementById("toggle-yearly"),
-  proPrice: document.getElementById("pro-price"),
   // Dashboard views
   dashboardTopbarLabel: document.getElementById("dashboard-topbar-label"),
   dashViews: document.querySelectorAll(".dash-view"),
-  dashViewLinks: document.querySelectorAll("[data-dashboard-view]"),
   billingStatus: document.getElementById("billing-status"),
   billingPlanName: document.getElementById("billing-plan-name"),
   billingPlanSub: document.getElementById("billing-plan-sub"),
@@ -159,9 +158,6 @@ const els = {
   billingPortalBtn: document.getElementById("billing-portal-btn"),
   billingUpgradeGrid: document.getElementById("billing-upgrade-grid"),
   // Settings page
-  settingsTabs: document.querySelectorAll(".settings-tab"),
-  settingsViews: document.querySelectorAll(".settings-view"),
-  settingsSidebarLinks: document.querySelectorAll("[data-settings-tab]"),
   settingsAvatar: document.getElementById("settings-avatar"),
   settingsUserAvatar: document.getElementById("settings-user-avatar"),
   settingsUserName: document.getElementById("settings-user-name"),
@@ -225,21 +221,94 @@ function closeSidebar() {
   els.dashboardAccountMenu?.classList.remove("open");
 }
 
-function showPage(id) {
-  if ((id === "page-dashboard" || id === "page-settings") && !currentUser) {
-    id = "page-signin";
-  }
-  if (id === "page-settings") {
-    updateSettingsPage();
-    showSettingsTab("profile");
-  }
+// ── Progress bar ──────────────────────────────────────────────────────────────
+let _progressTimer = null;
+const _progressEl = document.getElementById("progress-bar");
 
+function startProgress() {
+  if (!_progressEl) return;
+  clearTimeout(_progressTimer);
+  _progressEl.classList.remove("finishing");
+  _progressEl.style.width = "0%";
+  _progressEl.classList.add("running");
+  requestAnimationFrame(() => requestAnimationFrame(() => { _progressEl.style.width = "72%"; }));
+}
+
+function finishProgress() {
+  if (!_progressEl) return;
+  _progressEl.classList.add("finishing");
+  _progressTimer = setTimeout(() => {
+    _progressEl.classList.remove("running", "finishing");
+    _progressEl.style.width = "0%";
+  }, 400);
+}
+
+// ── URL routing ───────────────────────────────────────────────────────────────
+const PAGE_PATHS = {
+  "page-landing": "/",
+  "page-pricing": "/pricing",
+  "page-signin": "/signin",
+  "page-signup": "/signup",
+  "page-dashboard": "/dashboard",
+  "page-settings": "/dashboard/settings",
+};
+
+function navigate(path, { showProgress = true } = {}) {
+  const current = window.location.pathname + window.location.search;
+  if (current === path) return;
+  if (showProgress) startProgress();
+  window.history.pushState({}, "", path);
+  renderRoute();
+  if (showProgress) setTimeout(finishProgress, 80);
+}
+
+function renderRoute() {
+  const path = window.location.pathname;
+  const tab = new URLSearchParams(window.location.search).get("tab");
+
+  if (path === "/dashboard/settings") {
+    _showPageDirect("page-settings");
+    _showSettingsTabDirect(tab || "profile");
+    return;
+  }
+  if (path === "/dashboard/billing") {
+    if (!currentUser) { navigate("/signin", { showProgress: false }); return; }
+    _showPageDirect("page-dashboard");
+    showDashboardView("billing");
+    return;
+  }
+  if (path === "/dashboard") {
+    if (!currentUser) { navigate("/signin", { showProgress: false }); return; }
+    _showPageDirect("page-dashboard");
+    showDashboardView("overview");
+    return;
+  }
+  const pageMap = {
+    "/": "page-landing",
+    "/pricing": "page-pricing",
+    "/signin": "page-signin",
+    "/signup": "page-signup",
+  };
+  _showPageDirect(pageMap[path] || "page-landing");
+}
+
+function _showPageDirect(id) {
+  if ((id === "page-dashboard" || id === "page-settings") && !currentUser) {
+    navigate("/signin", { showProgress: false }); return;
+  }
   currentPageId = id;
-  els.pages.forEach((page) => page.classList.toggle("active", page.id === id));
+  els.pages.forEach((p) => p.classList.toggle("active", p.id === id));
   closeMobileMenus();
   closeSidebar();
   closeAccountModal();
   window.scrollTo(0, 0);
+  if (id === "page-settings") { updateSettingsPage(); _showSettingsTabDirect("profile"); }
+  if (id === "page-dashboard") showDashboardView("overview");
+}
+
+function showPage(id) {
+  const path = PAGE_PATHS[id] || "/";
+  navigate(path);
 }
 
 function setStatus(element, message, variant = "info") {
@@ -394,11 +463,26 @@ async function getDashboardContext(user) {
   };
 }
 
+function updatePricingCards() {
+  const plans = BINAS_CONFIG?.plans || [];
+  plans.forEach((plan) => {
+    const priceEl = document.getElementById(`price-${plan.id}`);
+    const perEl = document.getElementById(`per-${plan.id}`);
+    if (currentBillingPeriod === "yearly") {
+      if (priceEl) priceEl.textContent = `€ ${plan.yearlyPrice}`;
+      if (perEl) perEl.textContent = "/mo — jaarlijks gefactureerd";
+    } else {
+      if (priceEl) priceEl.textContent = `€ ${plan.monthlyPrice}`;
+      if (perEl) perEl.textContent = "/mo";
+    }
+  });
+}
+
 function updatePricingCopy() {
-  const price = BINAS_CONFIG?.priceDisplay ? `€ ${BINAS_CONFIG.priceDisplay}` : "€ 1,49";
-  els.proPrice.innerHTML = `${price} <span>/eenmalig</span>`;
+  currentBillingPeriod = "monthly";
   els.pricingToggleMonthly?.classList.add("active");
   els.pricingToggleYearly?.classList.remove("active");
+  updatePricingCards();
 }
 
 function updateAuthNavigation() {
@@ -543,8 +627,8 @@ async function refreshAccountState(user, options = {}) {
     isPremiumUser = hasLocalPlusStatus();
     currentPlanLabel = isPremiumUser ? "Premium" : "Free";
     updateAccountSurfaces();
-    if (currentPageId === "page-dashboard") {
-      showPage("page-signin");
+    if (currentPageId === "page-dashboard" || currentPageId === "page-settings") {
+      navigate("/signin", { showProgress: false });
     }
     return;
   }
@@ -560,7 +644,7 @@ async function refreshAccountState(user, options = {}) {
   updateAccountSurfaces();
 
   if (options.showDashboard) {
-    showPage("page-dashboard");
+    navigate("/dashboard");
   }
 }
 
@@ -620,7 +704,7 @@ async function signUpWithEmailPassword(name, email, password, statusEl, button) 
       "Welkom! We hebben een verificatie-e-mail verstuurd. Controleer je inbox.",
       "info"
     );
-    showPage("page-dashboard");
+    navigate("/dashboard");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
@@ -646,7 +730,7 @@ async function signInWithEmailPassword(email, password, statusEl, button) {
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     currentUser = result.user;
-    showPage("page-dashboard");
+    navigate("/dashboard");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
@@ -664,7 +748,7 @@ async function signInWithGoogle(statusEl, button) {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     currentUser = result.user;
-    showPage("page-dashboard");
+    navigate("/dashboard");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     if (msg) {
@@ -675,7 +759,7 @@ async function signInWithGoogle(statusEl, button) {
   }
 }
 
-async function startCheckout(statusTarget = els.pricingStatus) {
+async function startCheckout(statusTarget = els.pricingStatus, planId = null) {
   if (isPremiumUser) {
     setStatus(statusTarget, "Premium is al actief op dit account.", "success");
     return;
@@ -692,6 +776,15 @@ async function startCheckout(statusTarget = els.pricingStatus) {
   checkoutButtons.forEach((button) => setLoadingState(button, true, "Checkout openen..."));
   setStatus(statusTarget, "", "info");
 
+  // Resolve price ID from plan config
+  let priceId = BINAS_CONFIG?.stripePriceId || "price_1TDM6gLzjWXxGtsSmBBGHvnY";
+  if (planId && BINAS_CONFIG?.plans) {
+    const plan = BINAS_CONFIG.plans.find((p) => p.id === planId);
+    if (plan) {
+      priceId = currentBillingPeriod === "yearly" ? plan.yearlyPriceId : plan.monthlyPriceId;
+    }
+  }
+
   try {
     const { signInAnonymously } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js");
     const wasLoggedIn = auth.currentUser && !auth.currentUser.isAnonymous;
@@ -701,8 +794,8 @@ async function startCheckout(statusTarget = els.pricingStatus) {
     }
 
     const sessionData = {
-      mode: "payment",
-      price: BINAS_CONFIG?.stripePriceId || "price_1SmVggLzjWXxGtsShYIXmRVx",
+      mode: "subscription",
+      price: priceId,
       success_url: `${window.location.origin}/?status=success&anonymous=${!wasLoggedIn}`,
       cancel_url: `${window.location.origin}/?status=cancel`,
     };
@@ -751,17 +844,19 @@ async function completeMagicLinkSignIn() {
     currentUser = result.user;
     localStorage.removeItem(storedEmailKey);
     window.history.replaceState({}, document.title, window.location.pathname);
-    showPage("page-dashboard");
+    navigate("/dashboard");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(els.signinStatus, msg || "Magic link login mislukt.", "error");
-    showPage("page-signin");
+    navigate("/signin");
   }
 }
 
 function showDashboardView(viewName) {
+  const path = viewName === "billing" ? "/dashboard/billing" : "/dashboard";
+  if (window.location.pathname !== path) window.history.replaceState({}, "", path);
   els.dashViews.forEach((v) => v.classList.toggle("active", v.id === `dash-view-${viewName}`));
-  els.dashViewLinks.forEach((btn) => {
+  document.querySelectorAll("#sidebar-dash [data-dashboard-view]").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.dashboardView === viewName);
   });
   if (els.dashboardTopbarLabel) {
@@ -773,9 +868,21 @@ function showDashboardView(viewName) {
 }
 
 function showSettingsTab(tabName) {
-  els.settingsTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.settingsTab === tabName));
-  els.settingsSidebarLinks.forEach((link) => link.classList.toggle("active", link.dataset.settingsTab === tabName));
-  els.settingsViews.forEach((view) => view.classList.toggle("active", view.id === `settings-view-${tabName}`));
+  const url = `/dashboard/settings${tabName !== "profile" ? `?tab=${tabName}` : ""}`;
+  window.history.replaceState({}, "", url);
+  _showSettingsTabDirect(tabName);
+}
+
+function _showSettingsTabDirect(tabName) {
+  document.querySelectorAll(".settings-tabs .settings-tab").forEach((t) =>
+    t.classList.toggle("active", t.dataset.settingsTab === tabName)
+  );
+  document.querySelectorAll("#sidebar-settings [data-settings-tab]").forEach((l) =>
+    l.classList.toggle("active", l.dataset.settingsTab === tabName)
+  );
+  document.querySelectorAll(".settings-view").forEach((v) =>
+    v.classList.toggle("active", v.id === `settings-view-${tabName}`)
+  );
   if (tabName === "sessions") updateSessionInfo();
   if (tabName === "security") updateSecurityTab();
 }
@@ -941,7 +1048,7 @@ async function deleteAccount(statusEl, button) {
   setStatus(statusEl, "", "info");
   try {
     await deleteUser(currentUser);
-    showPage("page-landing");
+    navigate("/");
   } catch (error) {
     const msg = error.code === "auth/requires-recent-login"
       ? "Log opnieuw in om je account te verwijderen."
@@ -1009,12 +1116,16 @@ function setSigninMode(mode) {
 function bindEvents() {
   els.routeButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      showPage(button.dataset.route);
+      const target = button.dataset.route;
+      navigate(PAGE_PATHS[target] || "/" + target.replace("page-", ""));
     });
   });
 
   els.mobileMenuLinks.forEach((button) => {
-    button.addEventListener("click", () => showPage(button.dataset.route));
+    button.addEventListener("click", () => {
+      const target = button.dataset.route;
+      navigate(PAGE_PATHS[target] || "/" + target.replace("page-", ""));
+    });
   });
 
   els.burgerButtons.forEach((button) => {
@@ -1040,15 +1151,15 @@ function bindEvents() {
 
   els.pricingToggleMonthly?.addEventListener("click", () => {
     els.pricingToggleMonthly.classList.add("active");
-    els.pricingToggleYearly.classList.remove("active");
-    updatePricingCopy();
+    els.pricingToggleYearly?.classList.remove("active");
+    currentBillingPeriod = "monthly";
+    updatePricingCards();
   });
   els.pricingToggleYearly?.addEventListener("click", () => {
-    els.pricingToggleMonthly.classList.remove("active");
+    els.pricingToggleMonthly?.classList.remove("active");
     els.pricingToggleYearly.classList.add("active");
-    const basePrice = Number.parseFloat((BINAS_CONFIG?.priceDisplay || "1.49").replace(",", "."));
-    const yearlyPrice = Number.isFinite(basePrice) ? (basePrice * 0.8).toFixed(2).replace(".", ",") : "1,19";
-    els.proPrice.innerHTML = `€ ${yearlyPrice} <span>/eenmalig</span>`;
+    currentBillingPeriod = "yearly";
+    updatePricingCards();
   });
 
   els.signinForm?.addEventListener("submit", async (event) => {
@@ -1080,17 +1191,27 @@ function bindEvents() {
     setSigninMode(signinMode === "password" ? "magic" : "password");
   });
 
-  // Dashboard view switching
-  els.dashViewLinks.forEach((btn) => {
-    btn.addEventListener("click", () => showDashboardView(btn.dataset.dashboardView));
+  // Dashboard view switching (scoped to sidebar)
+  document.querySelectorAll("#sidebar-dash [data-dashboard-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.dataset.dashboardView;
+      navigate(view === "billing" ? "/dashboard/billing" : "/dashboard");
+    });
   });
 
   // Billing
-  els.billingUpgradeBtn?.addEventListener("click", () => startCheckout(els.billingStatus));
   els.billingPortalBtn?.addEventListener("click", () => openBillingPortal(els.billingStatus));
 
-  // Settings tabs (top nav + sidebar)
-  document.querySelectorAll("[data-settings-tab]").forEach((btn) => {
+  // Plan checkout buttons in billing grid (delegated)
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-plan-checkout]");
+    if (btn) startCheckout(els.billingStatus, btn.dataset.planCheckout);
+    const pBtn = e.target.closest("[data-pricing-checkout]");
+    if (pBtn) startCheckout(els.pricingStatus, pBtn.dataset.pricingCheckout);
+  });
+
+  // Settings tabs (top nav + sidebar, scoped)
+  document.querySelectorAll(".settings-tabs [data-settings-tab], #sidebar-settings [data-settings-tab]").forEach((btn) => {
     btn.addEventListener("click", () => showSettingsTab(btn.dataset.settingsTab));
   });
 
@@ -1151,7 +1272,7 @@ function bindEvents() {
   els.settingsSignoutBtn?.addEventListener("click", async () => {
     if (!auth || !auth.currentUser) return;
     await signOut(auth);
-    showPage("page-landing");
+    navigate("/");
   });
 
   // Password visibility toggles
@@ -1177,14 +1298,14 @@ function bindEvents() {
 
   els.modalDashboardBtn?.addEventListener("click", () => {
     closeAccountModal();
-    showPage(currentUser ? "page-dashboard" : "page-signin");
+    navigate(currentUser ? "/dashboard" : "/signin");
   });
 
   els.modalLogoutBtn?.addEventListener("click", async () => {
     if (!auth || !auth.currentUser) return;
     await signOut(auth);
     closeAccountModal();
-    showPage("page-landing");
+    navigate("/");
   });
 
   els.accountModalBackdrop?.addEventListener("click", closeAccountModal);
@@ -1196,20 +1317,20 @@ function bindEvents() {
   els.dashboardSignout?.addEventListener("click", async () => {
     if (!auth || !auth.currentUser) return;
     await signOut(auth);
-    showPage("page-landing");
+    navigate("/");
   });
 
   els.ctxOpenBilling?.addEventListener("click", () => {
     els.dashboardAccountMenu.classList.remove("open");
-    showDashboardView("billing");
+    navigate("/dashboard/billing");
   });
 
   els.ctxOpenPricing?.addEventListener("click", () => {
     els.dashboardAccountMenu.classList.remove("open");
-    showPage("page-pricing");
+    navigate("/pricing");
   });
 
-  els.tableCta?.addEventListener("click", () => showPage("page-pricing"));
+  els.tableCta?.addEventListener("click", () => navigate("/pricing"));
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".sidebar-user-wrap")) {
@@ -1243,10 +1364,15 @@ async function initAuth() {
   initFirebase();
   await completeMagicLinkSignIn();
 
+  window.addEventListener("popstate", () => renderRoute());
+
   onAuthStateChanged(auth, async (user) => {
-    await refreshAccountState(user, {
-      showDashboard: currentPageId === "page-dashboard" && Boolean(user),
-    });
+    await refreshAccountState(user, {});
+
+    if (!_routeInitialized) {
+      _routeInitialized = true;
+      renderRoute();
+    }
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("status") === "success") {

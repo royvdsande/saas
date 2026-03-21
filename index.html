@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="progress-bar"></div>
   <div id="page-landing" class="page active">
     <nav class="nav">
       <button class="nav-logo button-reset" data-route="page-landing">
@@ -146,6 +147,7 @@
       </div>
 
       <div class="pricing-cards-wrap">
+        <!-- Free -->
         <div class="p-card">
           <div class="p-card-head"><h3>Free</h3></div>
           <div class="p-price">€ 0,00 <span>/mo</span></div>
@@ -158,31 +160,47 @@
           </ul>
           <div class="p-card-cta"><button class="btn btn-outline btn-full" data-route="page-signup">Get Started Free</button></div>
         </div>
+        <!-- Plus -->
+        <div class="p-card">
+          <div class="p-card-head"><h3>Plus</h3></div>
+          <div class="p-price"><span id="price-plus">€ 4,99</span> <span id="per-plus">/mo</span></div>
+          <p class="p-desc">Ideaal om te starten.</p>
+          <ul class="p-feats">
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alles in Free</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail + wachtwoord login</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link inloggen</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Basis account dashboard</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail support</li>
+          </ul>
+          <div class="p-card-cta"><button class="btn btn-outline btn-full" data-pricing-checkout="plus">Start checkout</button></div>
+        </div>
+        <!-- Pro (most popular) -->
         <div class="p-card" style="border-color:var(--black)">
           <div class="p-card-head"><h3>Pro</h3><span class="p-card-badge">Most popular</span></div>
-          <div class="p-price" id="pro-price">€ 1,49 <span>/eenmalig</span></div>
-          <p class="p-desc">De bestaande premium-flow, nu in de FitFlow UI.</p>
+          <div class="p-price"><span id="price-pro">€ 9,00</span> <span id="per-pro">/mo</span></div>
+          <p class="p-desc">Voor serieuze projecten.</p>
           <ul class="p-feats">
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bestaande Stripe checkout</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Premium-status sync</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Firestore customer records</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Account-gekoppelde aankoop</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Anon checkout fallback</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Direct zichtbaar in dashboard</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alles in Plus</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Prioriteit support</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Geavanceerde analytics</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Stripe billing portal</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Custom integraties</li>
           </ul>
-          <div class="p-card-cta"><button class="btn btn-primary btn-full" id="pricing-checkout-btn">Start checkout</button></div>
+          <div class="p-card-cta"><button class="btn btn-primary btn-full" data-pricing-checkout="pro">Start checkout</button></div>
         </div>
+        <!-- Ultimate -->
         <div class="p-card">
-          <div class="p-card-head"><h3>Account</h3></div>
-          <div class="p-price"><span id="pricing-account-plan">Free plan</span></div>
-          <p class="p-desc" id="pricing-account-copy">Log in om je account en premium-status te synchroniseren.</p>
+          <div class="p-card-head"><h3>Ultimate</h3></div>
+          <div class="p-price"><span id="price-ultimate">€ 49,99</span> <span id="per-ultimate">/mo</span></div>
+          <p class="p-desc">Onbeperkt schalen.</p>
           <ul class="p-feats">
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Google login</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail + wachtwoord</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link optie</li>
-            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Realtime accountstatus</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alles in Pro</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API toegang</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Onbeperkte teamleden</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>SLA garantie</li>
+            <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
           </ul>
-          <div class="p-card-cta"><button class="btn btn-outline btn-full" data-route="page-signin">Open account</button></div>
+          <div class="p-card-cta"><button class="btn btn-outline btn-full" data-pricing-checkout="ultimate">Start checkout</button></div>
         </div>
       </div>
 
@@ -390,20 +408,44 @@
               </div>
               <div class="sc-card-body">
                 <div class="billing-upgrade-grid" id="billing-upgrade-grid">
+                  <!-- Plus -->
+                  <div class="billing-upgrade-card">
+                    <p style="font-size:16px;font-weight:700;margin-bottom:4px">Plus</p>
+                    <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 4,99 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
+                    <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Ideaal om te starten.</p>
+                    <ul class="billing-features" style="margin-bottom:16px">
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail + wachtwoord login</li>
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link inloggen</li>
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail support</li>
+                    </ul>
+                    <button class="btn btn-outline btn-full" data-plan-checkout="plus">Upgraden</button>
+                  </div>
+                  <!-- Pro -->
                   <div class="billing-upgrade-card billing-upgrade-card--primary">
-                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
-                      <p style="font-size:17px;font-weight:700">Pro</p>
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+                      <p style="font-size:16px;font-weight:700">Pro</p>
                       <span style="background:var(--gray-100);color:var(--gray-600);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px">Meest populair</span>
                     </div>
-                    <p style="font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px">€ 1,49 <span style="font-size:13px;font-weight:400;color:var(--gray-500)">/eenmalig</span></p>
-                    <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Eenmalige aankoop, lifetime toegang.</p>
-                    <ul class="billing-features" style="margin-bottom:20px">
-                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alle free functies</li>
-                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Premium status sync</li>
-                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Stripe customer record</li>
+                    <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 9,00 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
+                    <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Voor serieuze projecten.</p>
+                    <ul class="billing-features" style="margin-bottom:16px">
                       <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Prioriteit support</li>
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Geavanceerde analytics</li>
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Stripe billing portal</li>
                     </ul>
-                    <button class="btn btn-primary btn-full" id="billing-upgrade-btn">Upgraden</button>
+                    <button class="btn btn-primary btn-full" data-plan-checkout="pro">Upgraden</button>
+                  </div>
+                  <!-- Ultimate -->
+                  <div class="billing-upgrade-card">
+                    <p style="font-size:16px;font-weight:700;margin-bottom:4px">Ultimate</p>
+                    <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 49,99 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
+                    <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Onbeperkt schalen.</p>
+                    <ul class="billing-features" style="margin-bottom:16px">
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API toegang</li>
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Onbeperkte teamleden</li>
+                      <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
+                    </ul>
+                    <button class="btn btn-outline btn-full" data-plan-checkout="ultimate">Upgraden</button>
                   </div>
                 </div>
                 <!-- Portal button (shown when premium) -->
