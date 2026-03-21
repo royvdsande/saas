@@ -63,6 +63,9 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
     onSnapshot(docRef, (snapshot) => {
       const data = snapshot.data();
       if (data?.url) {
+        window.addEventListener("pageshow", (e) => {
+          if (e.persisted) checkoutButtons.forEach((button) => setLoadingState(button, false));
+        }, { once: true });
         window.location.href = data.url;
       }
       if (data?.error) {
