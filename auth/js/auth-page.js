@@ -86,7 +86,9 @@ async function init() {
   onAuthStateChanged(state.auth, async (user) => {
     await refreshAccountState(user, {});
     if (user && !user.isAnonymous) {
-      window.location.replace("/app/");
+      // After signup → onboarding; after login → dashboard
+      const isSignup = window.location.pathname.includes("signup");
+      window.location.replace(isSignup ? "/onboarding" : "/app/");
     }
   });
 }

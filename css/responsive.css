@@ -11,6 +11,15 @@
   .tech-logos { gap: 12px; }
   .section { padding: 48px 16px; }
   .features-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .teaser-wrap { max-width: 100%; }
+  .cta-box { padding: 40px 20px; }
+  .hero-floating { display: none; }
+  /* Onboarding */
+  .ob-cards { grid-template-columns: 1fr 1fr; }
+  .ob-pills { flex-wrap: wrap; }
+  .ob-form-grid { grid-template-columns: 1fr; }
+  .ob-result-grid { grid-template-columns: 1fr; }
   footer { padding: 24px 16px; flex-direction: column; align-items: flex-start; }
   .pricing-hero { padding: 48px 16px 30px; }
   .pricing-cards-wrap { padding: 0 16px 12px; grid-template-columns: 1fr; }

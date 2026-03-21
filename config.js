@@ -1,9 +1,9 @@
-// Binas App Configuration
+// FitFlow App Configuration
 // ========================
 
 const BINAS_CONFIG = {
-  version: "Versie 1.0.0",
-  copyright: "2026 Binas.app",
+  version: "Versie 2.0.0",
+  copyright: "2026 FitFlow",
   showCredit: false,
 
   // Firebase configuratie
@@ -15,15 +15,15 @@ const BINAS_CONFIG = {
   // Feature Flags
   enableBinasPlus: true,
 
-  // Fallback Stripe Price ID (Plus maandelijks)
+  // Fallback Stripe Price ID (Starter monthly)
   stripePriceId: "price_1TDM6gLzjWXxGtsSmBBGHvnY",
 
-  // Abonnementen
+  // Subscription Plans
   plans: [
     {
       id: "plus",
-      name: "Plus",
-      desc: "Ideaal om te starten.",
+      name: "Starter",
+      desc: "Perfect to get started with AI fitness.",
       monthlyPrice: "4,99",
       yearlyPrice: "3,99",
       yearlyTotal: "47,99",
@@ -31,17 +31,16 @@ const BINAS_CONFIG = {
       yearlyPriceId: "price_1TDMJ5LzjWXxGtsSYaGkzu7c",
       popular: false,
       features: [
-        "Alles in Free",
-        "E-mail + wachtwoord login",
-        "Magic link inloggen",
-        "Basis account dashboard",
-        "E-mail support",
+        "1 AI-generated plan per month",
+        "7-day training schedule",
+        "Basic nutrition guide",
+        "Email support",
       ],
     },
     {
       id: "pro",
       name: "Pro",
-      desc: "Voor serieuze projecten.",
+      desc: "For serious athletes who want results.",
       monthlyPrice: "9,00",
       yearlyPrice: "7,20",
       yearlyTotal: "86,40",
@@ -49,17 +48,16 @@ const BINAS_CONFIG = {
       yearlyPriceId: "price_1TDMLbLzjWXxGtsS87kmPljA",
       popular: true,
       features: [
-        "Alles in Plus",
-        "Prioriteit support",
-        "Geavanceerde analytics",
-        "Stripe billing portal",
-        "Custom integraties",
+        "Unlimited AI plans",
+        "Weekly plan updates",
+        "Detailed macro tracking",
+        "Priority support",
       ],
     },
     {
       id: "ultimate",
-      name: "Ultimate",
-      desc: "Onbeperkt schalen.",
+      name: "Elite",
+      desc: "The ultimate fitness experience.",
       monthlyPrice: "49,99",
       yearlyPrice: "39,99",
       yearlyTotal: "479,88",
@@ -67,10 +65,9 @@ const BINAS_CONFIG = {
       yearlyPriceId: "price_1TDMMiLzjWXxGtsSOjYwRXfP",
       popular: false,
       features: [
-        "Alles in Pro",
-        "API toegang",
-        "Onbeperkte teamleden",
-        "SLA garantie",
+        "Everything in Pro",
+        "AI coaching chat",
+        "Custom meal preferences",
         "Dedicated support",
       ],
     },

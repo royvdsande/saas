@@ -7,6 +7,7 @@ import {
   getAvatarMarkup,
 } from "./utils.js";
 import { renderBillingView } from "./billing.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 export function updatePricingCards() {
   const plans = BINAS_CONFIG?.plans || [];
@@ -259,14 +260,105 @@ export function showDashboardView(viewName, settingsTab = null) {
     }
   });
 
-  const labels = { billing: "Billing", settings: "Settings", ai: "AI Test" };
+  const labels = { billing: "Billing", settings: "Settings", ai: "AI Test", plan: "My Plan" };
   const label = labels[viewName] || "Home";
   if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = label;
   document.title = `FitFlow | ${label}`;
 
+  if (viewName === "plan") loadPlanView();
   if (viewName === "billing") renderBillingView();
   if (viewName === "settings") {
     updateSettingsPage();
     _showSettingsTabDirect(settingsTab || "profile");
+  }
+}
+
+// --- My Plan view ---
+async function loadPlanView() {
+  const container = document.getElementById("plan-content");
+  if (!container || !state.currentUser || !state.firestore) return;
+
+  container.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray-400)"><p style="font-size:14px">Loading your plan...</p></div>`;
+
+  try {
+    const userDoc = await getDoc(doc(state.firestore, "users", state.currentUser.uid));
+    const data = userDoc.exists() ? userDoc.data() : null;
+    const plan = data?.plan;
+
+    if (!plan) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px">
+          <div style="width:56px;height:56px;background:var(--accent-50,#ecfdf5);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#10b981)" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">No plan yet</h3>
+          <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px;max-width:340px;margin-left:auto;margin-right:auto">Complete the onboarding to get your personalized AI training and nutrition plan.</p>
+          <a class="btn btn-primary" href="/onboarding">Create my plan &rarr;</a>
+        </div>`;
+      return;
+    }
+
+    const isPremium = state.isPremiumUser;
+    let html = "";
+
+    // Summary + stats
+    if (plan.summary) {
+      html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-body"><p style="font-size:15px;line-height:1.6">${plan.summary}</p>
+        <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
+          <span style="font-size:13px;color:var(--gray-500)"><strong style="color:var(--accent,#10b981)">${plan.dailyCalories || "—"}</strong> daily kcal</span>
+          <span style="font-size:13px;color:var(--gray-500)"><strong style="color:var(--accent,#10b981)">7</strong> days planned</span>
+        </div>
+      </div></div>`;
+    }
+
+    // Tips
+    if (plan.tips?.length) {
+      html += `<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">${plan.tips.map((t) => `<div style="flex:1;min-width:140px;background:var(--accent-50,#ecfdf5);border:1px solid var(--accent-light,#d1fae5);border-radius:var(--radius,10px);padding:10px 12px;font-size:13px;color:var(--accent-dark,#059669);line-height:1.5">${t}</div>`).join("")}</div>`;
+    }
+
+    // Training
+    html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-header"><h3>Training Plan</h3></div><div class="sc-card-body" style="padding:0">`;
+    (plan.training || []).forEach((day, i) => {
+      const blurred = !isPremium && i >= 2;
+      html += `<div style="border-bottom:1px solid var(--gray-100);${blurred ? "filter:blur(6px);user-select:none;pointer-events:none" : ""}">
+        <div style="padding:12px 16px;font-size:13px;font-weight:700;background:var(--gray-50);border-bottom:1px solid var(--gray-100)">${day.day}</div>
+        <div style="padding:8px 16px">${(day.exercises || []).map((ex) => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-50)"><span style="font-size:14px;font-weight:500">${ex.name}</span><span style="font-size:13px;color:var(--gray-500)">${ex.sets} &times; ${ex.reps} &bull; ${ex.rest}</span></div>`).join("")}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+
+    // Nutrition
+    html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-header"><h3>Nutrition Plan</h3></div><div class="sc-card-body" style="padding:0">`;
+    (plan.nutrition || []).forEach((day, i) => {
+      const blurred = !isPremium && i >= 1;
+      const meals = day.meals || {};
+      html += `<div style="border-bottom:1px solid var(--gray-100);${blurred ? "filter:blur(6px);user-select:none;pointer-events:none" : ""}">
+        <div style="padding:12px 16px;font-size:13px;font-weight:700;background:var(--gray-50);border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between"><span>${day.day}</span><span style="font-weight:500;color:var(--gray-500)">${day.kcal || "—"} kcal</span></div>
+        <div style="padding:8px 16px">${["breakfast", "lunch", "dinner", "snacks"].filter((k) => meals[k]).map((k) => `<div style="padding:4px 0;border-bottom:1px solid var(--gray-50)"><span style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--gray-400)">${k}</span><p style="font-size:14px;margin-top:2px">${meals[k]}</p></div>`).join("")}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+
+    // Paywall for non-premium
+    if (!isPremium) {
+      html += `<div style="text-align:center;padding:32px 24px;background:linear-gradient(135deg,var(--accent-50,#ecfdf5),#f0fdf4);border:1px solid var(--accent-light,#d1fae5);border-radius:var(--radius-lg,14px);margin-top:-60px;position:relative">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#10b981)" stroke-width="1.5" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <h3 style="font-size:18px;font-weight:800;margin-bottom:6px">Unlock your complete plan</h3>
+        <p style="font-size:14px;color:var(--gray-500);margin-bottom:16px;max-width:360px;margin-left:auto;margin-right:auto">Upgrade to see all 7 days of training and nutrition, plus weekly updates.</p>
+        <button class="btn btn-primary" id="plan-unlock-btn" style="background:var(--accent,#10b981);border-color:var(--accent,#10b981)">Upgrade now &rarr;</button>
+      </div>`;
+    }
+
+    container.innerHTML = html;
+
+    // Bind unlock button
+    document.getElementById("plan-unlock-btn")?.addEventListener("click", () => {
+      import("./billing.js").then(({ startCheckout }) => {
+        const priceId = BINAS_CONFIG?.plans?.[1]?.monthlyPriceId || BINAS_CONFIG?.stripePriceId;
+        startCheckout(priceId);
+      });
+    });
+  } catch {
+    container.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray-500)"><p>Could not load your plan. Please try again later.</p></div>`;
   }
 }

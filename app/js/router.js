@@ -12,6 +12,7 @@ function getNormalizedAppPath() {
 
 export const PAGE_PATHS = {
   overview: "/app/",
+  plan: "/app/plan",
   billing: "/app/billing",
   settings: "/app/settings",
   ai: "/app/ai",
@@ -63,6 +64,10 @@ export function renderRoute() {
 
     if (path === "/app/settings") {
       showDashboardView("settings", tab || "profile");
+      return;
+    }
+    if (path === "/app/plan") {
+      showDashboardView("plan");
       return;
     }
     if (path === "/app/billing") {

@@ -26,6 +26,7 @@
       <div class="sidebar-section">
         <p class="sidebar-section-label">Application</p>
         <button class="sidebar-link active button-reset" data-dashboard-view="overview"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+        <button class="sidebar-link button-reset" data-dashboard-view="plan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>My Plan</button>
         <button class="sidebar-link button-reset" data-dashboard-view="billing"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Billing</button>
         <button class="sidebar-link button-reset" data-dashboard-view="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>AI Test</button>
       </div>
@@ -75,6 +76,22 @@
           <div style="margin-top:14px;text-align:right"><a style="font-size:13px;color:var(--gray-400);cursor:pointer" href="/">← Back to homepage</a></div>
         </div>
 
+        <!-- PLAN VIEW -->
+        <div id="dash-view-plan" class="dash-view">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap">
+            <div>
+              <h2 class="dash-title" style="margin-bottom:4px">My Plan</h2>
+              <p style="font-size:14px;color:var(--gray-500)">Your AI-generated training and nutrition plan.</p>
+            </div>
+            <a class="btn btn-primary" href="/onboarding" id="plan-generate-btn" style="font-size:13px">Generate new plan</a>
+          </div>
+          <div id="plan-content">
+            <div id="plan-loading" style="text-align:center;padding:48px 20px;color:var(--gray-400)">
+              <p style="font-size:14px">Loading your plan...</p>
+            </div>
+          </div>
+        </div>
+
         <!-- BILLING VIEW -->
         <div id="dash-view-billing" class="dash-view">
           <div style="margin-bottom:24px">
@@ -109,12 +126,12 @@
             <div class="sc-card-body">
               <div class="billing-upgrade-grid" id="billing-upgrade-grid">
                 <div class="billing-upgrade-card" id="billing-card-plus">
-                  <p style="font-size:16px;font-weight:700;margin-bottom:4px">Plus</p>
+                  <p style="font-size:16px;font-weight:700;margin-bottom:4px">Starter</p>
                   <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 4,99 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
                   <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Perfect to get started.</p>
                   <ul class="billing-features" style="margin-bottom:16px">
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email + password login</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link sign-in</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>1 AI plan per month</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>7-day training schedule</li>
                     <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email support</li>
                   </ul>
                   <button class="btn btn-outline btn-full" data-plan-checkout="plus" id="billing-cta-plus">Upgrade</button>
@@ -125,21 +142,21 @@
                     <span style="background:var(--gray-100);color:var(--gray-600);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px">Most popular</span>
                   </div>
                   <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 9,00 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
-                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">For serious projects.</p>
+                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">For serious athletes.</p>
                   <ul class="billing-features" style="margin-bottom:16px">
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Advanced analytics</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Stripe billing portal</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unlimited AI plans</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Weekly plan updates</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Detailed macro tracking</li>
                   </ul>
                   <button class="btn btn-primary btn-full" data-plan-checkout="pro" id="billing-cta-pro">Upgrade</button>
                 </div>
                 <div class="billing-upgrade-card" id="billing-card-ultimate">
-                  <p style="font-size:16px;font-weight:700;margin-bottom:4px">Ultimate</p>
+                  <p style="font-size:16px;font-weight:700;margin-bottom:4px">Elite</p>
                   <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 49,99 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
-                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Scale without limits.</p>
+                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">The ultimate experience.</p>
                   <ul class="billing-features" style="margin-bottom:16px">
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API access</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unlimited team members</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>AI coaching chat</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Custom meal preferences</li>
                     <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
                   </ul>
                   <button class="btn btn-outline btn-full" data-plan-checkout="ultimate" id="billing-cta-ultimate">Upgrade</button>
