@@ -45,7 +45,12 @@ export async function sendChatMessage(text, statusEl) {
       body: JSON.stringify({ messages }),
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error("Could not reach the AI service. Please try again.");
+    }
     if (!res.ok) throw new Error(data.message || "Request failed.");
 
     const reply = data.message;
