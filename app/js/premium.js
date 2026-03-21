@@ -64,10 +64,19 @@ export async function getDashboardContext(user) {
   const paymentsSnap = await getDocs(collection(state.firestore, "customers", user.uid, "payments"));
   const subscriptionsSnap = await getDocs(collection(state.firestore, "customers", user.uid, "subscriptions"));
 
+  const activeSub = subscriptionsSnap.docs.find((d) =>
+    ["active", "trialing"].includes(d.data().status)
+  );
+  const currentPriceId =
+    activeSub?.data()?.price?.id ||
+    activeSub?.data()?.items?.[0]?.price?.id ||
+    null;
+
   return {
     userDoc: userDocSnap.exists() ? userDocSnap.data() : {},
     customerDoc: customerDocSnap.exists() ? customerDocSnap.data() : {},
     paymentsCount: paymentsSnap.size,
     subscriptionsCount: subscriptionsSnap.size,
+    currentPriceId,
   };
 }

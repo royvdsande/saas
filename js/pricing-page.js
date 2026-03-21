@@ -1,24 +1,14 @@
 import "./public.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state, plusLocalKey } from "/app/js/state.js";
-import { startCheckout, applyPromoCode } from "/app/js/billing.js";
+import { startCheckout } from "/app/js/billing.js";
 import { setStatus } from "/app/js/utils.js";
 import { refreshAccountState } from "/app/js/auth.js";
 import { updatePricingCards, updatePricingCopy } from "/app/js/dashboard.js";
 
 const pricingStatus = document.getElementById("pricing-status");
-const promoInput = document.getElementById("pricing-promo-input");
-const promoBtn = document.getElementById("pricing-promo-btn");
-const promoStatus = document.getElementById("pricing-promo-status");
 
 function bindPricingEvents() {
-  promoBtn?.addEventListener("click", () =>
-    applyPromoCode(promoInput?.value, promoStatus, promoBtn)
-  );
-  promoInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") applyPromoCode(promoInput.value, promoStatus, promoBtn);
-  });
-
   document.addEventListener("click", (event) => {
     const pBtn = event.target.closest("[data-pricing-checkout]");
     if (pBtn) {
@@ -43,7 +33,7 @@ function handleCheckoutMessage() {
     if (params.get("anonymous") === "true") {
       localStorage.setItem(plusLocalKey, "true");
     }
-    setStatus(pricingStatus, "Checkout voltooid. Je premium-status wordt gesynchroniseerd.", "success");
+    setStatus(pricingStatus, "Checkout completed. Your premium status is being synced.", "success");
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 

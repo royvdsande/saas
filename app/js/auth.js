@@ -8,8 +8,6 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
-  getMultiFactorResolver,
-  TotpMultiFactorGenerator,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state, plusLocalKey, storedEmailKey, initFirebase } from "./state.js";
 import { els } from "./elements.js";
@@ -18,63 +16,14 @@ import { navigate } from "./router.js";
 import { hasLocalPlusStatus, savePlusStatusToCloud, checkCloudPlusStatus, getDashboardContext } from "./premium.js";
 import { updateAccountSurfaces } from "./dashboard.js";
 
-// MFA state
-let _mfaResolver = null;
-
-function showMfaChallenge() {
-  const authCard = document.querySelector(".auth-card:not(#mfa-challenge)");
-  const mfaCard = document.getElementById("mfa-challenge");
-  if (authCard) authCard.classList.add("hidden");
-  if (mfaCard) mfaCard.classList.remove("hidden");
-}
-
-export function cancelMfaChallenge() {
-  _mfaResolver = null;
-  const authCard = document.querySelector(".auth-card:not(#mfa-challenge)");
-  const mfaCard = document.getElementById("mfa-challenge");
-  if (mfaCard) mfaCard.classList.add("hidden");
-  if (authCard) authCard.classList.remove("hidden");
-}
-
-export async function verifyMfaCode(code, statusEl, button) {
-  if (!_mfaResolver) return;
-  if (!code || code.length !== 6) {
-    setStatus(statusEl, "Voer een 6-cijferige code in.", "error");
-    return;
-  }
-  setLoadingState(button, true, "Verifiëren...");
-  setStatus(statusEl, "", "info");
-  try {
-    const totpHint = _mfaResolver.hints.find(
-      (h) => h.factorId === TotpMultiFactorGenerator.FACTOR_ID
-    );
-    if (!totpHint) {
-      setStatus(statusEl, "Geen TOTP-factor gevonden.", "error");
-      return;
-    }
-    const assertion = TotpMultiFactorGenerator.assertionForSignIn(
-      totpHint.uid,
-      code
-    );
-    const result = await _mfaResolver.resolveSignIn(assertion);
-    state.currentUser = result.user;
-    _mfaResolver = null;
-    navigate("/app/");
-  } catch (error) {
-    setStatus(statusEl, "Ongeldige of verlopen code. Probeer opnieuw.", "error");
-  } finally {
-    setLoadingState(button, false);
-  }
-}
-
 export async function sendMagicLink(email, statusEl, submitButton, mode = "signin") {
   if (!email) {
-    setStatus(statusEl, "Vul een geldig e-mailadres in.", "error");
+    setStatus(statusEl, "Please enter a valid email address.", "error");
     return;
   }
 
   initFirebase();
-  setLoadingState(submitButton, true, "Versturen...");
+  setLoadingState(submitButton, true, "Sending...");
   setStatus(statusEl, "", "info");
 
   try {
@@ -85,12 +34,12 @@ export async function sendMagicLink(email, statusEl, submitButton, mode = "signi
     localStorage.setItem(storedEmailKey, email);
     const message =
       mode === "signup"
-        ? "Magic link verstuurd! Controleer je inbox om je account te activeren."
-        : "Magic link verstuurd! Controleer je inbox om in te loggen.";
+        ? "Magic link sent! Check your inbox to activate your account."
+        : "Magic link sent! Check your inbox to sign in.";
     setStatus(statusEl, message, "success");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
-    setStatus(statusEl, msg || "Kon de magic link niet versturen.", "error");
+    setStatus(statusEl, msg || "Could not send magic link.", "error");
   } finally {
     setLoadingState(submitButton, false);
   }
@@ -98,20 +47,20 @@ export async function sendMagicLink(email, statusEl, submitButton, mode = "signi
 
 export async function signUpWithEmailPassword(name, email, password, statusEl, button) {
   if (!name) {
-    setStatus(statusEl, "Vul je naam in.", "error");
+    setStatus(statusEl, "Please enter your name.", "error");
     return;
   }
   if (!email) {
-    setStatus(statusEl, "Vul een e-mailadres in.", "error");
+    setStatus(statusEl, "Please enter an email address.", "error");
     return;
   }
   if (!password || password.length < 6) {
-    setStatus(statusEl, "Wachtwoord moet minimaal 6 tekens zijn.", "error");
+    setStatus(statusEl, "Password must be at least 6 characters.", "error");
     return;
   }
 
   initFirebase();
-  setLoadingState(button, true, "Account aanmaken...");
+  setLoadingState(button, true, "Creating account...");
   setStatus(statusEl, "", "info");
 
   try {
@@ -121,7 +70,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
     state.currentUser = result.user;
     setStatus(
       els.dashboardStatus,
-      "Welkom! We hebben een verificatie-e-mail verstuurd. Controleer je inbox.",
+      "Welcome! We've sent a verification email. Please check your inbox.",
       "info"
     );
     navigate("/app/");
@@ -135,16 +84,16 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
 
 export async function signInWithEmailPassword(email, password, statusEl, button) {
   if (!email) {
-    setStatus(statusEl, "Vul een e-mailadres in.", "error");
+    setStatus(statusEl, "Please enter an email address.", "error");
     return;
   }
   if (!password) {
-    setStatus(statusEl, "Vul je wachtwoord in.", "error");
+    setStatus(statusEl, "Please enter your password.", "error");
     return;
   }
 
   initFirebase();
-  setLoadingState(button, true, "Inloggen...");
+  setLoadingState(button, true, "Signing in...");
   setStatus(statusEl, "", "info");
 
   try {
@@ -152,13 +101,8 @@ export async function signInWithEmailPassword(email, password, statusEl, button)
     state.currentUser = result.user;
     navigate("/app/");
   } catch (error) {
-    if (error.code === "auth/multi-factor-auth-required") {
-      _mfaResolver = getMultiFactorResolver(state.auth, error);
-      showMfaChallenge();
-    } else {
-      const msg = getFirebaseErrorMessage(error.code);
-      setStatus(statusEl, msg, "error");
-    }
+    const msg = getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
   } finally {
     setLoadingState(button, false);
   }
@@ -166,7 +110,7 @@ export async function signInWithEmailPassword(email, password, statusEl, button)
 
 export async function signInWithGoogle(statusEl, button) {
   initFirebase();
-  setLoadingState(button, true, "Google openen...");
+  setLoadingState(button, true, "Opening Google...");
   setStatus(statusEl, "", "info");
 
   try {
@@ -175,14 +119,9 @@ export async function signInWithGoogle(statusEl, button) {
     state.currentUser = result.user;
     navigate("/app/");
   } catch (error) {
-    if (error.code === "auth/multi-factor-auth-required") {
-      _mfaResolver = getMultiFactorResolver(state.auth, error);
-      showMfaChallenge();
-    } else {
-      const msg = getFirebaseErrorMessage(error.code);
-      if (msg) {
-        setStatus(statusEl, msg, "error");
-      }
+    const msg = getFirebaseErrorMessage(error.code);
+    if (msg) {
+      setStatus(statusEl, msg, "error");
     }
   } finally {
     setLoadingState(button, false);
@@ -197,11 +136,11 @@ export async function completeMagicLinkSignIn() {
 
   let email = localStorage.getItem(storedEmailKey);
   if (!email) {
-    email = window.prompt("Bevestig je e-mailadres om in te loggen:");
+    email = window.prompt("Confirm your email address to sign in:");
   }
 
   if (!email) {
-    setStatus(els.signinStatus, "Login geannuleerd: geen e-mailadres bevestigd.", "error");
+    setStatus(els.signinStatus, "Sign in cancelled: no email address confirmed.", "error");
     return;
   }
 
@@ -213,7 +152,7 @@ export async function completeMagicLinkSignIn() {
     navigate("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
-    setStatus(els.signinStatus, msg || "Magic link login mislukt.", "error");
+    setStatus(els.signinStatus, msg || "Magic link sign in failed.", "error");
     window.location.replace("/auth/login.html");
   }
 }

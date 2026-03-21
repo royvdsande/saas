@@ -45,7 +45,6 @@ export const state = {
   currentPageId: "page-public",
   signinMode: "password",
   currentBillingPeriod: "monthly",
-  promoCode: null,
   firebaseApp: null,
   auth: null,
   firestore: null,
@@ -62,7 +61,7 @@ export function initFirebase() {
   }
   if (!state.auth) {
     state.auth = getAuth(state.firebaseApp);
-    state.auth.languageCode = "nl";
+    state.auth.languageCode = "en";
   }
   if (!state.firestore) {
     state.firestore = getFirestore(state.firebaseApp);

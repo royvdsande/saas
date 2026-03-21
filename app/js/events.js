@@ -19,7 +19,7 @@ import {
   signInWithEmailPassword,
   signInWithGoogle,
 } from "./auth.js";
-import { startCheckout, openBillingPortal, applyPromoCode } from "./billing.js";
+import { startCheckout, openBillingPortal } from "./billing.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
 import {
   updateUserName,
@@ -30,12 +30,25 @@ import {
   closeDeleteConfirmModal,
   performDeleteAccount,
   updateUserPassword,
-  toggleGoogleLink,
-  startTotpEnrollment,
-  confirmTotpEnrollment,
-  closeTotpEnrollModal,
-  unenrollTotp,
 } from "./settings.js";
+import { sendChatMessage } from "./ai.js";
+
+function updatePasswordHint(input, hintEl) {
+  if (!hintEl) return;
+  const len = input.value.length;
+  const xIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  const checkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+  if (len === 0) {
+    hintEl.innerHTML = `${xIcon} 6 or more characters`;
+    hintEl.style.color = "var(--gray-400, #9ca3af)";
+  } else if (len < 6) {
+    hintEl.innerHTML = `${xIcon} 6 or more characters`;
+    hintEl.style.color = "#dc2626";
+  } else {
+    hintEl.innerHTML = `${checkIcon} Looks good`;
+    hintEl.style.color = "#16a34a";
+  }
+}
 
 export function bindEvents() {
   els.routeButtons.forEach((button) => {
@@ -122,25 +135,24 @@ export function bindEvents() {
       const tab = btn.dataset.settingsTab;
       if (view === "settings") {
         navigate(`/app/settings${tab && tab !== "profile" ? `?tab=${tab}` : ""}`);
+      } else if (view === "billing") {
+        navigate("/app/billing");
+      } else if (view === "ai") {
+        navigate("/app/ai");
       } else {
-        navigate(view === "billing" ? "/app/billing" : "/app/");
+        navigate("/app/");
       }
     });
   });
 
-  // Billing promo code
-  const billingPromoInput = document.getElementById("billing-promo-input");
-  const billingPromoBtn = document.getElementById("billing-promo-btn");
-  const billingPromoStatus = document.getElementById("billing-promo-status");
-  billingPromoBtn?.addEventListener("click", () =>
-    applyPromoCode(billingPromoInput?.value, billingPromoStatus, billingPromoBtn)
-  );
-  billingPromoInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") applyPromoCode(billingPromoInput.value, billingPromoStatus, billingPromoBtn);
+  // Billing portal flow buttons (delegated)
+  document.addEventListener("click", (e) => {
+    const portalBtn = e.target.closest("[data-portal-flow]");
+    if (portalBtn) {
+      const flow = portalBtn.dataset.portalFlow;
+      openBillingPortal(els.billingStatus, flow === "default" ? null : flow);
+    }
   });
-
-  // Billing portal
-  els.billingPortalBtn?.addEventListener("click", () => openBillingPortal(els.billingStatus));
 
   // Plan checkout buttons (delegated)
   document.addEventListener("click", (e) => {
@@ -160,7 +172,7 @@ export function bindEvents() {
     const file = e.target.files?.[0];
     if (!file || !state.currentUser) return;
     if (file.size > 5 * 1024 * 1024) {
-      setStatus(els.settingsPhotoStatus, "Foto mag niet groter zijn dan 5 MB.", "error");
+      setStatus(els.settingsPhotoStatus, "Photo must be under 5 MB.", "error");
       return;
     }
     const reader = new FileReader();
@@ -168,9 +180,9 @@ export function bindEvents() {
       try {
         await updateProfile(state.currentUser, { photoURL: ev.target.result });
         updateAccountSurfaces();
-        setStatus(els.settingsPhotoStatus, "Profielfoto bijgewerkt.", "success");
+        setStatus(els.settingsPhotoStatus, "Profile photo updated.", "success");
       } catch {
-        setStatus(els.settingsPhotoStatus, "Kon foto niet opslaan.", "error");
+        setStatus(els.settingsPhotoStatus, "Could not save photo.", "error");
       }
     };
     reader.readAsDataURL(file);
@@ -215,33 +227,14 @@ export function bindEvents() {
     )
   );
 
-  // Security: Google link/unlink
-  els.settingsGoogleLinkBtn?.addEventListener("click", () =>
-    toggleGoogleLink(els.settingsLinkStatus, els.settingsGoogleLinkBtn)
-  );
+  // Password strength icon — settings
+  els.settingsNewPassword?.addEventListener("input", () => {
+    updatePasswordHint(els.settingsNewPassword, document.getElementById("settings-password-hint"));
+  });
 
-  // Security: 2FA
-  els.settingsEnable2faBtn?.addEventListener("click", () =>
-    startTotpEnrollment(els.settings2faStatus, els.settingsEnable2faBtn)
-  );
-  els.settingsDisable2faBtn?.addEventListener("click", () =>
-    unenrollTotp(els.settings2faStatus, els.settingsDisable2faBtn)
-  );
-  els.totpEnrollCancel?.addEventListener("click", closeTotpEnrollModal);
-  els.totpEnrollBackdrop?.addEventListener("click", closeTotpEnrollModal);
-  els.totpEnrollConfirm?.addEventListener("click", () =>
-    confirmTotpEnrollment(
-      els.totpVerifyCode?.value || "",
-      els.totpEnrollStatus,
-      els.totpEnrollConfirm
-    )
-  );
-
-  // Sessions: sign out
-  els.settingsSignoutBtn?.addEventListener("click", async () => {
-    if (!state.auth || !state.auth.currentUser) return;
-    await signOut(state.auth);
-    window.location.replace("/");
+  // Password strength icon — signup
+  els.signupPassword?.addEventListener("input", () => {
+    updatePasswordHint(els.signupPassword, document.getElementById("signup-password-hint"));
   });
 
   // Password visibility toggles
@@ -294,6 +287,19 @@ export function bindEvents() {
   });
 
   els.tableCta?.addEventListener("click", () => { window.location.href = "/pricing.html"; });
+
+  // AI chat
+  els.aiChatSend?.addEventListener("click", () => {
+    const text = els.aiChatInput?.value.trim();
+    if (text) sendChatMessage(text, els.aiChatStatus);
+  });
+  els.aiChatInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const text = els.aiChatInput.value.trim();
+      if (text) sendChatMessage(text, els.aiChatStatus);
+    }
+  });
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".sidebar-user-wrap")) {

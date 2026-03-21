@@ -14,6 +14,7 @@ export const PAGE_PATHS = {
   overview: "/app/",
   billing: "/app/billing",
   settings: "/app/settings",
+  ai: "/app/ai",
 };
 
 export function startProgress() {
@@ -66,6 +67,10 @@ export function renderRoute() {
     }
     if (path === "/app/billing") {
       showDashboardView("billing");
+      return;
+    }
+    if (path === "/app/ai") {
+      showDashboardView("ai");
       return;
     }
     showDashboardView("overview");

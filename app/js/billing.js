@@ -10,7 +10,7 @@ import { initFirebase } from "./state.js";
 
 export async function startCheckout(statusTarget = els.pricingStatus, planId = null, triggerButton = null) {
   if (state.isPremiumUser) {
-    setStatus(statusTarget, "Premium is al actief op dit account.", "success");
+    setStatus(statusTarget, "Premium is already active on this account.", "success");
     return;
   }
 
@@ -51,16 +51,11 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       cancel_url: window.location.pathname.startsWith("/app")
         ? `${window.location.origin}/app/?checkout=cancel`
         : `${window.location.origin}/pricing.html?checkout=cancel`,
+      allow_promotion_codes: true,
     };
 
     if (state.auth.currentUser?.email) {
       sessionData.customer_email = state.auth.currentUser.email;
-    }
-
-    if (state.promoCode) {
-      sessionData.discounts = [{ promotion_code: state.promoCode }];
-    } else {
-      sessionData.allow_promotion_codes = true;
     }
 
     const sessionsRef = collection(state.firestore, "customers", state.auth.currentUser.uid, "checkout_sessions");
@@ -75,79 +70,85 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
         window.location.href = data.url;
       }
       if (data?.error) {
-        setStatus(statusTarget, data.error.message || "Checkout kon niet starten.", "error");
+        setStatus(statusTarget, data.error.message || "Checkout could not start.", "error");
         checkoutButtons.forEach((button) => setLoadingState(button, false));
       }
     });
   } catch (error) {
-    setStatus(statusTarget, `Fout bij checkout: ${error.message}`, "error");
+    setStatus(statusTarget, `Checkout error: ${error.message}`, "error");
     checkoutButtons.forEach((button) => setLoadingState(button, false));
   }
 }
 
-export async function applyPromoCode(code, statusEl, button) {
-  const trimmed = (code || '').trim();
-  if (!trimmed) {
-    setStatus(statusEl, "Voer een actiecode in.", "error");
-    return;
-  }
-  setLoadingState(button, true, "Controleren...");
-  setStatus(statusEl, "", "info");
-  try {
-    const res = await fetch("/api/validate-promo", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: trimmed }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      state.promoCode = null;
-      setStatus(statusEl, data.message || "Ongeldige actiecode.", "error");
-      return;
-    }
-    state.promoCode = data.id;
-    setStatus(statusEl, `✓ ${data.discount}`, "success");
-  } catch {
-    state.promoCode = null;
-    setStatus(statusEl, "Kon de code niet controleren. Probeer later opnieuw.", "error");
-  } finally {
-    setLoadingState(button, false);
-  }
-}
-
-export async function openBillingPortal(statusEl) {
+export async function openBillingPortal(statusEl, flow = null) {
   if (!state.currentUser) {
-    setStatus(statusEl, "Log in om het billing portaal te openen.", "error");
+    setStatus(statusEl, "Sign in to open the billing portal.", "error");
     return;
   }
-  setLoadingState(els.billingPortalBtn, true);
+  const portalBtns = document.querySelectorAll("[data-portal-flow]");
+  portalBtns.forEach((b) => setLoadingState(b, true));
   setStatus(statusEl, "", "info");
   try {
     const token = await state.currentUser.getIdToken();
+    const body = flow ? { flow } : {};
     const res = await fetch("/api/create-portal-session", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Portaal niet beschikbaar.");
+    if (!res.ok) throw new Error(data.message || "Portal not available.");
     window.location.href = data.url;
   } catch (error) {
     setStatus(statusEl, error.message, "error");
-    setLoadingState(els.billingPortalBtn, false);
+    portalBtns.forEach((b) => setLoadingState(b, false));
   }
 }
 
 export function renderBillingView() {
-  if (els.billingPlanName) els.billingPlanName.textContent = state.isPremiumUser ? "Pro" : "Free";
+  const currentPriceId = state.dashboardContext?.currentPriceId || null;
+  const plans = BINAS_CONFIG?.plans || [];
+  const currentPlan = plans.find(
+    (p) => p.monthlyPriceId === currentPriceId || p.yearlyPriceId === currentPriceId
+  );
+
+  // Update header plan info
+  if (els.billingPlanName) els.billingPlanName.textContent = currentPlan ? currentPlan.name : "Free";
   if (els.billingPlanSub) {
-    els.billingPlanSub.textContent = state.isPremiumUser
-      ? "Je premium plan is actief."
-      : "Upgrade om meer functies te ontgrendelen.";
+    els.billingPlanSub.textContent = currentPlan
+      ? `Your ${currentPlan.name} plan is active.`
+      : "No active subscription.";
   }
   if (els.billingPlanBadge) {
-    els.billingPlanBadge.textContent = state.isPremiumUser ? "Pro" : "Free";
-    els.billingPlanBadge.className = state.isPremiumUser ? "badge badge-blue" : "badge badge-gray";
+    els.billingPlanBadge.textContent = currentPlan ? currentPlan.name : "Free";
+    els.billingPlanBadge.className = currentPlan ? "badge badge-blue" : "badge badge-gray";
   }
-  if (els.billingUpgradeGrid) els.billingUpgradeGrid.classList.toggle("hidden", state.isPremiumUser);
-  if (els.billingPortalWrap) els.billingPortalWrap.classList.toggle("hidden", !state.isPremiumUser);
+
+  // Update each plan card CTA
+  plans.forEach((plan) => {
+    const card = document.getElementById(`billing-card-${plan.id}`);
+    const btn = document.getElementById(`billing-cta-${plan.id}`);
+    if (!card || !btn) return;
+
+    const isCurrent = currentPlan?.id === plan.id;
+    card.classList.toggle("billing-upgrade-card--current", isCurrent);
+
+    if (isCurrent) {
+      btn.textContent = "Current plan";
+      btn.disabled = true;
+    } else if (!currentPlan) {
+      btn.textContent = "Get started";
+      btn.disabled = false;
+    } else {
+      // Determine upgrade or downgrade by plan index
+      const currentIdx = plans.findIndex((p) => p.id === currentPlan.id);
+      const planIdx = plans.findIndex((p) => p.id === plan.id);
+      btn.textContent = planIdx > currentIdx ? "Upgrade" : "Downgrade";
+      btn.disabled = false;
+    }
+  });
+
+  // Show manage card only when subscribed
+  const manageCard = document.getElementById("billing-manage-card");
+  if (manageCard) manageCard.classList.toggle("hidden", !currentPlan);
 }

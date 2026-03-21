@@ -35,7 +35,7 @@ export function getInitials(user) {
 
 export function getAvatarMarkup(user) {
   if (user?.photoURL) {
-    return `<img src="${user.photoURL}" alt="Profielfoto" referrerpolicy="no-referrer" />`;
+    return `<img src="${user.photoURL}" alt="Profile photo" referrerpolicy="no-referrer" />`;
   }
   return getInitials(user);
 }
@@ -44,7 +44,7 @@ export function formatDate(value) {
   if (!value) return "—";
   const date = typeof value === "string" ? new Date(value) : value.toDate?.() || value;
   if (Number.isNaN(date?.getTime?.())) return "—";
-  return new Intl.DateTimeFormat("nl-NL", {
+  return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -61,29 +61,28 @@ export function getProviderLabel(user) {
 
 export function getProviderDescription(user) {
   const providerId = user?.providerData?.[0]?.providerId;
-  if (providerId === "google.com") return "Ingelogd via Google";
-  if (providerId === "emailLink") return "Ingelogd via magic link";
-  if (providerId === "password") return "Ingelogd via wachtwoord";
+  if (providerId === "google.com") return "Signed in via Google";
+  if (providerId === "emailLink") return "Signed in via magic link";
+  if (providerId === "password") return "Signed in via password";
   return "Email login";
 }
 
 export function getFirebaseErrorMessage(code) {
   const messages = {
-    "auth/email-already-in-use": "Dit e-mailadres is al in gebruik. Probeer in te loggen.",
-    "auth/invalid-email": "Ongeldig e-mailadres. Controleer je invoer.",
-    "auth/weak-password": "Wachtwoord is te zwak. Gebruik minimaal 6 tekens.",
-    "auth/user-not-found": "Geen account gevonden met dit e-mailadres.",
-    "auth/wrong-password": "Onjuist wachtwoord. Probeer het opnieuw.",
-    "auth/invalid-credential": "Onjuiste inloggegevens. Controleer je e-mail en wachtwoord.",
-    "auth/too-many-requests": "Te veel pogingen. Wacht even en probeer opnieuw.",
-    "auth/user-disabled": "Dit account is uitgeschakeld. Neem contact op met support.",
-    "auth/network-request-failed": "Netwerkfout. Controleer je internetverbinding.",
+    "auth/email-already-in-use": "This email address is already in use. Try signing in.",
+    "auth/invalid-email": "Invalid email address. Please check your input.",
+    "auth/weak-password": "Password is too weak. Use at least 6 characters.",
+    "auth/user-not-found": "No account found with this email address.",
+    "auth/wrong-password": "Incorrect password. Please try again.",
+    "auth/invalid-credential": "Incorrect credentials. Check your email and password.",
+    "auth/too-many-requests": "Too many attempts. Please wait and try again.",
+    "auth/user-disabled": "This account has been disabled. Contact support.",
+    "auth/network-request-failed": "Network error. Check your internet connection.",
     "auth/popup-closed-by-user": null,
     "auth/cancelled-popup-request": null,
-    "auth/popup-blocked": "Popup geblokkeerd. Sta popups toe voor deze site.",
-    "auth/requires-recent-login": "Log opnieuw in om deze actie uit te voeren.",
-    "auth/multi-factor-auth-required": null,
+    "auth/popup-blocked": "Popup blocked. Allow popups for this site.",
+    "auth/requires-recent-login": "Please sign in again to perform this action.",
   };
   if (code in messages) return messages[code];
-  return "Er is iets misgegaan. Probeer het opnieuw.";
+  return "Something went wrong. Please try again.";
 }
