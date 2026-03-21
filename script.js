@@ -17,6 +17,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  updateEmail,
+  sendPasswordResetEmail,
+  deleteUser,
+  linkWithPopup,
+  unlink,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import {
   getFirestore,
@@ -140,6 +145,48 @@ const els = {
   pricingToggleMonthly: document.getElementById("toggle-monthly"),
   pricingToggleYearly: document.getElementById("toggle-yearly"),
   proPrice: document.getElementById("pro-price"),
+  // Dashboard views
+  dashboardTopbarLabel: document.getElementById("dashboard-topbar-label"),
+  dashViews: document.querySelectorAll(".dash-view"),
+  dashViewLinks: document.querySelectorAll("[data-dashboard-view]"),
+  billingStatus: document.getElementById("billing-status"),
+  billingPlanName: document.getElementById("billing-plan-name"),
+  billingPlanSub: document.getElementById("billing-plan-sub"),
+  billingPlanBadge: document.getElementById("billing-plan-badge"),
+  billingFeaturesList: document.getElementById("billing-features-list"),
+  billingUpgradeBtn: document.getElementById("billing-upgrade-btn"),
+  billingPortalWrap: document.getElementById("billing-portal-wrap"),
+  billingPortalBtn: document.getElementById("billing-portal-btn"),
+  billingUpgradeGrid: document.getElementById("billing-upgrade-grid"),
+  // Settings page
+  settingsTabs: document.querySelectorAll(".settings-tab"),
+  settingsViews: document.querySelectorAll(".settings-view"),
+  settingsSidebarLinks: document.querySelectorAll("[data-settings-tab]"),
+  settingsAvatar: document.getElementById("settings-avatar"),
+  settingsUserAvatar: document.getElementById("settings-user-avatar"),
+  settingsUserName: document.getElementById("settings-user-name"),
+  settingsUserEmail: document.getElementById("settings-user-email"),
+  settingsPhotoInput: document.getElementById("settings-photo-input"),
+  settingsRemovePhotoBtn: document.getElementById("settings-remove-photo-btn"),
+  settingsPhotoStatus: document.getElementById("settings-photo-status"),
+  settingsNameInput: document.getElementById("settings-name-input"),
+  settingsUpdateNameBtn: document.getElementById("settings-update-name-btn"),
+  settingsNameStatus: document.getElementById("settings-name-status"),
+  settingsCurrentEmail: document.getElementById("settings-current-email"),
+  settingsNewEmailInput: document.getElementById("settings-new-email-input"),
+  settingsUpdateEmailBtn: document.getElementById("settings-update-email-btn"),
+  settingsEmailStatus: document.getElementById("settings-email-status"),
+  settingsDeleteAccountBtn: document.getElementById("settings-delete-account-btn"),
+  settingsDeleteStatus: document.getElementById("settings-delete-status"),
+  settingsPasswordDesc: document.getElementById("settings-password-desc"),
+  settingsResetPasswordBtn: document.getElementById("settings-reset-password-btn"),
+  settingsSecurityStatus: document.getElementById("settings-security-status"),
+  settingsGoogleLinkBtn: document.getElementById("settings-google-link-btn"),
+  settingsLinkStatus: document.getElementById("settings-link-status"),
+  settingsSignoutBtn: document.getElementById("settings-signout-btn"),
+  sessionDevice: document.getElementById("session-device"),
+  sessionMeta: document.getElementById("session-meta"),
+  settingsOpenSidebar: document.getElementById("settings-open-sidebar"),
 };
 
 function initFirebase() {
@@ -179,8 +226,12 @@ function closeSidebar() {
 }
 
 function showPage(id) {
-  if (id === "page-dashboard" && !currentUser) {
+  if ((id === "page-dashboard" || id === "page-settings") && !currentUser) {
     id = "page-signin";
+  }
+  if (id === "page-settings") {
+    updateSettingsPage();
+    showSettingsTab("profile");
   }
 
   currentPageId = id;
@@ -480,6 +531,8 @@ function updateAccountSurfaces() {
   const ctaText = isPremiumUser ? "Premium active" : "Upgrade to Pro";
   if (els.dashboardCheckoutCta) els.dashboardCheckoutCta.textContent = ctaText;
   if (els.modalCheckoutBtn) els.modalCheckoutBtn.textContent = isPremiumUser ? "Premium active" : "Start checkout";
+
+  updateSettingsPage();
 }
 
 async function refreshAccountState(user, options = {}) {
@@ -706,6 +759,221 @@ async function completeMagicLinkSignIn() {
   }
 }
 
+function showDashboardView(viewName) {
+  els.dashViews.forEach((v) => v.classList.toggle("active", v.id === `dash-view-${viewName}`));
+  els.dashViewLinks.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.dashboardView === viewName);
+  });
+  if (els.dashboardTopbarLabel) {
+    els.dashboardTopbarLabel.textContent = viewName === "billing" ? "Billing" : "Dashboard";
+  }
+  if (viewName === "billing") {
+    renderBillingView();
+  }
+}
+
+function showSettingsTab(tabName) {
+  els.settingsTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.settingsTab === tabName));
+  els.settingsSidebarLinks.forEach((link) => link.classList.toggle("active", link.dataset.settingsTab === tabName));
+  els.settingsViews.forEach((view) => view.classList.toggle("active", view.id === `settings-view-${tabName}`));
+  if (tabName === "sessions") updateSessionInfo();
+  if (tabName === "security") updateSecurityTab();
+}
+
+function updateSessionInfo() {
+  if (!currentUser || !els.sessionDevice) return;
+  const ua = navigator.userAgent;
+  let device = "Onbekend apparaat";
+  if (/iPhone|iPad|iPod/.test(ua)) device = "iPhone / iPad";
+  else if (/Android/.test(ua)) device = "Android apparaat";
+  else if (/Mac/.test(ua)) device = "Mac";
+  else if (/Windows/.test(ua)) device = "Windows";
+  else if (/Linux/.test(ua)) device = "Linux";
+  els.sessionDevice.textContent = device;
+  const signInTime = currentUser.metadata?.lastSignInTime;
+  if (els.sessionMeta) {
+    els.sessionMeta.textContent = signInTime
+      ? `Ingelogd op ${new Intl.DateTimeFormat("nl-NL", { dateStyle: "medium", timeStyle: "short" }).format(new Date(signInTime))}`
+      : "Sessiedatum onbekend";
+  }
+}
+
+function updateSecurityTab() {
+  if (!currentUser) return;
+  const hasPassword = currentUser.providerData?.some((p) => p.providerId === "password");
+  const hasGoogle = currentUser.providerData?.some((p) => p.providerId === "google.com");
+  if (els.settingsPasswordDesc) {
+    els.settingsPasswordDesc.textContent = hasPassword
+      ? "Stuur een wachtwoord reset-e-mail om je wachtwoord te wijzigen."
+      : "Je hebt nog geen wachtwoord ingesteld. Stuur een e-mail om er een te maken.";
+  }
+  if (els.settingsResetPasswordBtn) {
+    els.settingsResetPasswordBtn.textContent = hasPassword ? "Wachtwoord wijzigen" : "Wachtwoord instellen";
+  }
+  if (els.settingsGoogleLinkBtn) {
+    els.settingsGoogleLinkBtn.textContent = hasGoogle ? "Ontkoppelen" : "Verbinden";
+    els.settingsGoogleLinkBtn.dataset.linked = hasGoogle ? "true" : "false";
+  }
+}
+
+function updateSettingsPage() {
+  if (!currentUser) return;
+  const avatarMarkup = getAvatarMarkup(currentUser);
+  if (els.settingsAvatar) els.settingsAvatar.innerHTML = avatarMarkup;
+  if (els.settingsUserAvatar) els.settingsUserAvatar.innerHTML = avatarMarkup;
+  if (els.settingsUserName) els.settingsUserName.textContent = currentUser.displayName || currentUser.email || "Gast";
+  if (els.settingsUserEmail) els.settingsUserEmail.textContent = currentUser.email || "—";
+  if (els.settingsNameInput && !els.settingsNameInput.matches(":focus")) {
+    els.settingsNameInput.value = currentUser.displayName || "";
+  }
+  if (els.settingsCurrentEmail) els.settingsCurrentEmail.value = currentUser.email || "";
+}
+
+function renderBillingView() {
+  if (els.billingPlanName) els.billingPlanName.textContent = isPremiumUser ? "Pro" : "Free";
+  if (els.billingPlanSub) {
+    els.billingPlanSub.textContent = isPremiumUser
+      ? "Je premium plan is actief."
+      : "Upgrade om meer functies te ontgrendelen.";
+  }
+  if (els.billingPlanBadge) {
+    els.billingPlanBadge.textContent = isPremiumUser ? "Pro" : "Free";
+    els.billingPlanBadge.className = isPremiumUser ? "badge badge-blue" : "badge badge-gray";
+  }
+  if (els.billingUpgradeGrid) els.billingUpgradeGrid.classList.toggle("hidden", isPremiumUser);
+  if (els.billingPortalWrap) els.billingPortalWrap.classList.toggle("hidden", !isPremiumUser);
+}
+
+async function openBillingPortal(statusEl) {
+  if (!currentUser) {
+    setStatus(statusEl, "Log in om het billing portaal te openen.", "error");
+    return;
+  }
+  setLoadingState(els.billingPortalBtn, true, "Portaal openen...");
+  setStatus(statusEl, "", "info");
+  try {
+    const token = await currentUser.getIdToken();
+    const res = await fetch("/api/create-portal-session", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Portaal niet beschikbaar.");
+    window.location.href = data.url;
+  } catch (error) {
+    setStatus(statusEl, error.message, "error");
+    setLoadingState(els.billingPortalBtn, false);
+  }
+}
+
+async function updateUserName(name, statusEl, button) {
+  if (!name) { setStatus(statusEl, "Vul je naam in.", "error"); return; }
+  if (!currentUser) { setStatus(statusEl, "Niet ingelogd.", "error"); return; }
+  setLoadingState(button, true, "Opslaan...");
+  setStatus(statusEl, "", "info");
+  try {
+    await updateProfile(currentUser, { displayName: name });
+    updateAccountSurfaces();
+    setStatus(statusEl, "Naam succesvol bijgewerkt.", "success");
+  } catch (error) {
+    setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+async function updateUserEmailAddr(newEmail, statusEl, button) {
+  if (!newEmail) { setStatus(statusEl, "Vul een nieuw e-mailadres in.", "error"); return; }
+  if (!currentUser) { setStatus(statusEl, "Niet ingelogd.", "error"); return; }
+  setLoadingState(button, true, "Bijwerken...");
+  setStatus(statusEl, "", "info");
+  try {
+    await updateEmail(currentUser, newEmail);
+    if (els.settingsCurrentEmail) els.settingsCurrentEmail.value = newEmail;
+    if (els.settingsNewEmailInput) els.settingsNewEmailInput.value = "";
+    setStatus(statusEl, "E-mailadres bijgewerkt. Controleer je inbox voor verificatie.", "success");
+    updateAccountSurfaces();
+  } catch (error) {
+    const msg = error.code === "auth/requires-recent-login"
+      ? "Log opnieuw in om je e-mail te wijzigen. Uitloggen en opnieuw inloggen is vereist."
+      : getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+async function sendPasswordReset(statusEl, button) {
+  if (!currentUser?.email) { setStatus(statusEl, "Geen e-mailadres gevonden.", "error"); return; }
+  setLoadingState(button, true, "Versturen...");
+  setStatus(statusEl, "", "info");
+  try {
+    await sendPasswordResetEmail(auth, currentUser.email);
+    setStatus(statusEl, `Wachtwoord reset-e-mail verstuurd naar ${currentUser.email}.`, "success");
+  } catch (error) {
+    setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+async function removeProfilePhoto(statusEl, button) {
+  if (!currentUser) return;
+  setLoadingState(button, true, "Verwijderen...");
+  try {
+    await updateProfile(currentUser, { photoURL: null });
+    updateAccountSurfaces();
+    setStatus(statusEl, "Profielfoto verwijderd.", "success");
+  } catch (error) {
+    setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+async function deleteAccount(statusEl, button) {
+  if (!currentUser) return;
+  const confirmed = window.confirm(
+    "Weet je zeker dat je je account wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+  );
+  if (!confirmed) return;
+  setLoadingState(button, true, "Verwijderen...");
+  setStatus(statusEl, "", "info");
+  try {
+    await deleteUser(currentUser);
+    showPage("page-landing");
+  } catch (error) {
+    const msg = error.code === "auth/requires-recent-login"
+      ? "Log opnieuw in om je account te verwijderen."
+      : getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
+    setLoadingState(button, false);
+  }
+}
+
+async function toggleGoogleLink(statusEl, button) {
+  if (!currentUser) return;
+  const isLinked = button.dataset.linked === "true";
+  setLoadingState(button, true, isLinked ? "Ontkoppelen..." : "Verbinden...");
+  setStatus(statusEl, "", "info");
+  try {
+    if (isLinked) {
+      await unlink(currentUser, "google.com");
+      setStatus(statusEl, "Google account ontkoppeld.", "success");
+    } else {
+      const provider = new GoogleAuthProvider();
+      await linkWithPopup(currentUser, provider);
+      setStatus(statusEl, "Google account gekoppeld.", "success");
+    }
+    updateSecurityTab();
+  } catch (error) {
+    const msg = getFirebaseErrorMessage(error.code);
+    if (msg) setStatus(statusEl, msg, "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
 function openAccountModal() {
   els.accountModalShell.classList.remove("hidden");
   els.accountModalShell.setAttribute("aria-hidden", "false");
@@ -812,6 +1080,80 @@ function bindEvents() {
     setSigninMode(signinMode === "password" ? "magic" : "password");
   });
 
+  // Dashboard view switching
+  els.dashViewLinks.forEach((btn) => {
+    btn.addEventListener("click", () => showDashboardView(btn.dataset.dashboardView));
+  });
+
+  // Billing
+  els.billingUpgradeBtn?.addEventListener("click", () => startCheckout(els.billingStatus));
+  els.billingPortalBtn?.addEventListener("click", () => openBillingPortal(els.billingStatus));
+
+  // Settings tabs (top nav + sidebar)
+  document.querySelectorAll("[data-settings-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => showSettingsTab(btn.dataset.settingsTab));
+  });
+
+  // Settings open sidebar (mobile)
+  els.settingsOpenSidebar?.addEventListener("click", openSidebar);
+
+  // Profile: photo
+  els.settingsPhotoInput?.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setStatus(els.settingsPhotoStatus, "Foto mag niet groter zijn dan 5 MB.", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        await updateProfile(currentUser, { photoURL: ev.target.result });
+        updateAccountSurfaces();
+        setStatus(els.settingsPhotoStatus, "Profielfoto bijgewerkt.", "success");
+      } catch {
+        setStatus(els.settingsPhotoStatus, "Kon foto niet opslaan.", "error");
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  });
+  els.settingsRemovePhotoBtn?.addEventListener("click", () =>
+    removeProfilePhoto(els.settingsPhotoStatus, els.settingsRemovePhotoBtn)
+  );
+
+  // Profile: name
+  els.settingsUpdateNameBtn?.addEventListener("click", () =>
+    updateUserName(els.settingsNameInput?.value.trim(), els.settingsNameStatus, els.settingsUpdateNameBtn)
+  );
+
+  // Profile: email
+  els.settingsUpdateEmailBtn?.addEventListener("click", () =>
+    updateUserEmailAddr(els.settingsNewEmailInput?.value.trim(), els.settingsEmailStatus, els.settingsUpdateEmailBtn)
+  );
+
+  // Profile: delete account
+  els.settingsDeleteAccountBtn?.addEventListener("click", () =>
+    deleteAccount(els.settingsDeleteStatus, els.settingsDeleteAccountBtn)
+  );
+
+  // Security: password reset
+  els.settingsResetPasswordBtn?.addEventListener("click", () =>
+    sendPasswordReset(els.settingsSecurityStatus, els.settingsResetPasswordBtn)
+  );
+
+  // Security: Google link/unlink
+  els.settingsGoogleLinkBtn?.addEventListener("click", () =>
+    toggleGoogleLink(els.settingsLinkStatus, els.settingsGoogleLinkBtn)
+  );
+
+  // Sessions: sign out
+  els.settingsSignoutBtn?.addEventListener("click", async () => {
+    if (!auth || !auth.currentUser) return;
+    await signOut(auth);
+    showPage("page-landing");
+  });
+
   // Password visibility toggles
   document.querySelectorAll(".toggle-password").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -859,7 +1201,7 @@ function bindEvents() {
 
   els.ctxOpenBilling?.addEventListener("click", () => {
     els.dashboardAccountMenu.classList.remove("open");
-    showPage("page-pricing");
+    showDashboardView("billing");
   });
 
   els.ctxOpenPricing?.addEventListener("click", () => {
