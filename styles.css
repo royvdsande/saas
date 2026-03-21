@@ -1,3 +1,17 @@
+/* ===== PROGRESS BAR ===== */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+  background: var(--black); z-index: 99999; pointer-events: none; opacity: 0;
+  transition: width 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 14px rgba(10,10,10,.65), 0 0 6px rgba(10,10,10,.9), 0 0 2px rgba(255,255,255,.25);
+}
+#progress-bar.running { opacity: 1; }
+#progress-bar.finishing {
+  width: 100% !important;
+  transition: width 0.12s ease, opacity 0.28s ease 0.1s;
+  opacity: 0;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --black: #0a0a0a; --white: #ffffff;
