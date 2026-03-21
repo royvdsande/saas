@@ -22,6 +22,8 @@
   --green-50: #dcfce7; --green-700: #15803d;
   --red-50: #fee2e2; --red-700: #b91c1c;
   --blue-50: #dbeafe; --blue-700: #1d4ed8;
+  --accent: #10b981; --accent-dark: #059669; --accent-light: #d1fae5; --accent-50: #ecfdf5;
+  --purple-500: #8b5cf6; --orange-500: #f97316;
   --radius: 10px; --radius-sm: 6px; --radius-lg: 14px; --radius-full: 9999px;
   --nav-h: 56px;
 }
