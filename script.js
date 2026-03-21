@@ -860,7 +860,7 @@ function showDashboardView(viewName) {
     btn.classList.toggle("active", btn.dataset.dashboardView === viewName);
   });
   if (els.dashboardTopbarLabel) {
-    els.dashboardTopbarLabel.textContent = viewName === "billing" ? "Billing" : "Dashboard";
+    els.dashboardTopbarLabel.textContent = viewName === "billing" ? "Billing" : "Home";
   }
   if (viewName === "billing") {
     renderBillingView();
@@ -1189,6 +1189,14 @@ function bindEvents() {
 
   els.signinModeToggle?.addEventListener("click", () => {
     setSigninMode(signinMode === "password" ? "magic" : "password");
+  });
+
+  // Settings links in dashboard sidebar (navigate to settings page at correct tab)
+  document.querySelectorAll("#sidebar-dash [data-settings-link]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tab = btn.dataset.settingsLink;
+      navigate(`/dashboard/settings${tab !== "profile" ? `?tab=${tab}` : ""}`);
+    });
   });
 
   // Dashboard view switching (scoped to sidebar)
