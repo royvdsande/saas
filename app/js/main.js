@@ -40,7 +40,6 @@ async function initAuth() {
     }
 
     if (params.get("checkout") === "cancel") {
-      setStatus(els.dashboardStatus, "Checkout geannuleerd.", "info");
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   });

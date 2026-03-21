@@ -38,7 +38,6 @@ function handleCheckoutMessage() {
   }
 
   if (checkout === "cancel") {
-    setStatus(pricingStatus, "Checkout geannuleerd.", "info");
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 }
