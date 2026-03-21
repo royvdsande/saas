@@ -18,7 +18,7 @@ function getFirebase() {
 async function authenticate(req) {
   const authHeader = req.headers.authorization || '';
   if (!authHeader.startsWith('Bearer ')) {
-    throw new Error('Geen geldige auth token gevonden. Log opnieuw in.');
+    throw new Error('No valid auth token found. Please sign in again.');
   }
   const idToken = authHeader.replace('Bearer ', '').trim();
   const { auth } = getFirebase();
@@ -38,18 +38,29 @@ module.exports = async (req, res) => {
   }
 
   if (!stripeSecretKey) {
-    return respond(res, 500, { message: 'Stripe secret key ontbreekt in de configuratie.' });
+    return respond(res, 500, { message: 'Stripe secret key missing from configuration.' });
   }
 
   let decodedToken;
   try {
     decodedToken = await authenticate(req);
   } catch (error) {
-    return respond(res, 401, { message: error.message || 'Ongeldige sessie.' });
+    return respond(res, 401, { message: error.message || 'Invalid session.' });
   }
 
   const { db } = getFirebase();
   const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' });
+
+  // Parse request body
+  let body = {};
+  try {
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const raw = Buffer.concat(chunks).toString();
+    if (raw) body = JSON.parse(raw);
+  } catch { /* empty body is fine */ }
+
+  const { flow } = body;
 
   try {
     const customerDoc = await db.collection('customers').doc(decodedToken.uid).get();
@@ -58,19 +69,41 @@ module.exports = async (req, res) => {
       : null;
 
     if (!stripeCustomerId) {
-      return respond(res, 400, { message: 'Geen Stripe-klantprofiel gevonden. Koop eerst een product.' });
+      return respond(res, 400, { message: 'No Stripe customer profile found. Purchase a product first.' });
     }
 
     const origin = req.headers.origin || `https://${req.headers.host}`;
     const returnUrl = `${origin}/`;
 
-    const session = await stripe.billingPortal.sessions.create({
+    const sessionParams = {
       customer: stripeCustomerId,
       return_url: returnUrl,
-    });
+    };
+
+    if (flow === 'payment_method_update') {
+      sessionParams.flow_data = { type: 'payment_method_update' };
+    } else if (flow === 'subscription_cancel') {
+      // Try to get the active subscription ID for directed cancellation flow
+      const subsSnap = await db
+        .collection('customers')
+        .doc(decodedToken.uid)
+        .collection('subscriptions')
+        .where('status', 'in', ['active', 'trialing'])
+        .limit(1)
+        .get();
+      const activeSub = subsSnap.docs[0];
+      if (activeSub) {
+        sessionParams.flow_data = {
+          type: 'subscription_cancel',
+          subscription_cancel: { subscription: activeSub.id },
+        };
+      }
+    }
+
+    const session = await stripe.billingPortal.sessions.create(sessionParams);
 
     return respond(res, 200, { url: session.url });
   } catch (error) {
-    return respond(res, 500, { message: 'Kon geen billing portal sessie aanmaken.' });
+    return respond(res, 500, { message: 'Could not create billing portal session.' });
   }
 };

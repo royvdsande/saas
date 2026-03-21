@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FitFlow Core – App</title>
+  <title>FitFlow | Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -22,28 +22,26 @@
   <div class="sidebar-overlay" id="overlay-dash"></div>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar-dash">
-      <div class="sidebar-header"><div class="sidebar-workspace"><div class="workspace-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow Core<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;color:var(--gray-400)"><path d="m6 9 6 6 6-6"/></svg></div></div>
+      <div class="sidebar-header"><div class="sidebar-workspace"><div class="workspace-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow</div></div>
       <div class="sidebar-section">
         <p class="sidebar-section-label">Application</p>
         <button class="sidebar-link active button-reset" data-dashboard-view="overview"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
         <button class="sidebar-link button-reset" data-dashboard-view="billing"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Billing</button>
-        <button class="sidebar-link button-reset" id="dashboard-sidebar-checkout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 17v4"/><path d="M8 17v4"/></svg>Subscription</button>
+        <button class="sidebar-link button-reset" data-dashboard-view="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>AI Test</button>
       </div>
       <div class="sidebar-section">
         <p class="sidebar-section-label">Settings</p>
         <button class="sidebar-link button-reset" data-dashboard-view="settings" data-settings-tab="profile"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</button>
         <button class="sidebar-link button-reset" data-dashboard-view="settings" data-settings-tab="security"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Security</button>
-        <button class="sidebar-link button-reset" data-dashboard-view="settings" data-settings-tab="sessions"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>Sessions</button>
       </div>
       <div class="sidebar-spacer"></div>
       <div class="sidebar-user-wrap">
         <div class="ctx-menu" id="dashboard-account-menu">
-          <div class="ctx-user-row"><div class="ctx-user-name" id="ctx-user-name">Gast gebruiker</div><div class="ctx-user-email" id="ctx-user-email">Niet ingelogd</div></div>
+          <div class="ctx-user-row"><div class="ctx-user-name" id="ctx-user-name">Guest user</div><div class="ctx-user-email" id="ctx-user-email">Not signed in</div></div>
           <div class="ctx-group">
-            <div class="ctx-item" id="ctx-open-billing"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Billing</span><span class="ctx-shortcut">⌘B</span></div>
-            <div class="ctx-item" id="ctx-open-pricing"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/></svg>Pricing</span><span class="ctx-shortcut">⌘P</span></div>
+            <div class="ctx-item" id="ctx-open-homepage"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Homepage</span></div>
           </div>
-          <div class="ctx-group"><div class="ctx-item danger" id="dashboard-signout"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</span><span class="ctx-shortcut">⇧⌘S</span></div></div>
+          <div class="ctx-group"><div class="ctx-item danger" id="dashboard-signout"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</span></div></div>
         </div>
         <div class="sidebar-user" id="dashboard-user-trigger"><div class="user-avatar" id="dashboard-user-avatar">R</div><div class="user-info"><div class="user-name" id="dashboard-user-name">FitFlow user</div><div class="user-email" id="dashboard-user-email">mail@example.com</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray-400)"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
       </div>
@@ -57,211 +55,243 @@
       <div class="main-content">
         <div id="dash-view-overview" class="dash-view active">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap">
-            <h2 class="dash-title" id="dashboard-greeting" style="margin-bottom:0">Goedemiddag 👋</h2>
+            <h2 class="dash-title" id="dashboard-greeting" style="margin-bottom:0">Good afternoon 👋</h2>
             <button class="btn btn-primary" id="dashboard-checkout-cta">Upgrade to Pro</button>
           </div>
           <div id="dashboard-status" class="auth-status" hidden></div>
           <div class="stats-grid">
-            <div class="stat-card"><p class="stat-label">Plan</p><p class="stat-value" id="stat-plan">Free</p><p class="stat-change" id="stat-plan-copy">Premium niet actief</p></div>
-            <div class="stat-card"><p class="stat-label">Provider</p><p class="stat-value" id="stat-provider">Email</p><p class="stat-change up" id="stat-provider-copy">Niet ingelogd</p></div>
-            <div class="stat-card"><p class="stat-label">Customer</p><p class="stat-value" id="stat-customer">—</p><p class="stat-change" id="stat-customer-copy">Nog niet gesynchroniseerd</p></div>
-            <div class="stat-card"><p class="stat-label">Firestore</p><p class="stat-value" id="stat-firestore">Ready</p><p class="stat-change" id="stat-firestore-copy">Verbonden met accountstatus</p></div>
+            <div class="stat-card"><p class="stat-label">Plan</p><p class="stat-value" id="stat-plan">Free</p><p class="stat-change" id="stat-plan-copy">No active subscription</p></div>
+            <div class="stat-card"><p class="stat-label">Provider</p><p class="stat-value" id="stat-provider">Email</p><p class="stat-change up" id="stat-provider-copy">Not signed in</p></div>
+            <div class="stat-card"><p class="stat-label">Customer</p><p class="stat-value" id="stat-customer">—</p><p class="stat-change" id="stat-customer-copy">Not synced yet</p></div>
+            <div class="stat-card"><p class="stat-label">Firestore</p><p class="stat-value" id="stat-firestore">Ready</p><p class="stat-change" id="stat-firestore-copy">Connected to account status</p></div>
           </div>
           <div class="data-card">
-            <div class="data-card-header"><h3>Account & billing activity</h3><button class="btn btn-outline" id="table-cta" style="font-size:13px;padding:6px 12px">Open pricing</button></div>
+            <div class="data-card-header"><h3>Account &amp; billing activity</h3><button class="btn btn-outline" id="table-cta" style="font-size:13px;padding:6px 12px">Open pricing</button></div>
             <table class="members-table">
               <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th></tr></thead>
               <tbody id="dashboard-table-body"></tbody>
             </table>
           </div>
-          <div style="margin-top:14px;text-align:right"><a style="font-size:13px;color:var(--gray-400);cursor:pointer" href="/">← Terug naar homepage</a></div>
+          <div style="margin-top:14px;text-align:right"><a style="font-size:13px;color:var(--gray-400);cursor:pointer" href="/">← Back to homepage</a></div>
         </div>
 
+        <!-- BILLING VIEW -->
         <div id="dash-view-billing" class="dash-view">
           <div style="margin-bottom:24px">
             <h2 class="dash-title" style="margin-bottom:4px">Billing</h2>
-            <p style="font-size:14px;color:var(--gray-500)">Beheer je abonnement en factuurinformatie.</p>
+            <p style="font-size:14px;color:var(--gray-500)">Manage your subscription and billing information.</p>
           </div>
           <div id="billing-status" class="auth-status" hidden></div>
 
+          <!-- Current plan -->
           <div class="sc-card" style="margin-bottom:16px">
             <div class="sc-card-header">
-              <h3>Huidig plan</h3>
-              <p>Je huidige abonnement en factuurinformatie.</p>
+              <h3>Current plan</h3>
+              <p>Your active subscription and status.</p>
             </div>
             <div class="sc-card-body">
               <div class="billing-plan-box">
                 <div>
                   <p class="billing-plan-name" id="billing-plan-name">Free</p>
-                  <p class="billing-plan-sub" id="billing-plan-sub">Upgrade om meer functies te ontgrendelen</p>
+                  <p class="billing-plan-sub" id="billing-plan-sub">No active subscription</p>
                 </div>
                 <span class="badge" id="billing-plan-badge">Free</span>
-              </div>
-              <div class="billing-features" id="billing-features-list">
-                <div class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Account dashboard</div>
-                <div class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Google & email login</div>
-                <div class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link inloggen</div>
               </div>
             </div>
           </div>
 
-          <div class="sc-card" id="billing-action-card">
+          <!-- Plan cards: all 3 always shown -->
+          <div class="sc-card" id="billing-plans-card" style="margin-bottom:16px">
             <div class="sc-card-header">
-              <h3 id="billing-action-title">Upgrade je plan</h3>
-              <p id="billing-action-desc">Kies een plan dat bij jouw behoeften past.</p>
+              <h3 id="billing-action-title">Choose a plan</h3>
+              <p id="billing-action-desc">Pick the plan that fits your needs.</p>
             </div>
             <div class="sc-card-body">
               <div class="billing-upgrade-grid" id="billing-upgrade-grid">
-                <div class="billing-upgrade-card">
+                <div class="billing-upgrade-card" id="billing-card-plus">
                   <p style="font-size:16px;font-weight:700;margin-bottom:4px">Plus</p>
                   <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 4,99 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
-                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Ideaal om te starten.</p>
+                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Perfect to get started.</p>
                   <ul class="billing-features" style="margin-bottom:16px">
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail + wachtwoord login</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link inloggen</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail support</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email + password login</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link sign-in</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email support</li>
                   </ul>
-                  <button class="btn btn-outline btn-full" data-plan-checkout="plus">Upgraden</button>
+                  <button class="btn btn-outline btn-full" data-plan-checkout="plus" id="billing-cta-plus">Upgrade</button>
                 </div>
-                <div class="billing-upgrade-card billing-upgrade-card--primary">
+                <div class="billing-upgrade-card billing-upgrade-card--primary" id="billing-card-pro">
                   <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
                     <p style="font-size:16px;font-weight:700">Pro</p>
-                    <span style="background:var(--gray-100);color:var(--gray-600);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px">Meest populair</span>
+                    <span style="background:var(--gray-100);color:var(--gray-600);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px">Most popular</span>
                   </div>
                   <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 9,00 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
-                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Voor serieuze projecten.</p>
+                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">For serious projects.</p>
                   <ul class="billing-features" style="margin-bottom:16px">
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Prioriteit support</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Geavanceerde analytics</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Advanced analytics</li>
                     <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Stripe billing portal</li>
                   </ul>
-                  <button class="btn btn-primary btn-full" data-plan-checkout="pro">Upgraden</button>
+                  <button class="btn btn-primary btn-full" data-plan-checkout="pro" id="billing-cta-pro">Upgrade</button>
                 </div>
-                <div class="billing-upgrade-card">
+                <div class="billing-upgrade-card" id="billing-card-ultimate">
                   <p style="font-size:16px;font-weight:700;margin-bottom:4px">Ultimate</p>
                   <p style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px">€ 49,99 <span style="font-size:12px;font-weight:400;color:var(--gray-500)">/mo</span></p>
-                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Onbeperkt schalen.</p>
+                  <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Scale without limits.</p>
                   <ul class="billing-features" style="margin-bottom:16px">
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API toegang</li>
-                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Onbeperkte teamleden</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API access</li>
+                    <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unlimited team members</li>
                     <li class="billing-feature"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
                   </ul>
-                  <button class="btn btn-outline btn-full" data-plan-checkout="ultimate">Upgraden</button>
+                  <button class="btn btn-outline btn-full" data-plan-checkout="ultimate" id="billing-cta-ultimate">Upgrade</button>
                 </div>
               </div>
-              <div id="billing-portal-wrap" class="hidden">
-                <button class="btn btn-outline" id="billing-portal-btn">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  Beheer billing via Stripe
-                </button>
-                <p style="font-size:12px;color:var(--gray-400);margin-top:8px">Bekijk facturen, update betaalmethode en meer via het Stripe klantportaal.</p>
-              </div>
+            </div>
+          </div>
+
+          <!-- Stripe management (shown when subscribed) -->
+          <div class="sc-card hidden" id="billing-manage-card">
+            <div class="sc-card-header">
+              <h3>Manage billing</h3>
+              <p>Access your Stripe customer portal to manage your subscription.</p>
+            </div>
+            <div class="sc-card-body" style="display:flex;flex-direction:column;gap:10px">
+              <button class="btn btn-outline" data-portal-flow="default" id="billing-portal-btn" style="justify-content:flex-start;gap:10px">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Manage subscription
+              </button>
+              <button class="btn btn-outline" data-portal-flow="payment_method_update" id="billing-portal-payment-btn" style="justify-content:flex-start;gap:10px">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Update payment method
+              </button>
+              <button class="btn btn-outline" data-portal-flow="subscription_cancel" id="billing-portal-cancel-btn" style="justify-content:flex-start;gap:10px;color:#dc2626;border-color:#fca5a5">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Cancel subscription
+              </button>
             </div>
           </div>
         </div>
 
+        <!-- AI TEST VIEW -->
+        <div id="dash-view-ai" class="dash-view">
+          <div style="margin-bottom:24px">
+            <h2 class="dash-title" style="margin-bottom:4px">AI Test</h2>
+            <p style="font-size:14px;color:var(--gray-500)">Ask anything. This assistant has access to your account and billing context.</p>
+          </div>
+          <div class="sc-card">
+            <div class="sc-card-body" style="padding:0">
+              <div class="ai-chat-messages" id="ai-chat-messages">
+                <div class="ai-message ai-message--assistant">
+                  <div class="ai-message-bubble">Hello! I'm your AI assistant. I can help answer questions about your account, billing, subscriptions, and more. How can I help you?</div>
+                </div>
+              </div>
+              <div class="ai-chat-input-row">
+                <input id="ai-chat-input" type="text" class="sc-input" placeholder="Ask something..." autocomplete="off" style="flex:1">
+                <button class="btn btn-primary" id="ai-chat-send" style="flex-shrink:0">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="ai-chat-status" class="auth-status" hidden style="margin-top:8px"></div>
+        </div>
+
+        <!-- SETTINGS VIEW -->
         <div id="dash-view-settings" class="dash-view">
           <h2 class="dash-title" style="margin-bottom:4px">Account Settings</h2>
 
           <div class="settings-tabs">
             <button class="settings-tab active" data-settings-tab="profile">Profile</button>
             <button class="settings-tab" data-settings-tab="security">Security</button>
-            <button class="settings-tab" data-settings-tab="sessions">Sessions</button>
           </div>
 
           <div class="settings-view active" id="settings-view-profile">
             <div class="sc-card">
-              <div class="sc-card-header"><h3>Profielfoto</h3><p>Kies een foto voor je profiel.</p></div>
+              <div class="sc-card-header"><h3>Profile photo</h3><p>Choose a photo for your profile.</p></div>
               <div class="sc-card-body">
                 <div class="sc-avatar-row">
                   <div class="avatar-lg" id="settings-avatar">R</div>
                   <div style="display:flex;gap:8px;align-items:center">
-                    <label class="btn btn-outline" for="settings-photo-input" style="cursor:pointer;margin:0">Wijzigen</label>
+                    <label class="btn btn-outline" for="settings-photo-input" style="cursor:pointer;margin:0">Change</label>
                     <input type="file" id="settings-photo-input" accept="image/*" style="display:none">
-                    <button class="btn btn-outline" id="settings-remove-photo-btn">Verwijderen</button>
+                    <button class="btn btn-outline" id="settings-remove-photo-btn">Remove</button>
                   </div>
                 </div>
                 <div id="settings-photo-status" class="auth-status" hidden></div>
               </div>
             </div>
             <div class="sc-card">
-              <div class="sc-card-header"><h3>Je naam aanpassen</h3><p>Pas je naam aan die op je profiel wordt weergegeven.</p></div>
+              <div class="sc-card-header"><h3>Your name</h3><p>Update the name shown on your profile.</p></div>
               <div class="sc-card-body">
                 <div class="field" style="margin-bottom:14px">
-                  <label>Je naam</label>
-                  <input class="sc-input" id="settings-name-input" type="text" autocomplete="name" placeholder="Jan de Vries">
+                  <label>Your name</label>
+                  <input class="sc-input" id="settings-name-input" type="text" autocomplete="name" placeholder="John Doe">
                 </div>
-                <button class="btn btn-primary" id="settings-update-name-btn">Profiel bijwerken</button>
+                <button class="btn btn-primary" id="settings-update-name-btn">Update profile</button>
                 <div id="settings-name-status" class="auth-status" hidden></div>
               </div>
             </div>
             <div class="sc-card">
-              <div class="sc-card-header"><h3>E-mailadres aanpassen</h3><p>Pas het e-mailadres aan waarmee je inlogt.</p></div>
+              <div class="sc-card-header"><h3>Email address</h3><p>Update the email address you use to sign in.</p></div>
               <div class="sc-card-body">
                 <div class="field" style="margin-bottom:12px">
-                  <label>Huidig e-mailadres</label>
+                  <label>Current email</label>
                   <input class="sc-input" id="settings-current-email" type="email" disabled placeholder="—">
                 </div>
                 <div class="field" style="margin-bottom:14px">
-                  <label>Nieuw e-mailadres</label>
-                  <input class="sc-input" id="settings-new-email-input" type="email" autocomplete="email" placeholder="nieuw@voorbeeld.com">
+                  <label>New email</label>
+                  <input class="sc-input" id="settings-new-email-input" type="email" autocomplete="email" placeholder="new@example.com">
                 </div>
-                <button class="btn btn-primary" id="settings-update-email-btn">E-mailadres bijwerken</button>
+                <button class="btn btn-primary" id="settings-update-email-btn">Update email</button>
                 <div id="settings-email-status" class="auth-status" hidden></div>
               </div>
             </div>
             <div class="sc-card sc-card--danger">
-              <div class="sc-card-header"><h3>Danger Zone</h3><p>Deze sectie bevat onomkeerbare acties.</p></div>
+              <div class="sc-card-header"><h3>Danger Zone</h3><p>Destructive, irreversible actions.</p></div>
               <div class="sc-card-body">
-                <p style="font-size:14px;font-weight:500;margin-bottom:4px">Account verwijderen</p>
-                <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px">Dit verwijdert je account permanent. Deze actie kan niet ongedaan worden gemaakt.</p>
-                <button class="btn" id="settings-delete-account-btn" style="background:#dc2626;color:white;border:none">Account verwijderen</button>
+                <p style="font-size:14px;font-weight:500;margin-bottom:4px">Delete account</p>
+                <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px">This permanently deletes your account. This action cannot be undone.</p>
+                <button class="btn" id="settings-delete-account-btn" style="background:#dc2626;color:white;border:none">Delete account</button>
                 <div id="settings-delete-status" class="auth-status" hidden></div>
               </div>
             </div>
           </div>
 
-          <div class="settings-view hidden" id="settings-view-security">
-            <div class="sc-card">
-              <div class="sc-card-header"><h3>Wachtwoord</h3><p id="settings-password-desc">Stuur een wachtwoord reset-e-mail om je wachtwoord in te stellen of te wijzigen.</p></div>
+          <div class="settings-view" id="settings-view-security">
+            <!-- Shown when user HAS a password -->
+            <div class="sc-card" id="settings-password-update-card">
+              <div class="sc-card-header">
+                <h3>Update your password</h3>
+              </div>
               <div class="sc-card-body">
-                <button class="btn btn-primary" id="settings-reset-password-btn">Wachtwoord instellen</button>
+                <div class="field" style="margin-bottom:12px">
+                  <label>Current password</label>
+                  <div class="field-wrap sc-field-wrap">
+                    <input class="sc-input sc-input--password" id="settings-current-password" type="password" autocomplete="current-password" placeholder="">
+                    <button type="button" class="toggle-password sc-toggle-password" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                  </div>
+                </div>
+                <div class="field" style="margin-bottom:8px">
+                  <label>New password</label>
+                  <div class="field-wrap sc-field-wrap">
+                    <input class="sc-input sc-input--password" id="settings-new-password" type="password" autocomplete="new-password" placeholder="">
+                    <button type="button" class="toggle-password sc-toggle-password" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                  </div>
+                </div>
+                <p class="password-hint" id="settings-password-hint" style="margin-bottom:16px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>6 or more characters</p>
+                <button class="btn btn-primary" id="settings-update-password-btn">Update password</button>
+                <div id="settings-password-update-status" class="auth-status" hidden></div>
+              </div>
+            </div>
+            <!-- Shown when user has NO password -->
+            <div class="sc-card hidden" id="settings-password-set-card">
+              <div class="sc-card-header">
+                <h3>Your password</h3>
+              </div>
+              <div class="sc-card-body">
+                <p style="font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:16px">You have not set a password yet. To set one, click the button below to receive a password reset email and follow the instructions.</p>
+                <button class="btn btn-primary" id="settings-reset-password-btn">Set password</button>
                 <div id="settings-security-status" class="auth-status" hidden></div>
-              </div>
-            </div>
-            <div class="sc-card">
-              <div class="sc-card-header"><h3>Gekoppelde accounts</h3><p>Log sneller in door je account te koppelen aan Google.</p></div>
-              <div class="sc-card-body">
-                <div class="connected-row">
-                  <div style="display:flex;align-items:center;gap:10px">
-                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                    <span style="font-size:14px;font-weight:500">Google</span>
-                  </div>
-                  <button class="btn btn-outline" id="settings-google-link-btn" style="font-size:13px;padding:6px 14px">Verbinden</button>
-                </div>
-                <div id="settings-link-status" class="auth-status" hidden></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="settings-view hidden" id="settings-view-sessions">
-            <div class="sc-card">
-              <div class="sc-card-header"><h3>Actieve sessie</h3><p>Je bent momenteel ingelogd op dit apparaat.</p></div>
-              <div class="sc-card-body">
-                <div class="session-row">
-                  <div class="session-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
-                  <div style="flex:1;min-width:0">
-                    <p class="session-device" id="session-device">Huidig apparaat</p>
-                    <p class="session-meta" id="session-meta">Laden...</p>
-                  </div>
-                  <span class="badge badge-green">Actief</span>
-                </div>
-              </div>
-            </div>
-            <div class="sc-card sc-card--danger">
-              <div class="sc-card-header"><h3>Uitloggen</h3><p>Log uit op alle sessies door je account af te melden.</p></div>
-              <div class="sc-card-body">
-                <button class="btn btn-outline" id="settings-signout-btn">Uitloggen</button>
               </div>
             </div>
           </div>
@@ -278,18 +308,18 @@
         <div class="modal-summary">
           <div class="user-avatar modal-avatar" id="modal-avatar">A</div>
           <div>
-            <div class="ctx-user-name" id="modal-user-name">Gast gebruiker</div>
-            <div class="ctx-user-email" id="modal-user-email">Niet ingelogd</div>
+            <div class="ctx-user-name" id="modal-user-name">Guest user</div>
+            <div class="ctx-user-email" id="modal-user-email">Not signed in</div>
           </div>
         </div>
         <div class="modal-grid">
           <div class="modal-panel">
             <p class="stat-label">Plan</p>
             <p class="modal-plan" id="modal-plan">Free</p>
-            <p class="section-sub small" id="modal-plan-copy">Log in en start checkout om premium te activeren.</p>
+            <p class="section-sub small" id="modal-plan-copy">Sign in and start checkout to activate premium.</p>
           </div>
           <div class="modal-panel">
-            <p class="stat-label">Acties</p>
+            <p class="stat-label">Actions</p>
             <div class="modal-actions">
               <button class="btn btn-primary btn-full" id="modal-checkout-btn">Start checkout</button>
               <button class="btn btn-outline btn-full" id="modal-dashboard-btn">Open dashboard</button>
@@ -298,6 +328,21 @@
           </div>
         </div>
         <div id="modal-status" class="auth-status" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete account confirmation modal -->
+  <div class="modal-shell hidden" id="delete-confirm-modal">
+    <div class="modal-backdrop" id="delete-confirm-backdrop"></div>
+    <div class="modal-card confirm-modal-card" role="dialog" aria-modal="true">
+      <div class="modal-body" style="padding:32px">
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px">Delete account</h3>
+        <p style="font-size:14px;color:var(--gray-500);margin-bottom:28px">Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-outline" id="delete-confirm-cancel">Cancel</button>
+          <button class="btn btn-primary" id="delete-confirm-ok" style="background:#dc2626;border-color:#dc2626">Delete</button>
+        </div>
       </div>
     </div>
   </div>

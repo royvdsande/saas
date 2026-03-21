@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "firebase-admin": "^13.0.1",
+    "openai": "^4.67.0",
     "stripe": "^16.6.0"
   }
 }

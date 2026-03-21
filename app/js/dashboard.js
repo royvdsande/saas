@@ -15,7 +15,7 @@ export function updatePricingCards() {
     const perEl = document.getElementById(`per-${plan.id}`);
     if (state.currentBillingPeriod === "yearly") {
       if (priceEl) priceEl.textContent = `€ ${plan.yearlyPrice}`;
-      if (perEl) perEl.textContent = "/mo — jaarlijks gefactureerd";
+      if (perEl) perEl.textContent = "/mo — billed yearly";
     } else {
       if (priceEl) priceEl.textContent = `€ ${plan.monthlyPrice}`;
       if (perEl) perEl.textContent = "/mo";
@@ -48,8 +48,8 @@ export function buildTableRows() {
     "—";
 
   rows.push({
-    name: state.currentUser?.displayName || "Eigen account",
-    email: state.currentUser?.email || "Niet ingelogd",
+    name: state.currentUser?.displayName || "Your account",
+    email: state.currentUser?.email || "Not signed in",
     role: getProviderLabel(state.currentUser),
     joined: joinedLabel,
     status: '<span class="badge badge-green">Active</span>',
@@ -57,7 +57,7 @@ export function buildTableRows() {
 
   rows.push({
     name: "Premium access",
-    email: state.isPremiumUser ? "Toegang actief" : "Nog niet actief",
+    email: state.isPremiumUser ? "Access active" : "Not yet active",
     role: state.currentPlanLabel,
     joined: joinedLabel,
     status: state.isPremiumUser
@@ -78,7 +78,7 @@ export function buildTableRows() {
 
   rows.push({
     name: "Firestore user doc",
-    email: state.dashboardContext?.userDoc?.plusLinkedAt || "Nog geen plusLink",
+    email: state.dashboardContext?.userDoc?.plusLinkedAt || "No plus link yet",
     role: `${state.dashboardContext?.subscriptionsCount ?? 0} subscriptions`,
     joined: formatDate(state.dashboardContext?.customerDoc?.premium?.updatedAt),
     status: '<span class="badge badge-gray">Tracked</span>',
@@ -105,7 +105,7 @@ export function updateSettingsPage() {
   if (els.settingsAvatar) els.settingsAvatar.innerHTML = avatarMarkup;
   if (els.settingsUserAvatar) els.settingsUserAvatar.innerHTML = avatarMarkup;
   if (els.settingsUserName)
-    els.settingsUserName.textContent = state.currentUser.displayName || state.currentUser.email || "Gast";
+    els.settingsUserName.textContent = state.currentUser.displayName || state.currentUser.email || "Guest";
   if (els.settingsUserEmail) els.settingsUserEmail.textContent = state.currentUser.email || "—";
   if (els.settingsNameInput && !els.settingsNameInput.matches(":focus")) {
     els.settingsNameInput.value = state.currentUser.displayName || "";
@@ -119,15 +119,15 @@ export function updateAccountSurfaces() {
   const firstName =
     state.currentUser?.displayName?.split(" ")[0] ||
     state.currentUser?.email?.split("@")[0] ||
-    "builder";
+    "there";
   const userName =
-    state.currentUser?.displayName?.trim() || state.currentUser?.email || "Gast gebruiker";
-  const userEmail = state.currentUser?.email || "Niet ingelogd";
+    state.currentUser?.displayName?.trim() || state.currentUser?.email || "Guest user";
+  const userEmail = state.currentUser?.email || "Not signed in";
   const avatarMarkup = getAvatarMarkup(state.currentUser);
 
   const now = new Date();
   const hour = now.getHours();
-  const greeting = hour < 12 ? "Goedemorgen" : hour < 18 ? "Goedemiddag" : "Goedenavond";
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   if (els.dashboardGreeting) {
     els.dashboardGreeting.textContent = state.currentUser
@@ -154,42 +154,42 @@ export function updateAccountSurfaces() {
   if (els.statPlan) els.statPlan.textContent = state.currentPlanLabel;
   if (els.statPlanCopy)
     els.statPlanCopy.textContent = state.isPremiumUser
-      ? "Premium actief en gekoppeld"
-      : "Premium niet actief";
+      ? "Premium active and linked"
+      : "Premium not active";
   if (els.statProvider) els.statProvider.textContent = providerLabel;
   if (els.statProviderCopy)
     els.statProviderCopy.textContent = state.currentUser
       ? getProviderDescription(state.currentUser)
-      : "Niet ingelogd";
+      : "Not signed in";
   if (els.statCustomer)
     els.statCustomer.textContent = customerId === "—" ? "—" : customerId.slice(0, 8);
   if (els.statCustomerCopy)
     els.statCustomerCopy.textContent =
-      customerId === "—" ? "Nog niet gesynchroniseerd" : "Stripe customer gekoppeld";
+      customerId === "—" ? "Not yet synced" : "Stripe customer linked";
   if (els.statFirestore)
     els.statFirestore.textContent = state.currentUser ? "Synced" : "Ready";
   if (els.statFirestoreCopy)
     els.statFirestoreCopy.textContent = state.currentUser
-      ? "Realtime accountstatus geladen"
-      : "Log in voor accountdata";
+      ? "Realtime account status loaded"
+      : "Sign in for account data";
 
   if (els.pricingPlan)
-    els.pricingPlan.textContent = state.isPremiumUser ? "Premium actief" : "Free plan";
+    els.pricingPlan.textContent = state.isPremiumUser ? "Premium active" : "Free plan";
   if (els.pricingCopy) {
     els.pricingCopy.textContent = state.currentUser
       ? state.isPremiumUser
-        ? "Je account en premium-status zijn gekoppeld aan Firebase en Stripe."
-        : "Je bent ingelogd. Start checkout om premium aan je account te koppelen."
-      : "Log in om je account en premium-status te synchroniseren.";
+        ? "Your account and premium status are linked to Firebase and Stripe."
+        : "You're signed in. Start checkout to link premium to your account."
+      : "Sign in to sync your account and premium status.";
   }
 
   if (els.modalPlan) els.modalPlan.textContent = state.currentPlanLabel;
   if (els.modalPlanCopy) {
     els.modalPlanCopy.textContent = state.isPremiumUser
-      ? "Premium is actief en zichtbaar in je dashboard."
+      ? "Premium is active and visible in your dashboard."
       : state.currentUser
-        ? "Start checkout om premium aan dit account te koppelen."
-        : "Log in of gebruik Google om je account te openen.";
+        ? "Start checkout to link premium to this account."
+        : "Sign in or use Google to access your account.";
   }
 
   if (els.tableBody) {
@@ -204,45 +204,14 @@ export function updateAccountSurfaces() {
   updateSettingsPage();
 }
 
-export function updateSessionInfo() {
-  if (!state.currentUser || !els.sessionDevice) return;
-  const ua = navigator.userAgent;
-  let device = "Onbekend apparaat";
-  if (/iPhone|iPad|iPod/.test(ua)) device = "iPhone / iPad";
-  else if (/Android/.test(ua)) device = "Android apparaat";
-  else if (/Mac/.test(ua)) device = "Mac";
-  else if (/Windows/.test(ua)) device = "Windows";
-  else if (/Linux/.test(ua)) device = "Linux";
-  els.sessionDevice.textContent = device;
-  const signInTime = state.currentUser.metadata?.lastSignInTime;
-  if (els.sessionMeta) {
-    els.sessionMeta.textContent = signInTime
-      ? `Ingelogd op ${new Intl.DateTimeFormat("nl-NL", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }).format(new Date(signInTime))}`
-      : "Sessiedatum onbekend";
-  }
-}
-
 export function updateSecurityTab() {
   if (!state.currentUser) return;
   const hasPassword = state.currentUser.providerData?.some((p) => p.providerId === "password");
-  const hasGoogle = state.currentUser.providerData?.some((p) => p.providerId === "google.com");
-  if (els.settingsPasswordDesc) {
-    els.settingsPasswordDesc.textContent = hasPassword
-      ? "Stuur een wachtwoord reset-e-mail om je wachtwoord te wijzigen."
-      : "Je hebt nog geen wachtwoord ingesteld. Stuur een e-mail om er een te maken.";
-  }
-  if (els.settingsResetPasswordBtn) {
-    els.settingsResetPasswordBtn.textContent = hasPassword
-      ? "Wachtwoord wijzigen"
-      : "Wachtwoord instellen";
-  }
-  if (els.settingsGoogleLinkBtn) {
-    els.settingsGoogleLinkBtn.textContent = hasGoogle ? "Ontkoppelen" : "Verbinden";
-    els.settingsGoogleLinkBtn.dataset.linked = hasGoogle ? "true" : "false";
-  }
+
+  const updateCard = document.getElementById("settings-password-update-card");
+  const setCard = document.getElementById("settings-password-set-card");
+  if (updateCard) updateCard.classList.toggle("hidden", !hasPassword);
+  if (setCard) setCard.classList.toggle("hidden", hasPassword);
 }
 
 export function _showSettingsTabDirect(tabName) {
@@ -252,8 +221,9 @@ export function _showSettingsTabDirect(tabName) {
   document.querySelectorAll(".settings-view").forEach((v) =>
     v.classList.toggle("active", v.id === `settings-view-${tabName}`)
   );
-  if (tabName === "sessions") updateSessionInfo();
   if (tabName === "security") updateSecurityTab();
+  const tabLabels = { profile: "Profile", security: "Security" };
+  document.title = `FitFlow | ${tabLabels[tabName] || "Settings"}`;
 }
 
 export function showSettingsTab(tabName) {
@@ -268,6 +238,7 @@ export function showSettingsTab(tabName) {
 export function showDashboardView(viewName, settingsTab = null) {
   let path;
   if (viewName === "billing") path = "/app/billing";
+  else if (viewName === "ai") path = "/app/ai";
   else if (viewName === "settings")
     path = `/app/settings${
       settingsTab && settingsTab !== "profile" ? `?tab=${settingsTab}` : ""
@@ -288,9 +259,10 @@ export function showDashboardView(viewName, settingsTab = null) {
     }
   });
 
-  const labels = { billing: "Billing", settings: "Settings" };
-  if (els.dashboardTopbarLabel)
-    els.dashboardTopbarLabel.textContent = labels[viewName] || "Home";
+  const labels = { billing: "Billing", settings: "Settings", ai: "AI Test" };
+  const label = labels[viewName] || "Home";
+  if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = label;
+  document.title = `FitFlow | ${label}`;
 
   if (viewName === "billing") renderBillingView();
   if (viewName === "settings") {

@@ -6,22 +6,25 @@ import {
   GoogleAuthProvider,
   linkWithPopup,
   unlink,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state } from "./state.js";
 import { els } from "./elements.js";
 import { setStatus, setLoadingState, getFirebaseErrorMessage } from "./utils.js";
 import { navigate } from "./router.js";
-import { updateAccountSurfaces, updateSecurityTab } from "./dashboard.js";
+import { updateAccountSurfaces } from "./dashboard.js";
 
 export async function updateUserName(name, statusEl, button) {
-  if (!name) { setStatus(statusEl, "Vul je naam in.", "error"); return; }
-  if (!state.currentUser) { setStatus(statusEl, "Niet ingelogd.", "error"); return; }
-  setLoadingState(button, true, "Opslaan...");
+  if (!name) { setStatus(statusEl, "Please enter your name.", "error"); return; }
+  if (!state.currentUser) { setStatus(statusEl, "Not signed in.", "error"); return; }
+  setLoadingState(button, true, "Saving...");
   setStatus(statusEl, "", "info");
   try {
     await updateProfile(state.currentUser, { displayName: name });
     updateAccountSurfaces();
-    setStatus(statusEl, "Naam succesvol bijgewerkt.", "success");
+    setStatus(statusEl, "Name updated successfully.", "success");
   } catch (error) {
     setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
   } finally {
@@ -30,20 +33,20 @@ export async function updateUserName(name, statusEl, button) {
 }
 
 export async function updateUserEmailAddr(newEmail, statusEl, button) {
-  if (!newEmail) { setStatus(statusEl, "Vul een nieuw e-mailadres in.", "error"); return; }
-  if (!state.currentUser) { setStatus(statusEl, "Niet ingelogd.", "error"); return; }
-  setLoadingState(button, true, "Bijwerken...");
+  if (!newEmail) { setStatus(statusEl, "Please enter a new email address.", "error"); return; }
+  if (!state.currentUser) { setStatus(statusEl, "Not signed in.", "error"); return; }
+  setLoadingState(button, true, "Updating...");
   setStatus(statusEl, "", "info");
   try {
     await updateEmail(state.currentUser, newEmail);
     if (els.settingsCurrentEmail) els.settingsCurrentEmail.value = newEmail;
     if (els.settingsNewEmailInput) els.settingsNewEmailInput.value = "";
-    setStatus(statusEl, "E-mailadres bijgewerkt. Controleer je inbox voor verificatie.", "success");
+    setStatus(statusEl, "Email address updated. Check your inbox for verification.", "success");
     updateAccountSurfaces();
   } catch (error) {
     const msg =
       error.code === "auth/requires-recent-login"
-        ? "Log opnieuw in om je e-mail te wijzigen. Uitloggen en opnieuw inloggen is vereist."
+        ? "Please sign in again to change your email."
         : getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
   } finally {
@@ -52,12 +55,12 @@ export async function updateUserEmailAddr(newEmail, statusEl, button) {
 }
 
 export async function sendPasswordReset(statusEl, button) {
-  if (!state.currentUser?.email) { setStatus(statusEl, "Geen e-mailadres gevonden.", "error"); return; }
-  setLoadingState(button, true, "Versturen...");
+  if (!state.currentUser?.email) { setStatus(statusEl, "No email address found.", "error"); return; }
+  setLoadingState(button, true, "Sending...");
   setStatus(statusEl, "", "info");
   try {
     await sendPasswordResetEmail(state.auth, state.currentUser.email);
-    setStatus(statusEl, `Wachtwoord reset-e-mail verstuurd naar ${state.currentUser.email}.`, "success");
+    setStatus(statusEl, `Password reset email sent to ${state.currentUser.email}.`, "success");
   } catch (error) {
     setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
   } finally {
@@ -67,11 +70,11 @@ export async function sendPasswordReset(statusEl, button) {
 
 export async function removeProfilePhoto(statusEl, button) {
   if (!state.currentUser) return;
-  setLoadingState(button, true, "Verwijderen...");
+  setLoadingState(button, true, "Removing...");
   try {
     await updateProfile(state.currentUser, { photoURL: null });
     updateAccountSurfaces();
-    setStatus(statusEl, "Profielfoto verwijderd.", "success");
+    setStatus(statusEl, "Profile photo removed.", "success");
   } catch (error) {
     setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
   } finally {
@@ -79,23 +82,60 @@ export async function removeProfilePhoto(statusEl, button) {
   }
 }
 
-export async function deleteAccount(statusEl, button) {
+let _deleteStatusEl = null;
+
+export function deleteAccount(statusEl) {
   if (!state.currentUser) return;
-  const confirmed = window.confirm(
-    "Weet je zeker dat je je account wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
-  );
-  if (!confirmed) return;
-  setLoadingState(button, true, "Verwijderen...");
-  setStatus(statusEl, "", "info");
+  _deleteStatusEl = statusEl;
+  document.getElementById("delete-confirm-modal")?.classList.remove("hidden");
+}
+
+export function closeDeleteConfirmModal() {
+  document.getElementById("delete-confirm-modal")?.classList.add("hidden");
+}
+
+export async function performDeleteAccount() {
+  if (!state.currentUser) return;
+  const btn = document.getElementById("delete-confirm-ok");
+  if (btn) setLoadingState(btn, true, "Deleting...");
   try {
     await deleteUser(state.currentUser);
     window.location.replace("/");
   } catch (error) {
+    closeDeleteConfirmModal();
     const msg =
       error.code === "auth/requires-recent-login"
-        ? "Log opnieuw in om je account te verwijderen."
+        ? "Please sign in again to delete your account."
+        : getFirebaseErrorMessage(error.code);
+    if (_deleteStatusEl) setStatus(_deleteStatusEl, msg, "error");
+    if (btn) setLoadingState(btn, false);
+  }
+}
+
+export async function updateUserPassword(currentPassword, newPassword, statusEl, button) {
+  if (!state.currentUser) { setStatus(statusEl, "Not signed in.", "error"); return; }
+  if (!newPassword || newPassword.length < 6) {
+    setStatus(statusEl, "New password must be at least 6 characters.", "error");
+    return;
+  }
+  setLoadingState(button, true, "Updating...");
+  setStatus(statusEl, "", "info");
+  try {
+    const credential = EmailAuthProvider.credential(state.currentUser.email, currentPassword);
+    await reauthenticateWithCredential(state.currentUser, credential);
+    await updatePassword(state.currentUser, newPassword);
+    setStatus(statusEl, "Password updated successfully.", "success");
+    const currentInput = document.getElementById("settings-current-password");
+    const newInput = document.getElementById("settings-new-password");
+    if (currentInput) currentInput.value = "";
+    if (newInput) newInput.value = "";
+  } catch (error) {
+    const msg =
+      error.code === "auth/wrong-password" || error.code === "auth/invalid-credential"
+        ? "Current password is incorrect."
         : getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
+  } finally {
     setLoadingState(button, false);
   }
 }
@@ -103,18 +143,24 @@ export async function deleteAccount(statusEl, button) {
 export async function toggleGoogleLink(statusEl, button) {
   if (!state.currentUser) return;
   const isLinked = button.dataset.linked === "true";
-  setLoadingState(button, true, isLinked ? "Ontkoppelen..." : "Verbinden...");
+  if (isLinked) {
+    const hasPassword = state.currentUser.providerData?.some((p) => p.providerId === "password");
+    if (!hasPassword) {
+      setStatus(statusEl, "Set a password before unlinking Google.", "error");
+      return;
+    }
+  }
+  setLoadingState(button, true, isLinked ? "Unlinking..." : "Connecting...");
   setStatus(statusEl, "", "info");
   try {
     if (isLinked) {
       await unlink(state.currentUser, "google.com");
-      setStatus(statusEl, "Google account ontkoppeld.", "success");
+      setStatus(statusEl, "Google account unlinked.", "success");
     } else {
       const provider = new GoogleAuthProvider();
       await linkWithPopup(state.currentUser, provider);
-      setStatus(statusEl, "Google account gekoppeld.", "success");
+      setStatus(statusEl, "Google account linked.", "success");
     }
-    updateSecurityTab();
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     if (msg) setStatus(statusEl, msg, "error");
