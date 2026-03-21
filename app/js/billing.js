@@ -67,11 +67,11 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       }
       if (data?.error) {
         setStatus(statusTarget, data.error.message || "Checkout kon niet starten.", "error");
+        checkoutButtons.forEach((button) => setLoadingState(button, false));
       }
     });
   } catch (error) {
     setStatus(statusTarget, `Fout bij checkout: ${error.message}`, "error");
-  } finally {
     checkoutButtons.forEach((button) => setLoadingState(button, false));
   }
 }
