@@ -211,7 +211,14 @@ export async function startTotpEnrollment(statusEl, button) {
     // Show modal
     document.getElementById("totp-enroll-modal")?.classList.remove("hidden");
   } catch (error) {
-    setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
+    console.error("2FA enrollment start error:", error);
+    const msg =
+      error.code === "auth/operation-not-allowed"
+        ? "TOTP 2FA is niet ingeschakeld in dit project. Schakel het in via Google Cloud Console → Identity Platform."
+        : error.code === "auth/requires-recent-login"
+        ? "Log opnieuw in om 2FA in te stellen."
+        : error.message || getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
   } finally {
     setLoadingState(button, false);
   }
@@ -236,6 +243,7 @@ export async function confirmTotpEnrollment(code, statusEl, button) {
       "success"
     );
   } catch (error) {
+    console.error("2FA enrollment confirm error:", error);
     setStatus(statusEl, "Ongeldige code. Probeer opnieuw.", "error");
   } finally {
     setLoadingState(button, false);
