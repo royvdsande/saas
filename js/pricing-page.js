@@ -7,24 +7,8 @@ import { refreshAccountState } from "/app/js/auth.js";
 import { updatePricingCards, updatePricingCopy } from "/app/js/dashboard.js";
 
 const pricingStatus = document.getElementById("pricing-status");
-const monthlyBtn = document.getElementById("toggle-monthly");
-const yearlyBtn = document.getElementById("toggle-yearly");
 
 function bindPricingEvents() {
-  monthlyBtn?.addEventListener("click", () => {
-    monthlyBtn.classList.add("active");
-    yearlyBtn?.classList.remove("active");
-    state.currentBillingPeriod = "monthly";
-    updatePricingCards();
-  });
-
-  yearlyBtn?.addEventListener("click", () => {
-    monthlyBtn?.classList.remove("active");
-    yearlyBtn.classList.add("active");
-    state.currentBillingPeriod = "yearly";
-    updatePricingCards();
-  });
-
   document.addEventListener("click", (event) => {
     const pBtn = event.target.closest("[data-pricing-checkout]");
     if (pBtn) {
