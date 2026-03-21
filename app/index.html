@@ -22,12 +22,11 @@
   <div class="sidebar-overlay" id="overlay-dash"></div>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar-dash">
-      <div class="sidebar-header"><div class="sidebar-workspace"><div class="workspace-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow Core<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;color:var(--gray-400)"><path d="m6 9 6 6 6-6"/></svg></div></div>
+      <div class="sidebar-header"><div class="sidebar-workspace"><div class="workspace-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow Core</div></div>
       <div class="sidebar-section">
         <p class="sidebar-section-label">Application</p>
         <button class="sidebar-link active button-reset" data-dashboard-view="overview"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
         <button class="sidebar-link button-reset" data-dashboard-view="billing"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Billing</button>
-        <button class="sidebar-link button-reset" id="dashboard-sidebar-checkout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 17v4"/><path d="M8 17v4"/></svg>Subscription</button>
       </div>
       <div class="sidebar-section">
         <p class="sidebar-section-label">Settings</p>
@@ -222,22 +221,53 @@
           </div>
 
           <div class="settings-view hidden" id="settings-view-security">
-            <div class="sc-card">
-              <div class="sc-card-header"><h3>Wachtwoord</h3><p id="settings-password-desc">Stuur een wachtwoord reset-e-mail om je wachtwoord in te stellen of te wijzigen.</p></div>
+            <!-- Shown when user HAS a password -->
+            <div class="sc-card" id="settings-password-update-card">
+              <div class="sc-card-header">
+                <h3>Update your Password</h3>
+                <p style="color:#0ea5e9">Update your password to keep your account secure.</p>
+              </div>
               <div class="sc-card-body">
-                <button class="btn btn-primary" id="settings-reset-password-btn">Wachtwoord instellen</button>
+                <div class="field" style="margin-bottom:12px">
+                  <label>Current password</label>
+                  <div class="field-wrap sc-field-wrap">
+                    <input class="sc-input sc-input--password" id="settings-current-password" type="password" autocomplete="current-password" placeholder="">
+                    <button type="button" class="toggle-password sc-toggle-password" aria-label="Toon wachtwoord"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                  </div>
+                </div>
+                <div class="field" style="margin-bottom:8px">
+                  <label>New password</label>
+                  <div class="field-wrap sc-field-wrap">
+                    <input class="sc-input sc-input--password" id="settings-new-password" type="password" autocomplete="new-password" placeholder="">
+                    <button type="button" class="toggle-password sc-toggle-password" aria-label="Toon wachtwoord"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                  </div>
+                </div>
+                <p class="password-hint" style="margin-bottom:16px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>8 or more characters</p>
+                <button class="btn btn-primary" id="settings-update-password-btn">Update Password</button>
+                <div id="settings-password-update-status" class="auth-status" hidden></div>
+              </div>
+            </div>
+            <!-- Shown when user has NO password -->
+            <div class="sc-card hidden" id="settings-password-set-card">
+              <div class="sc-card-header">
+                <h3>Your Password</h3>
+              </div>
+              <div class="sc-card-body">
+                <p style="font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:16px">You have not set a password yet. To set one, you need to go through the password reset flow. Click the button below to send an email to reset your password and follow the instructions in the email.</p>
+                <button class="btn btn-primary" id="settings-reset-password-btn">Set password</button>
                 <div id="settings-security-status" class="auth-status" hidden></div>
               </div>
             </div>
+            <!-- Connected accounts -->
             <div class="sc-card">
-              <div class="sc-card-header"><h3>Gekoppelde accounts</h3><p>Log sneller in door je account te koppelen aan Google.</p></div>
+              <div class="sc-card-header"><h3>Connected accounts</h3><p>Sign in faster to your account by linking it to Google.</p></div>
               <div class="sc-card-body">
                 <div class="connected-row">
                   <div style="display:flex;align-items:center;gap:10px">
                     <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                     <span style="font-size:14px;font-weight:500">Google</span>
                   </div>
-                  <button class="btn btn-outline" id="settings-google-link-btn" style="font-size:13px;padding:6px 14px">Verbinden</button>
+                  <button class="btn btn-outline" id="settings-google-link-btn" style="font-size:13px;padding:6px 14px">Connect</button>
                 </div>
                 <div id="settings-link-status" class="auth-status" hidden></div>
               </div>
@@ -298,6 +328,21 @@
           </div>
         </div>
         <div id="modal-status" class="auth-status" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete account confirmation modal -->
+  <div class="modal-shell hidden" id="delete-confirm-modal">
+    <div class="modal-backdrop" id="delete-confirm-backdrop"></div>
+    <div class="modal-card confirm-modal-card" role="dialog" aria-modal="true">
+      <div class="modal-body" style="padding:32px">
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px">Delete account</h3>
+        <p style="font-size:14px;color:var(--gray-500);margin-bottom:28px">Are you sure you want to delete your account?</p>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-outline" id="delete-confirm-cancel">Cancel</button>
+          <button class="btn btn-primary" id="delete-confirm-ok">Confirm</button>
+        </div>
       </div>
     </div>
   </div>

@@ -229,19 +229,20 @@ export function updateSecurityTab() {
   if (!state.currentUser) return;
   const hasPassword = state.currentUser.providerData?.some((p) => p.providerId === "password");
   const hasGoogle = state.currentUser.providerData?.some((p) => p.providerId === "google.com");
-  if (els.settingsPasswordDesc) {
-    els.settingsPasswordDesc.textContent = hasPassword
-      ? "Stuur een wachtwoord reset-e-mail om je wachtwoord te wijzigen."
-      : "Je hebt nog geen wachtwoord ingesteld. Stuur een e-mail om er een te maken.";
-  }
-  if (els.settingsResetPasswordBtn) {
-    els.settingsResetPasswordBtn.textContent = hasPassword
-      ? "Wachtwoord wijzigen"
-      : "Wachtwoord instellen";
-  }
+
+  const updateCard = document.getElementById("settings-password-update-card");
+  const setCard = document.getElementById("settings-password-set-card");
+  if (updateCard) updateCard.classList.toggle("hidden", !hasPassword);
+  if (setCard) setCard.classList.toggle("hidden", hasPassword);
+
   if (els.settingsGoogleLinkBtn) {
-    els.settingsGoogleLinkBtn.textContent = hasGoogle ? "Ontkoppelen" : "Verbinden";
+    els.settingsGoogleLinkBtn.textContent = hasGoogle ? "Disconnect" : "Connect";
     els.settingsGoogleLinkBtn.dataset.linked = hasGoogle ? "true" : "false";
+    const cantDisconnect = hasGoogle && !hasPassword;
+    els.settingsGoogleLinkBtn.disabled = cantDisconnect;
+    els.settingsGoogleLinkBtn.title = cantDisconnect
+      ? "Stel eerst een wachtwoord in voordat je Google ontkoppelt."
+      : "";
   }
 }
 

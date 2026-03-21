@@ -27,6 +27,9 @@ import {
   sendPasswordReset,
   removeProfilePhoto,
   deleteAccount,
+  closeDeleteConfirmModal,
+  performDeleteAccount,
+  updateUserPassword,
   toggleGoogleLink,
 } from "./settings.js";
 
@@ -174,12 +177,27 @@ export function bindEvents() {
 
   // Profile: delete account
   els.settingsDeleteAccountBtn?.addEventListener("click", () =>
-    deleteAccount(els.settingsDeleteStatus, els.settingsDeleteAccountBtn)
+    deleteAccount(els.settingsDeleteStatus)
   );
 
-  // Security: password reset
+  // Delete confirm modal
+  els.deleteConfirmCancelBtn?.addEventListener("click", closeDeleteConfirmModal);
+  els.deleteConfirmBackdrop?.addEventListener("click", closeDeleteConfirmModal);
+  els.deleteConfirmOkBtn?.addEventListener("click", performDeleteAccount);
+
+  // Security: set password (via reset email)
   els.settingsResetPasswordBtn?.addEventListener("click", () =>
     sendPasswordReset(els.settingsSecurityStatus, els.settingsResetPasswordBtn)
+  );
+
+  // Security: update password
+  els.settingsUpdatePasswordBtn?.addEventListener("click", () =>
+    updateUserPassword(
+      els.settingsCurrentPassword?.value || "",
+      els.settingsNewPassword?.value || "",
+      els.settingsPasswordUpdateStatus,
+      els.settingsUpdatePasswordBtn
+    )
   );
 
   // Security: Google link/unlink
@@ -208,7 +226,6 @@ export function bindEvents() {
 
   els.pricingCheckoutBtn?.addEventListener("click", () => startCheckout(els.pricingStatus));
   els.dashboardCheckoutCta?.addEventListener("click", () => startCheckout(els.dashboardStatus));
-  els.dashboardSidebarCheckout?.addEventListener("click", () => startCheckout(els.dashboardStatus));
   els.modalCheckoutBtn?.addEventListener("click", () => startCheckout(els.modalStatus));
 
   [els.navOpenAccount, els.mobileOpenAccount, ...els.pricingAccountButtons].forEach((button) => {
