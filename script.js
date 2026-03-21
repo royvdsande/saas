@@ -14,6 +14,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import {
   getFirestore,
@@ -36,13 +39,12 @@ try {
   if (localOverride) {
     BINAS_CONFIG = { ...BINAS_CONFIG, ...JSON.parse(localOverride) };
   }
-} catch (error) {
-  console.warn("Could not load local config override:", error);
+} catch {
+  // Config override not available
 }
 
 const plusLocalKey = "binas:plus-local-status";
 const storedEmailKey = "binas:premium-email";
-const pendingNameKey = "fitflow:pending-name";
 
 let firebaseApp;
 let auth;
@@ -52,6 +54,7 @@ let isPremiumUser = false;
 let currentPlanLabel = "Free";
 let dashboardContext = null;
 let currentPageId = "page-landing";
+let signinMode = "password"; // "password" | "magic"
 
 const firebaseAuthDomain = BINAS_CONFIG?.authDomain || "account.binas.app";
 const firebaseConfig = {
@@ -76,6 +79,11 @@ const els = {
   signinEmail: document.getElementById("signin-email"),
   signupEmail: document.getElementById("signup-email"),
   signupName: document.getElementById("signup-name"),
+  signinPassword: document.getElementById("signin-password"),
+  signupPassword: document.getElementById("signup-password"),
+  signinPasswordField: document.getElementById("signin-password-field"),
+  signinMagicInfo: document.getElementById("signin-magic-info"),
+  signinModeToggle: document.getElementById("signin-mode-toggle"),
   signinSubmit: document.getElementById("signin-submit"),
   signupSubmit: document.getElementById("signup-submit"),
   signinGoogle: document.getElementById("signin-google"),
@@ -139,8 +147,8 @@ function initFirebase() {
     firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
     try {
       getAnalytics(firebaseApp);
-    } catch (error) {
-      console.warn("Analytics niet beschikbaar:", error);
+    } catch {
+      // Analytics not available
     }
   }
   if (!auth) {
@@ -171,7 +179,7 @@ function closeSidebar() {
 }
 
 function showPage(id) {
-  if ((id === "page-dashboard") && !currentUser) {
+  if (id === "page-dashboard" && !currentUser) {
     id = "page-signin";
   }
 
@@ -208,6 +216,7 @@ function setLoadingState(button, isLoading, label) {
     button.disabled = false;
     if (button.dataset.originalLabel) {
       button.textContent = button.dataset.originalLabel;
+      delete button.dataset.originalLabel;
     }
   }
 }
@@ -238,8 +247,37 @@ function formatDate(value) {
 function getProviderLabel(user) {
   const providerId = user?.providerData?.[0]?.providerId || user?.providerId;
   if (providerId === "google.com") return "Google";
-  if (providerId === "password" || providerId === "emailLink") return "Email";
+  if (providerId === "password") return "Email";
+  if (providerId === "emailLink") return "Email";
   return providerId ? providerId.replace(".com", "") : "Email";
+}
+
+function getProviderDescription(user) {
+  const providerId = user?.providerData?.[0]?.providerId;
+  if (providerId === "google.com") return "Ingelogd via Google";
+  if (providerId === "emailLink") return "Ingelogd via magic link";
+  if (providerId === "password") return "Ingelogd via wachtwoord";
+  return "Email login";
+}
+
+function getFirebaseErrorMessage(code) {
+  const messages = {
+    "auth/email-already-in-use": "Dit e-mailadres is al in gebruik. Probeer in te loggen.",
+    "auth/invalid-email": "Ongeldig e-mailadres. Controleer je invoer.",
+    "auth/weak-password": "Wachtwoord is te zwak. Gebruik minimaal 6 tekens.",
+    "auth/user-not-found": "Geen account gevonden met dit e-mailadres.",
+    "auth/wrong-password": "Onjuist wachtwoord. Probeer het opnieuw.",
+    "auth/invalid-credential": "Onjuiste inloggegevens. Controleer je e-mail en wachtwoord.",
+    "auth/too-many-requests": "Te veel pogingen. Wacht even en probeer opnieuw.",
+    "auth/user-disabled": "Dit account is uitgeschakeld. Neem contact op met support.",
+    "auth/network-request-failed": "Netwerkfout. Controleer je internetverbinding.",
+    "auth/popup-closed-by-user": null,
+    "auth/cancelled-popup-request": null,
+    "auth/popup-blocked": "Popup geblokkeerd. Sta popups toe voor deze site.",
+    "auth/requires-recent-login": "Log opnieuw in om deze actie uit te voeren.",
+  };
+  if (code in messages) return messages[code];
+  return "Er is iets misgegaan. Probeer het opnieuw.";
 }
 
 function hasLocalPlusStatus() {
@@ -258,8 +296,7 @@ async function savePlusStatusToCloud(user) {
     );
     localStorage.removeItem(plusLocalKey);
     return true;
-  } catch (error) {
-    console.error("Error saving Plus status to cloud:", error);
+  } catch {
     return false;
   }
 }
@@ -287,8 +324,7 @@ async function checkCloudPlusStatus(user) {
       )
     );
     return !subSnap.empty;
-  } catch (error) {
-    console.error("Error checking cloud Plus status:", error);
+  } catch {
     return false;
   }
 }
@@ -382,57 +418,68 @@ function buildTableRows() {
 function updateAccountSurfaces() {
   updateAuthNavigation();
 
+  const firstName = currentUser?.displayName?.split(" ")[0] || currentUser?.email?.split("@")[0] || "builder";
   const userName = currentUser?.displayName?.trim() || currentUser?.email || "Gast gebruiker";
   const userEmail = currentUser?.email || "Niet ingelogd";
   const avatarMarkup = getAvatarMarkup(currentUser);
 
-  els.dashboardGreeting.textContent = currentUser
-    ? `Good afternoon, ${currentUser.displayName?.split(" ")[0] || currentUser.email?.split("@")[0] || "builder"} 👋`
-    : "Good afternoon 👋";
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? "Goedemorgen" : hour < 18 ? "Goedemiddag" : "Goedenavond";
 
-  els.dashboardUserName.textContent = userName;
-  els.dashboardUserEmail.textContent = userEmail;
-  els.dashboardUserAvatar.innerHTML = avatarMarkup;
-  els.ctxUserName.textContent = userName;
-  els.ctxUserEmail.textContent = userEmail;
+  if (els.dashboardGreeting) {
+    els.dashboardGreeting.textContent = currentUser
+      ? `${greeting}, ${firstName} 👋`
+      : `${greeting} 👋`;
+  }
 
-  els.modalUserName.textContent = userName;
-  els.modalUserEmail.textContent = userEmail;
-  els.modalAvatar.innerHTML = avatarMarkup;
+  if (els.dashboardUserName) els.dashboardUserName.textContent = userName;
+  if (els.dashboardUserEmail) els.dashboardUserEmail.textContent = userEmail;
+  if (els.dashboardUserAvatar) els.dashboardUserAvatar.innerHTML = avatarMarkup;
+  if (els.ctxUserName) els.ctxUserName.textContent = userName;
+  if (els.ctxUserEmail) els.ctxUserEmail.textContent = userEmail;
+
+  if (els.modalUserName) els.modalUserName.textContent = userName;
+  if (els.modalUserEmail) els.modalUserEmail.textContent = userEmail;
+  if (els.modalAvatar) els.modalAvatar.innerHTML = avatarMarkup;
 
   const customerId = dashboardContext?.customerDoc?.stripeCustomerId || dashboardContext?.customerDoc?.stripeId || "—";
   const providerLabel = getProviderLabel(currentUser);
 
-  els.statPlan.textContent = currentPlanLabel;
-  els.statPlanCopy.textContent = isPremiumUser ? "Premium actief en gekoppeld" : "Premium niet actief";
-  els.statProvider.textContent = providerLabel;
-  els.statProviderCopy.textContent = currentUser?.providerData?.[0]?.providerId === "google.com" ? "Google login" : "Magic link login";
-  els.statCustomer.textContent = customerId === "—" ? "—" : customerId.slice(0, 8);
-  els.statCustomerCopy.textContent = customerId === "—" ? "Nog niet gesynchroniseerd" : "Stripe customer gekoppeld";
-  els.statFirestore.textContent = currentUser ? "Synced" : "Ready";
-  els.statFirestoreCopy.textContent = currentUser ? "Realtime accountstatus geladen" : "Log in voor accountdata";
+  if (els.statPlan) els.statPlan.textContent = currentPlanLabel;
+  if (els.statPlanCopy) els.statPlanCopy.textContent = isPremiumUser ? "Premium actief en gekoppeld" : "Premium niet actief";
+  if (els.statProvider) els.statProvider.textContent = providerLabel;
+  if (els.statProviderCopy) els.statProviderCopy.textContent = currentUser ? getProviderDescription(currentUser) : "Niet ingelogd";
+  if (els.statCustomer) els.statCustomer.textContent = customerId === "—" ? "—" : customerId.slice(0, 8);
+  if (els.statCustomerCopy) els.statCustomerCopy.textContent = customerId === "—" ? "Nog niet gesynchroniseerd" : "Stripe customer gekoppeld";
+  if (els.statFirestore) els.statFirestore.textContent = currentUser ? "Synced" : "Ready";
+  if (els.statFirestoreCopy) els.statFirestoreCopy.textContent = currentUser ? "Realtime accountstatus geladen" : "Log in voor accountdata";
 
-  els.pricingPlan.textContent = isPremiumUser ? "Premium actief" : "Free plan";
-  els.pricingCopy.textContent = currentUser
-    ? isPremiumUser
-      ? "Je account en premium-status zijn gekoppeld aan Firebase en Stripe."
-      : "Je bent ingelogd. Start checkout om premium aan je account te koppelen."
-    : "Log in om je account en premium-status te synchroniseren.";
+  if (els.pricingPlan) els.pricingPlan.textContent = isPremiumUser ? "Premium actief" : "Free plan";
+  if (els.pricingCopy) {
+    els.pricingCopy.textContent = currentUser
+      ? isPremiumUser
+        ? "Je account en premium-status zijn gekoppeld aan Firebase en Stripe."
+        : "Je bent ingelogd. Start checkout om premium aan je account te koppelen."
+      : "Log in om je account en premium-status te synchroniseren.";
+  }
 
-  els.modalPlan.textContent = currentPlanLabel;
-  els.modalPlanCopy.textContent = isPremiumUser
-    ? "Premium is actief en zichtbaar in je dashboard."
-    : currentUser
-      ? "Start checkout om premium aan dit account te koppelen."
-      : "Log in of gebruik Google om je account te openen.";
+  if (els.modalPlan) els.modalPlan.textContent = currentPlanLabel;
+  if (els.modalPlanCopy) {
+    els.modalPlanCopy.textContent = isPremiumUser
+      ? "Premium is actief en zichtbaar in je dashboard."
+      : currentUser
+        ? "Start checkout om premium aan dit account te koppelen."
+        : "Log in of gebruik Google om je account te openen.";
+  }
 
   if (els.tableBody) {
     els.tableBody.innerHTML = currentUser ? buildTableRows() : "";
   }
 
   const ctaText = isPremiumUser ? "Premium active" : "Upgrade to Pro";
-  els.dashboardCheckoutCta.textContent = ctaText;
-  els.modalCheckoutBtn.textContent = isPremiumUser ? "Premium active" : "Start checkout";
+  if (els.dashboardCheckoutCta) els.dashboardCheckoutCta.textContent = ctaText;
+  if (els.modalCheckoutBtn) els.modalCheckoutBtn.textContent = isPremiumUser ? "Premium active" : "Start checkout";
 }
 
 async function refreshAccountState(user, options = {}) {
@@ -471,7 +518,7 @@ async function sendMagicLink(email, statusEl, submitButton, mode = "signin") {
   }
 
   initFirebase();
-  setLoadingState(submitButton, true, "Sending...");
+  setLoadingState(submitButton, true, "Versturen...");
   setStatus(statusEl, "", "info");
 
   try {
@@ -481,31 +528,95 @@ async function sendMagicLink(email, statusEl, submitButton, mode = "signin") {
     });
     localStorage.setItem(storedEmailKey, email);
     const message = mode === "signup"
-      ? "Magic link verstuurd. Open je e-mail om je account te activeren."
-      : "Magic link verstuurd. Open je e-mail om in te loggen.";
+      ? "Magic link verstuurd! Controleer je inbox om je account te activeren."
+      : "Magic link verstuurd! Controleer je inbox om in te loggen.";
     setStatus(statusEl, message, "success");
   } catch (error) {
-    console.error(error);
-    setStatus(statusEl, error.message || "Kon de magic link niet versturen.", "error");
+    const msg = getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg || "Kon de magic link niet versturen.", "error");
   } finally {
     setLoadingState(submitButton, false);
   }
 }
 
+async function signUpWithEmailPassword(name, email, password, statusEl, button) {
+  if (!name) {
+    setStatus(statusEl, "Vul je naam in.", "error");
+    return;
+  }
+  if (!email) {
+    setStatus(statusEl, "Vul een e-mailadres in.", "error");
+    return;
+  }
+  if (!password || password.length < 6) {
+    setStatus(statusEl, "Wachtwoord moet minimaal 6 tekens zijn.", "error");
+    return;
+  }
+
+  initFirebase();
+  setLoadingState(button, true, "Account aanmaken...");
+  setStatus(statusEl, "", "info");
+
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(result.user, { displayName: name });
+    await sendEmailVerification(result.user);
+    currentUser = result.user;
+    setStatus(
+      els.dashboardStatus,
+      "Welkom! We hebben een verificatie-e-mail verstuurd. Controleer je inbox.",
+      "info"
+    );
+    showPage("page-dashboard");
+  } catch (error) {
+    const msg = getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+async function signInWithEmailPassword(email, password, statusEl, button) {
+  if (!email) {
+    setStatus(statusEl, "Vul een e-mailadres in.", "error");
+    return;
+  }
+  if (!password) {
+    setStatus(statusEl, "Vul je wachtwoord in.", "error");
+    return;
+  }
+
+  initFirebase();
+  setLoadingState(button, true, "Inloggen...");
+  setStatus(statusEl, "", "info");
+
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    currentUser = result.user;
+    showPage("page-dashboard");
+  } catch (error) {
+    const msg = getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
 async function signInWithGoogle(statusEl, button) {
   initFirebase();
-  setLoadingState(button, true, "Opening Google...");
+  setLoadingState(button, true, "Google openen...");
   setStatus(statusEl, "", "info");
 
   try {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     currentUser = result.user;
-    setStatus(statusEl, "Succesvol ingelogd met Google.", "success");
     showPage("page-dashboard");
   } catch (error) {
-    console.error(error);
-    setStatus(statusEl, error.message || "Google login mislukt.", "error");
+    const msg = getFirebaseErrorMessage(error.code);
+    if (msg) {
+      setStatus(statusEl, msg, "error");
+    }
   } finally {
     setLoadingState(button, false);
   }
@@ -525,7 +636,7 @@ async function startCheckout(statusTarget = els.pricingStatus) {
     els.dashboardSidebarCheckout,
     els.modalCheckoutBtn,
   ].filter(Boolean);
-  checkoutButtons.forEach((button) => setLoadingState(button, true, "Opening checkout...") );
+  checkoutButtons.forEach((button) => setLoadingState(button, true, "Checkout openen..."));
   setStatus(statusTarget, "", "info");
 
   try {
@@ -560,7 +671,6 @@ async function startCheckout(statusTarget = els.pricingStatus) {
       }
     });
   } catch (error) {
-    console.error(error);
     setStatus(statusTarget, `Fout bij checkout: ${error.message}`, "error");
   } finally {
     checkoutButtons.forEach((button) => setLoadingState(button, false));
@@ -587,17 +697,12 @@ async function completeMagicLinkSignIn() {
     const result = await signInWithEmailLink(auth, email, window.location.href);
     currentUser = result.user;
     localStorage.removeItem(storedEmailKey);
-    const pendingName = localStorage.getItem(pendingNameKey);
-    if (pendingName && !result.user.displayName) {
-      await updateProfile(result.user, { displayName: pendingName });
-      localStorage.removeItem(pendingNameKey);
-    }
     window.history.replaceState({}, document.title, window.location.pathname);
-    setStatus(els.signinStatus, "Succesvol ingelogd met magic link.", "success");
     showPage("page-dashboard");
   } catch (error) {
-    console.error(error);
-    setStatus(els.signinStatus, error.message || "Magic link login mislukt.", "error");
+    const msg = getFirebaseErrorMessage(error.code);
+    setStatus(els.signinStatus, msg || "Magic link login mislukt.", "error");
+    showPage("page-signin");
   }
 }
 
@@ -614,6 +719,23 @@ function closeAccountModal() {
 function toggleAccountMenu() {
   const wasOpen = els.dashboardAccountMenu.classList.contains("open");
   els.dashboardAccountMenu.classList.toggle("open", !wasOpen);
+}
+
+function setSigninMode(mode) {
+  signinMode = mode;
+  const isPassword = mode === "password";
+
+  els.signinPasswordField?.classList.toggle("hidden", !isPassword);
+  els.signinMagicInfo?.classList.toggle("hidden", isPassword);
+
+  if (els.signinModeToggle) {
+    els.signinModeToggle.textContent = isPassword ? "Stuur magic link" : "Gebruik wachtwoord";
+  }
+  if (els.signinSubmit) {
+    els.signinSubmit.textContent = isPassword ? "Inloggen" : "Stuur magic link";
+    els.signinSubmit.dataset.originalLabel = isPassword ? "Inloggen" : "Stuur magic link";
+  }
+  setStatus(els.signinStatus, "", "info");
 }
 
 function bindEvents() {
@@ -663,13 +785,40 @@ function bindEvents() {
 
   els.signinForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    await sendMagicLink(els.signinEmail.value.trim(), els.signinStatus, els.signinSubmit, "signin");
+    if (signinMode === "magic") {
+      await sendMagicLink(els.signinEmail.value.trim(), els.signinStatus, els.signinSubmit, "signin");
+    } else {
+      await signInWithEmailPassword(
+        els.signinEmail.value.trim(),
+        els.signinPassword?.value || "",
+        els.signinStatus,
+        els.signinSubmit
+      );
+    }
   });
 
   els.signupForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    localStorage.setItem(pendingNameKey, els.signupName.value.trim());
-    await sendMagicLink(els.signupEmail.value.trim(), els.signupStatus, els.signupSubmit, "signup");
+    await signUpWithEmailPassword(
+      els.signupName.value.trim(),
+      els.signupEmail.value.trim(),
+      els.signupPassword?.value || "",
+      els.signupStatus,
+      els.signupSubmit
+    );
+  });
+
+  els.signinModeToggle?.addEventListener("click", () => {
+    setSigninMode(signinMode === "password" ? "magic" : "password");
+  });
+
+  // Password visibility toggles
+  document.querySelectorAll(".toggle-password").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const input = btn.closest(".field-wrap")?.querySelector("input[type='password'], input[type='text']");
+      if (!input) return;
+      input.type = input.type === "password" ? "text" : "password";
+    });
   });
 
   els.signinGoogle?.addEventListener("click", () => signInWithGoogle(els.signinStatus, els.signinGoogle));
@@ -753,7 +902,9 @@ async function initAuth() {
   await completeMagicLinkSignIn();
 
   onAuthStateChanged(auth, async (user) => {
-    await refreshAccountState(user, { showDashboard: currentPageId === "page-dashboard" && Boolean(user) });
+    await refreshAccountState(user, {
+      showDashboard: currentPageId === "page-dashboard" && Boolean(user),
+    });
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("status") === "success") {
