@@ -182,7 +182,6 @@ const els = {
   settingsSignoutBtn: document.getElementById("settings-signout-btn"),
   sessionDevice: document.getElementById("session-device"),
   sessionMeta: document.getElementById("session-meta"),
-  settingsOpenSidebar: document.getElementById("settings-open-sidebar"),
 };
 
 function initFirebase() {
@@ -250,7 +249,6 @@ const PAGE_PATHS = {
   "page-signin": "/signin",
   "page-signup": "/signup",
   "page-dashboard": "/dashboard",
-  "page-settings": "/dashboard/settings",
 };
 
 function navigate(path, { showProgress = true } = {}) {
@@ -267,8 +265,9 @@ function renderRoute() {
   const tab = new URLSearchParams(window.location.search).get("tab");
 
   if (path === "/dashboard/settings") {
-    _showPageDirect("page-settings");
-    _showSettingsTabDirect(tab || "profile");
+    if (!currentUser) { navigate("/signin", { showProgress: false }); return; }
+    _showPageDirect("page-dashboard");
+    showDashboardView("settings", tab || "profile");
     return;
   }
   if (path === "/dashboard/billing") {
@@ -302,7 +301,6 @@ function _showPageDirect(id) {
   closeSidebar();
   closeAccountModal();
   window.scrollTo(0, 0);
-  if (id === "page-settings") { updateSettingsPage(); _showSettingsTabDirect("profile"); }
   if (id === "page-dashboard") showDashboardView("overview");
 }
 
@@ -627,7 +625,7 @@ async function refreshAccountState(user, options = {}) {
     isPremiumUser = hasLocalPlusStatus();
     currentPlanLabel = isPremiumUser ? "Premium" : "Free";
     updateAccountSurfaces();
-    if (currentPageId === "page-dashboard" || currentPageId === "page-settings") {
+    if (currentPageId === "page-dashboard") {
       navigate("/signin", { showProgress: false });
     }
     return;
@@ -852,33 +850,44 @@ async function completeMagicLinkSignIn() {
   }
 }
 
-function showDashboardView(viewName) {
-  const path = viewName === "billing" ? "/dashboard/billing" : "/dashboard";
-  if (window.location.pathname !== path) window.history.replaceState({}, "", path);
+function showDashboardView(viewName, settingsTab = null) {
+  let path;
+  if (viewName === "billing") path = "/dashboard/billing";
+  else if (viewName === "settings") path = `/dashboard/settings${settingsTab && settingsTab !== "profile" ? `?tab=${settingsTab}` : ""}`;
+  else path = "/dashboard";
+  window.history.replaceState({}, "", path);
+
   els.dashViews.forEach((v) => v.classList.toggle("active", v.id === `dash-view-${viewName}`));
+
+  // Sidebar active state: for settings buttons match on tab; for others match on view
   document.querySelectorAll("#sidebar-dash [data-dashboard-view]").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.dashboardView === viewName);
+    if (viewName === "settings" && btn.dataset.dashboardView === "settings") {
+      btn.classList.toggle("active", btn.dataset.settingsTab === (settingsTab || "profile"));
+    } else {
+      btn.classList.toggle("active", btn.dataset.dashboardView === viewName && btn.dataset.dashboardView !== "settings");
+    }
   });
-  if (els.dashboardTopbarLabel) {
-    els.dashboardTopbarLabel.textContent = viewName === "billing" ? "Billing" : "Home";
-  }
-  if (viewName === "billing") {
-    renderBillingView();
-  }
+
+  const labels = { billing: "Billing", settings: "Settings" };
+  if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = labels[viewName] || "Home";
+
+  if (viewName === "billing") renderBillingView();
+  if (viewName === "settings") { updateSettingsPage(); _showSettingsTabDirect(settingsTab || "profile"); }
 }
 
 function showSettingsTab(tabName) {
   const url = `/dashboard/settings${tabName !== "profile" ? `?tab=${tabName}` : ""}`;
   window.history.replaceState({}, "", url);
+  // Also update sidebar active state
+  document.querySelectorAll("#sidebar-dash [data-dashboard-view='settings']").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.settingsTab === tabName);
+  });
   _showSettingsTabDirect(tabName);
 }
 
 function _showSettingsTabDirect(tabName) {
   document.querySelectorAll(".settings-tabs .settings-tab").forEach((t) =>
     t.classList.toggle("active", t.dataset.settingsTab === tabName)
-  );
-  document.querySelectorAll("#sidebar-settings [data-settings-tab]").forEach((l) =>
-    l.classList.toggle("active", l.dataset.settingsTab === tabName)
   );
   document.querySelectorAll(".settings-view").forEach((v) =>
     v.classList.toggle("active", v.id === `settings-view-${tabName}`)
@@ -1191,19 +1200,16 @@ function bindEvents() {
     setSigninMode(signinMode === "password" ? "magic" : "password");
   });
 
-  // Settings links in dashboard sidebar (navigate to settings page at correct tab)
-  document.querySelectorAll("#sidebar-dash [data-settings-link]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const tab = btn.dataset.settingsLink;
-      navigate(`/dashboard/settings${tab !== "profile" ? `?tab=${tab}` : ""}`);
-    });
-  });
-
   // Dashboard view switching (scoped to sidebar)
   document.querySelectorAll("#sidebar-dash [data-dashboard-view]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const view = btn.dataset.dashboardView;
-      navigate(view === "billing" ? "/dashboard/billing" : "/dashboard");
+      const tab = btn.dataset.settingsTab;
+      if (view === "settings") {
+        navigate(`/dashboard/settings${tab && tab !== "profile" ? `?tab=${tab}` : ""}`);
+      } else {
+        navigate(view === "billing" ? "/dashboard/billing" : "/dashboard");
+      }
     });
   });
 
@@ -1224,7 +1230,6 @@ function bindEvents() {
   });
 
   // Settings open sidebar (mobile)
-  els.settingsOpenSidebar?.addEventListener("click", openSidebar);
 
   // Profile: photo
   els.settingsPhotoInput?.addEventListener("change", async (e) => {
