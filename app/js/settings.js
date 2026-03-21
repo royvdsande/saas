@@ -89,7 +89,7 @@ export async function deleteAccount(statusEl, button) {
   setStatus(statusEl, "", "info");
   try {
     await deleteUser(state.currentUser);
-    navigate("/");
+    window.location.replace("/");
   } catch (error) {
     const msg =
       error.code === "auth/requires-recent-login"

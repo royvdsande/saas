@@ -114,9 +114,9 @@ export function bindEvents() {
       const view = btn.dataset.dashboardView;
       const tab = btn.dataset.settingsTab;
       if (view === "settings") {
-        navigate(`/dashboard/settings${tab && tab !== "profile" ? `?tab=${tab}` : ""}`);
+        navigate(`/app/settings${tab && tab !== "profile" ? `?tab=${tab}` : ""}`);
       } else {
-        navigate(view === "billing" ? "/dashboard/billing" : "/dashboard");
+        navigate(view === "billing" ? "/app/billing" : "/app/");
       }
     });
   });
@@ -191,7 +191,7 @@ export function bindEvents() {
   els.settingsSignoutBtn?.addEventListener("click", async () => {
     if (!state.auth || !state.auth.currentUser) return;
     await signOut(state.auth);
-    navigate("/");
+    window.location.replace("/");
   });
 
   // Password visibility toggles
@@ -217,14 +217,14 @@ export function bindEvents() {
 
   els.modalDashboardBtn?.addEventListener("click", () => {
     closeAccountModal();
-    navigate(state.currentUser ? "/dashboard" : "/signin");
+    navigate(state.currentUser ? "/app/" : "/auth/login.html");
   });
 
   els.modalLogoutBtn?.addEventListener("click", async () => {
     if (!state.auth || !state.auth.currentUser) return;
     await signOut(state.auth);
     closeAccountModal();
-    navigate("/");
+    window.location.replace("/");
   });
 
   els.accountModalBackdrop?.addEventListener("click", closeAccountModal);
@@ -236,20 +236,20 @@ export function bindEvents() {
   els.dashboardSignout?.addEventListener("click", async () => {
     if (!state.auth || !state.auth.currentUser) return;
     await signOut(state.auth);
-    navigate("/");
+    window.location.replace("/");
   });
 
   els.ctxOpenBilling?.addEventListener("click", () => {
     els.dashboardAccountMenu.classList.remove("open");
-    navigate("/dashboard/billing");
+    navigate("/app/billing");
   });
 
   els.ctxOpenPricing?.addEventListener("click", () => {
     els.dashboardAccountMenu.classList.remove("open");
-    navigate("/pricing");
+    window.location.href = "/pricing.html";
   });
 
-  els.tableCta?.addEventListener("click", () => navigate("/pricing"));
+  els.tableCta?.addEventListener("click", () => { window.location.href = "/pricing.html"; });
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".sidebar-user-wrap")) {

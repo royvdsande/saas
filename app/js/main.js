@@ -24,14 +24,14 @@ async function initAuth() {
     }
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("status") === "success") {
+    if (params.get("checkout") === "success") {
       if (params.get("anonymous") === "true") {
         localStorage.setItem(plusLocalKey, "true");
       }
       state.isPremiumUser = true;
       state.currentPlanLabel = "Premium";
       setStatus(
-        els.pricingStatus,
+        els.dashboardStatus,
         "Checkout voltooid. Je premium-status wordt gesynchroniseerd.",
         "success"
       );
@@ -39,14 +39,15 @@ async function initAuth() {
       await refreshAccountState(user);
     }
 
-    if (params.get("status") === "cancel") {
-      setStatus(els.pricingStatus, "Checkout geannuleerd.", "info");
+    if (params.get("checkout") === "cancel") {
+      setStatus(els.dashboardStatus, "Checkout geannuleerd.", "info");
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   });
 }
 
 function init() {
+  state.currentPageId = "page-dashboard";
   updatePricingCopy();
   bindEvents();
   updateAccountSurfaces();

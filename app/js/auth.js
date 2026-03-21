@@ -28,7 +28,7 @@ export async function sendMagicLink(email, statusEl, submitButton, mode = "signi
 
   try {
     await sendSignInLinkToEmail(state.auth, email, {
-      url: window.location.href,
+      url: `${window.location.origin}/auth/login.html`,
       handleCodeInApp: true,
     });
     localStorage.setItem(storedEmailKey, email);
@@ -73,7 +73,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
       "Welkom! We hebben een verificatie-e-mail verstuurd. Controleer je inbox.",
       "info"
     );
-    navigate("/dashboard");
+    navigate("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
@@ -99,7 +99,7 @@ export async function signInWithEmailPassword(email, password, statusEl, button)
   try {
     const result = await signInWithEmailAndPassword(state.auth, email, password);
     state.currentUser = result.user;
-    navigate("/dashboard");
+    navigate("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
@@ -117,7 +117,7 @@ export async function signInWithGoogle(statusEl, button) {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(state.auth, provider);
     state.currentUser = result.user;
-    navigate("/dashboard");
+    navigate("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     if (msg) {
@@ -149,11 +149,11 @@ export async function completeMagicLinkSignIn() {
     state.currentUser = result.user;
     localStorage.removeItem(storedEmailKey);
     window.history.replaceState({}, document.title, window.location.pathname);
-    navigate("/dashboard");
+    navigate("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(els.signinStatus, msg || "Magic link login mislukt.", "error");
-    navigate("/signin");
+    window.location.replace("/auth/login.html");
   }
 }
 
@@ -165,8 +165,8 @@ export async function refreshAccountState(user, options = {}) {
     state.isPremiumUser = hasLocalPlusStatus();
     state.currentPlanLabel = state.isPremiumUser ? "Premium" : "Free";
     updateAccountSurfaces();
-    if (state.currentPageId === "page-dashboard") {
-      navigate("/signin", { showProgress: false });
+    if (window.location.pathname.startsWith("/app")) {
+      window.location.replace("/auth/login.html");
     }
     return;
   }
@@ -182,6 +182,6 @@ export async function refreshAccountState(user, options = {}) {
   updateAccountSurfaces();
 
   if (options.showDashboard) {
-    navigate("/dashboard");
+    navigate("/app/");
   }
 }
