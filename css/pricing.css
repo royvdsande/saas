@@ -1,0 +1,35 @@
+/* ===== PRICING PAGE ===== */
+.pricing-page-body { background: var(--gray-50); min-height: 100vh; }
+.pricing-hero { text-align: center; padding: 64px 24px 40px; }
+.pricing-hero h1 { font-size: clamp(48px, 12vw, 88px); font-weight: 800; letter-spacing: -3px; margin-bottom: 14px; }
+.pricing-hero p { font-size: 15px; color: var(--gray-500); line-height: 1.65; max-width: 480px; margin: 0 auto 28px; }
+.billing-toggle { display: inline-flex; align-items: center; background: var(--gray-200); border-radius: var(--radius-full); padding: 4px; gap: 2px; }
+.toggle-btn { padding: 8px 18px; border-radius: var(--radius-full); font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; font-family: inherit; color: var(--gray-500); transition: all .2s; display: flex; align-items: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
+.toggle-btn.active { background: var(--black); color: var(--white); }
+.toggle-badge { background: var(--gray-300); color: var(--gray-600); font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: var(--radius-full); }
+.toggle-btn.active .toggle-badge { background: rgba(255,255,255,.2); color: rgba(255,255,255,.8); }
+.pricing-cards-wrap { padding: 0 20px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; max-width: 980px; margin: 36px auto 0; }
+.p-card { background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg); padding: 26px; display: flex; flex-direction: column; transition: border-color .15s, box-shadow .15s; }
+.p-card:hover { border-color: var(--gray-300); box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+.p-card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.p-card h3 { font-size: 18px; font-weight: 700; }
+.p-card-badge { background: var(--gray-100); color: var(--gray-600); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-full); white-space: nowrap; }
+.p-price { font-size: 28px; font-weight: 800; letter-spacing: -.8px; margin: 8px 0 4px; }
+.p-price span { font-size: 14px; font-weight: 400; color: var(--gray-500); }
+.p-desc { font-size: 14px; color: var(--gray-500); margin-bottom: 20px; }
+.p-feats { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.p-feats li { font-size: 14px; color: var(--gray-600); display: flex; align-items: center; gap: 9px; }
+.p-check { width: 15px; height: 15px; flex-shrink: 0; color: var(--black); }
+.p-card-cta { margin-top: auto; }
+.pricing-status-wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 32px; }
+
+/* ===== FAQ ===== */
+.faq-section { padding: 56px 24px; max-width: 980px; margin: 0 auto; }
+.faq-section h2 { font-size: clamp(28px, 7vw, 52px); font-weight: 800; letter-spacing: -1.5px; margin-bottom: 28px; }
+.faq-list { border-top: 1px solid var(--gray-200); }
+.faq-item { border-bottom: 1px solid var(--gray-200); }
+.faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 18px 0; font-size: 15px; font-weight: 500; cursor: pointer; background: none; border: none; text-align: left; font-family: inherit; color: var(--black); gap: 14px; -webkit-tap-highlight-color: transparent; }
+.faq-icon { width: 20px; height: 20px; flex-shrink: 0; color: var(--gray-500); transition: transform .2s; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-a { font-size: 14px; color: var(--gray-500); line-height: 1.7; padding-bottom: 18px; display: none; }
+.faq-item.open .faq-a { display: block; }
