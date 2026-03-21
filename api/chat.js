@@ -1,30 +1,17 @@
 const OpenAI = require('openai');
 const Stripe = require('stripe');
-const admin = require('firebase-admin');
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
-function getFirebase() {
-  if (!admin.apps.length) {
-    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
-    if (serviceAccount) {
-      admin.initializeApp({ credential: admin.credential.cert(JSON.parse(serviceAccount)) });
-    } else {
-      admin.initializeApp({ credential: admin.credential.applicationDefault() });
-    }
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    return JSON.parse(decoded);
+  } catch {
+    return null;
   }
-  return { auth: admin.auth(), db: admin.firestore() };
-}
-
-async function authenticate(req) {
-  const authHeader = req.headers.authorization || '';
-  if (!authHeader.startsWith('Bearer ')) {
-    throw new Error('No valid auth token found.');
-  }
-  const idToken = authHeader.replace('Bearer ', '').trim();
-  const { auth } = getFirebase();
-  return auth.verifyIdToken(idToken);
 }
 
 function respond(res, statusCode, payload) {
@@ -43,12 +30,11 @@ module.exports = async (req, res) => {
     return respond(res, 500, { message: 'OpenAI API key missing from configuration.' });
   }
 
-  let decodedToken;
-  try {
-    decodedToken = await authenticate(req);
-  } catch (error) {
-    return respond(res, 401, { message: error.message || 'Invalid session.' });
-  }
+  // Decode JWT to get user email (no Admin SDK needed)
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  const jwtPayload = token ? decodeJwtPayload(token) : null;
+  const userEmail = jwtPayload?.email || null;
 
   let body = {};
   try {
@@ -65,22 +51,19 @@ module.exports = async (req, res) => {
     return respond(res, 400, { message: 'No messages provided.' });
   }
 
-  // Gather billing context from Stripe
+  // Gather billing context from Stripe using the user's email
   let billingContext = 'No billing information available.';
-  if (stripeSecretKey) {
+  if (stripeSecretKey && userEmail) {
     try {
-      const { db } = getFirebase();
       const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' });
 
-      const customerDoc = await db.collection('customers').doc(decodedToken.uid).get();
-      const stripeCustomerId = customerDoc.exists
-        ? customerDoc.get('stripeCustomerId') || customerDoc.get('stripeId')
-        : null;
+      const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
+      const customer = customers.data[0];
 
-      if (stripeCustomerId) {
+      if (customer) {
         const [subscriptions, invoices] = await Promise.all([
-          stripe.subscriptions.list({ customer: stripeCustomerId, limit: 3 }),
-          stripe.invoices.list({ customer: stripeCustomerId, limit: 3 }),
+          stripe.subscriptions.list({ customer: customer.id, limit: 3 }),
+          stripe.invoices.list({ customer: customer.id, limit: 3 }),
         ]);
 
         const activeSub = subscriptions.data.find((s) =>
@@ -97,7 +80,7 @@ module.exports = async (req, res) => {
               .join('\n')
           : 'No invoices found.';
 
-        billingContext = `Customer ID: ${stripeCustomerId}\n${subInfo}\nRecent invoices:\n${invoiceInfo}`;
+        billingContext = `Customer ID: ${customer.id}\n${subInfo}\nRecent invoices:\n${invoiceInfo}`;
       }
     } catch {
       // Non-fatal — proceed without billing context
@@ -118,7 +101,7 @@ Be concise, friendly, and helpful. If you don't know something specific, say so 
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
-        ...messages.slice(-20), // keep last 20 messages for context
+        ...messages.slice(-20),
       ],
       max_tokens: 500,
       temperature: 0.7,
