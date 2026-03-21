@@ -29,3 +29,4 @@ footer p { font-size: 13px; color: var(--gray-400); }
 .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
 .footer-links a { font-size: 13px; color: var(--gray-400); text-decoration: none; cursor: pointer; }
 .footer-links a:hover { color: var(--black); }
+a.nav-link { text-decoration: none; }

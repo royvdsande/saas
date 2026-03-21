@@ -165,7 +165,11 @@
 /* ===== CONFIRM MODAL (smaller variant) ===== */
 .confirm-modal-card {
   width: min(420px, calc(100% - 32px));
-  margin: 120px auto 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 
 /* ===== PASSWORD FIELD WITH TOGGLE ===== */

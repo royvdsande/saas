@@ -255,6 +255,8 @@ export function _showSettingsTabDirect(tabName) {
   );
   if (tabName === "sessions") updateSessionInfo();
   if (tabName === "security") updateSecurityTab();
+  const tabLabels = { profile: "Profile", security: "Security", sessions: "Sessions" };
+  document.title = `FitFlow | ${tabLabels[tabName] || "Settings"}`;
 }
 
 export function showSettingsTab(tabName) {
@@ -290,8 +292,9 @@ export function showDashboardView(viewName, settingsTab = null) {
   });
 
   const labels = { billing: "Billing", settings: "Settings" };
-  if (els.dashboardTopbarLabel)
-    els.dashboardTopbarLabel.textContent = labels[viewName] || "Home";
+  const label = labels[viewName] || "Home";
+  if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = label;
+  document.title = `FitFlow | ${label}`;
 
   if (viewName === "billing") renderBillingView();
   if (viewName === "settings") {

@@ -256,14 +256,9 @@ export function bindEvents() {
     window.location.replace("/");
   });
 
-  els.ctxOpenBilling?.addEventListener("click", () => {
+  els.ctxOpenHomepage?.addEventListener("click", () => {
     els.dashboardAccountMenu.classList.remove("open");
-    navigate("/app/billing");
-  });
-
-  els.ctxOpenPricing?.addEventListener("click", () => {
-    els.dashboardAccountMenu.classList.remove("open");
-    window.location.href = "/pricing.html";
+    window.location.href = "/";
   });
 
   els.tableCta?.addEventListener("click", () => { window.location.href = "/pricing.html"; });
