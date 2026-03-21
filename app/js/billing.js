@@ -22,7 +22,7 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
     els.dashboardSidebarCheckout,
     els.modalCheckoutBtn,
   ].filter(Boolean);
-  checkoutButtons.forEach((button) => setLoadingState(button, true, "Checkout openen..."));
+  checkoutButtons.forEach((button) => setLoadingState(button, true));
   setStatus(statusTarget, "", "info");
 
   let priceId = BINAS_CONFIG?.stripePriceId || "price_1TDM6gLzjWXxGtsSmBBGHvnY";
@@ -80,7 +80,7 @@ export async function openBillingPortal(statusEl) {
     setStatus(statusEl, "Log in om het billing portaal te openen.", "error");
     return;
   }
-  setLoadingState(els.billingPortalBtn, true, "Portaal openen...");
+  setLoadingState(els.billingPortalBtn, true);
   setStatus(statusEl, "", "info");
   try {
     const token = await state.currentUser.getIdToken();

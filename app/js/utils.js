@@ -11,18 +11,18 @@ export function setStatus(element, message, variant = "info") {
   element.textContent = message;
 }
 
-export function setLoadingState(button, isLoading, label) {
+export function setLoadingState(button, isLoading) {
   if (!button) return;
   if (isLoading) {
     if (!button.dataset.originalLabel) {
-      button.dataset.originalLabel = button.textContent;
+      button.dataset.originalLabel = button.innerHTML;
     }
     button.disabled = true;
-    button.textContent = label;
+    button.innerHTML = '<span class="btn-dots"><span></span><span></span><span></span></span>';
   } else {
     button.disabled = false;
     if (button.dataset.originalLabel) {
-      button.textContent = button.dataset.originalLabel;
+      button.innerHTML = button.dataset.originalLabel;
       delete button.dataset.originalLabel;
     }
   }
