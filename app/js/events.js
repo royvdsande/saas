@@ -127,9 +127,9 @@ export function bindEvents() {
   // Plan checkout buttons (delegated)
   document.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-plan-checkout]");
-    if (btn) startCheckout(els.billingStatus, btn.dataset.planCheckout);
+    if (btn) startCheckout(els.billingStatus, btn.dataset.planCheckout, btn);
     const pBtn = e.target.closest("[data-pricing-checkout]");
-    if (pBtn) startCheckout(els.pricingStatus, pBtn.dataset.pricingCheckout);
+    if (pBtn) startCheckout(els.pricingStatus, pBtn.dataset.pricingCheckout, pBtn);
   });
 
   // Settings tabs

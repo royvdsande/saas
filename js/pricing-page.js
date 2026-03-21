@@ -12,7 +12,7 @@ function bindPricingEvents() {
   document.addEventListener("click", (event) => {
     const pBtn = event.target.closest("[data-pricing-checkout]");
     if (pBtn) {
-      startCheckout(pricingStatus, pBtn.dataset.pricingCheckout);
+      startCheckout(pricingStatus, pBtn.dataset.pricingCheckout, pBtn);
     }
   });
 

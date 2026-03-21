@@ -8,7 +8,7 @@ import { els } from "./elements.js";
 import { setStatus, setLoadingState } from "./utils.js";
 import { initFirebase } from "./state.js";
 
-export async function startCheckout(statusTarget = els.pricingStatus, planId = null) {
+export async function startCheckout(statusTarget = els.pricingStatus, planId = null, triggerButton = null) {
   if (state.isPremiumUser) {
     setStatus(statusTarget, "Premium is al actief op dit account.", "success");
     return;
@@ -17,6 +17,7 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
   initFirebase();
 
   const checkoutButtons = [
+    triggerButton,
     els.pricingCheckoutBtn,
     els.dashboardCheckoutCta,
     els.dashboardSidebarCheckout,
