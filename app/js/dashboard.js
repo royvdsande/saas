@@ -257,7 +257,7 @@ export function _showSettingsTabDirect(tabName) {
 }
 
 export function showSettingsTab(tabName) {
-  const url = `/dashboard/settings${tabName !== "profile" ? `?tab=${tabName}` : ""}`;
+  const url = `/app/settings${tabName !== "profile" ? `?tab=${tabName}` : ""}`;
   window.history.replaceState({}, "", url);
   document.querySelectorAll("#sidebar-dash [data-dashboard-view='settings']").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.settingsTab === tabName);
@@ -267,12 +267,12 @@ export function showSettingsTab(tabName) {
 
 export function showDashboardView(viewName, settingsTab = null) {
   let path;
-  if (viewName === "billing") path = "/dashboard/billing";
+  if (viewName === "billing") path = "/app/billing";
   else if (viewName === "settings")
-    path = `/dashboard/settings${
+    path = `/app/settings${
       settingsTab && settingsTab !== "profile" ? `?tab=${settingsTab}` : ""
     }`;
-  else path = "/dashboard";
+  else path = "/app/";
   window.history.replaceState({}, "", path);
 
   els.dashViews.forEach((v) => v.classList.toggle("active", v.id === `dash-view-${viewName}`));

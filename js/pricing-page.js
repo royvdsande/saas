@@ -1,0 +1,68 @@
+import "./public.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { state, plusLocalKey } from "/app/js/state.js";
+import { startCheckout } from "/app/js/billing.js";
+import { setStatus } from "/app/js/utils.js";
+import { refreshAccountState } from "/app/js/auth.js";
+import { updatePricingCards, updatePricingCopy } from "/app/js/dashboard.js";
+
+const pricingStatus = document.getElementById("pricing-status");
+const monthlyBtn = document.getElementById("toggle-monthly");
+const yearlyBtn = document.getElementById("toggle-yearly");
+
+function bindPricingEvents() {
+  monthlyBtn?.addEventListener("click", () => {
+    monthlyBtn.classList.add("active");
+    yearlyBtn?.classList.remove("active");
+    state.currentBillingPeriod = "monthly";
+    updatePricingCards();
+  });
+
+  yearlyBtn?.addEventListener("click", () => {
+    monthlyBtn?.classList.remove("active");
+    yearlyBtn.classList.add("active");
+    state.currentBillingPeriod = "yearly";
+    updatePricingCards();
+  });
+
+  document.addEventListener("click", (event) => {
+    const pBtn = event.target.closest("[data-pricing-checkout]");
+    if (pBtn) {
+      startCheckout(pricingStatus, pBtn.dataset.pricingCheckout);
+    }
+  });
+
+  document.querySelectorAll(".faq-q").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = button.closest(".faq-item");
+      const isOpen = item.classList.contains("open");
+      document.querySelectorAll(".faq-item").forEach((faq) => faq.classList.remove("open"));
+      item.classList.toggle("open", !isOpen);
+    });
+  });
+}
+
+function handleCheckoutMessage() {
+  const params = new URLSearchParams(window.location.search);
+  const checkout = params.get("checkout");
+  if (checkout === "success") {
+    if (params.get("anonymous") === "true") {
+      localStorage.setItem(plusLocalKey, "true");
+    }
+    setStatus(pricingStatus, "Checkout voltooid. Je premium-status wordt gesynchroniseerd.", "success");
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  if (checkout === "cancel") {
+    setStatus(pricingStatus, "Checkout geannuleerd.", "info");
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+updatePricingCopy();
+bindPricingEvents();
+handleCheckoutMessage();
+
+onAuthStateChanged(state.auth, async (user) => {
+  await refreshAccountState(user, {});
+});

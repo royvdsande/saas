@@ -44,8 +44,12 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
     const sessionData = {
       mode: "subscription",
       price: priceId,
-      success_url: `${window.location.origin}/?status=success&anonymous=${!wasLoggedIn}`,
-      cancel_url: `${window.location.origin}/?status=cancel`,
+      success_url: wasLoggedIn || window.location.pathname.startsWith("/app")
+        ? `${window.location.origin}/app/?checkout=success`
+        : `${window.location.origin}/pricing.html?checkout=success&anonymous=true`,
+      cancel_url: window.location.pathname.startsWith("/app")
+        ? `${window.location.origin}/app/?checkout=cancel`
+        : `${window.location.origin}/pricing.html?checkout=cancel`,
     };
 
     if (state.auth.currentUser?.email) {

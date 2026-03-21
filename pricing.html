@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitFlow Core – Pricing</title>
+  <meta name="description" content="Bekijk de publieke pricing van FitFlow Core en start direct je checkoutflow." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pricing.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+  <div class="pricing-page-body">
+    <nav class="nav" style="background:rgba(249,249,249,.94)">
+      <a class="nav-logo button-reset" href="/">
+        <div class="nav-logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg></div>FitFlow Core
+      </a>
+      <div class="nav-links">
+        <a class="nav-link button-reset" href="/">← Home</a>
+        <span class="nav-link" style="color:var(--black);font-weight:500">Pricing</span>
+        <span class="nav-link">Resources</span><span class="nav-link">Company</span>
+      </div>
+      <div class="nav-actions">
+        <a class="nav-link button-reset nav-auth-logged-out" href="/auth/login.html">Log in</a>
+        <a class="btn btn-primary nav-auth-logged-out" href="/auth/signup.html">Get started</a>
+        <a class="nav-link button-reset nav-auth-logged-in hidden" href="/app/">Dashboard</a>
+      </div>
+      <button class="nav-burger" id="burger-pricing" data-menu-target="menu-pricing" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="mobile-menu" id="menu-pricing">
+      <a class="mobile-menu-link" href="/">← Homepage</a>
+      <div class="mobile-menu-link" style="font-weight:600">Pricing</div>
+      <div class="mobile-menu-actions">
+        <a class="btn btn-outline btn-full nav-auth-logged-out" href="/auth/login.html">Log in</a>
+        <a class="btn btn-primary btn-full nav-auth-logged-out" href="/auth/signup.html">Get started</a>
+        <a class="btn btn-outline btn-full nav-auth-logged-in hidden" href="/app/">Dashboard</a>
+      </div>
+    </div>
+
+    <div class="pricing-hero">
+      <h1>Pricing</h1>
+      <p>Simple, transparante pricing die direct verbonden is met je bestaande Stripe checkout en premium-status.</p>
+      <div class="billing-toggle">
+        <button class="toggle-btn active" id="toggle-monthly">Monthly</button>
+        <button class="toggle-btn" id="toggle-yearly">Yearly <span class="toggle-badge">-20%</span></button>
+      </div>
+    </div>
+
+    <div class="pricing-cards-wrap">
+      <div class="p-card">
+        <div class="p-card-head"><h3>Plus</h3></div>
+        <div class="p-price"><span id="price-plus">€ 4,99</span> <span id="per-plus">/mo</span></div>
+        <p class="p-desc">Ideaal om te starten.</p>
+        <ul class="p-feats">
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alles in Free</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail + wachtwoord login</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Magic link inloggen</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Basis account dashboard</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>E-mail support</li>
+        </ul>
+        <div class="p-card-cta"><button class="btn btn-outline btn-full" data-pricing-checkout="plus">Start checkout</button></div>
+      </div>
+      <div class="p-card" style="border-color:var(--black)">
+        <div class="p-card-head"><h3>Pro</h3><span class="p-card-badge">Most popular</span></div>
+        <div class="p-price"><span id="price-pro">€ 9,00</span> <span id="per-pro">/mo</span></div>
+        <p class="p-desc">Voor serieuze projecten.</p>
+        <ul class="p-feats">
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alles in Plus</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Prioriteit support</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Geavanceerde analytics</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Stripe billing portal</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Custom integraties</li>
+        </ul>
+        <div class="p-card-cta"><button class="btn btn-primary btn-full" data-pricing-checkout="pro">Start checkout</button></div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-head"><h3>Ultimate</h3></div>
+        <div class="p-price"><span id="price-ultimate">€ 49,99</span> <span id="per-ultimate">/mo</span></div>
+        <p class="p-desc">Onbeperkt schalen.</p>
+        <ul class="p-feats">
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alles in Pro</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API toegang</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Onbeperkte teamleden</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>SLA garantie</li>
+          <li><svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</li>
+        </ul>
+        <div class="p-card-cta"><button class="btn btn-outline btn-full" data-pricing-checkout="ultimate">Start checkout</button></div>
+      </div>
+    </div>
+
+    <div class="pricing-status-wrap">
+      <div id="pricing-status" class="auth-status" hidden></div>
+    </div>
+
+    <div class="faq-section">
+      <h2>Questions &amp; Answers</h2>
+      <div class="faq-list">
+        <div class="faq-item"><button class="faq-q">Do I need a credit card to start the free trial?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Voor de gratis account-flow niet. Voor premium gebruik je dezelfde Stripe checkout als in de bestaande app.</div></div>
+        <div class="faq-item"><button class="faq-q">Can my whole team use the same account?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Nog niet — deze structuur splitst vooral marketing, auth en dashboard van elkaar.</div></div>
+        <div class="faq-item"><button class="faq-q">What payment methods do you accept?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Stripe verwerkt nog steeds de betaling, net als in de bestaande setup.</div></div>
+        <div class="faq-item"><button class="faq-q">Can I change plans later?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button><div class="faq-a">Ja, het dashboard onder <code>/app</code> blijft je plek voor billing en accountbeheer.</div></div>
+      </div>
+    </div>
+    <footer style="background:var(--gray-50)">
+      <p>© 2026 FitFlow Inc.</p>
+      <div class="footer-links"><a href="/">Home</a><a href="/auth/login.html">Log in</a><a href="/app/">Dashboard</a></div>
+    </footer>
+  </div>
+
+  <script type="module" src="/js/pricing-page.js"></script>
+</body>
+</html>

@@ -8,7 +8,7 @@ import {
   getAuth,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-import BINAS_CONFIG_DEFAULT from "../config.js";
+import BINAS_CONFIG_DEFAULT from "../../config.js";
 
 const LOCAL_CONFIG_KEY = "binas:admin-config-override";
 let _config = { ...BINAS_CONFIG_DEFAULT };
@@ -42,7 +42,7 @@ export const state = {
   isPremiumUser: false,
   currentPlanLabel: "Free",
   dashboardContext: null,
-  currentPageId: "page-landing",
+  currentPageId: "page-public",
   signinMode: "password",
   currentBillingPeriod: "monthly",
   firebaseApp: null,
