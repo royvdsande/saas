@@ -112,8 +112,42 @@ generateBtn.addEventListener("click", () => {
   generatePlan();
 });
 
+// --- Step 4: Loading animation ---
+function startLoadingAnimation() {
+  const steps = [
+    document.getElementById("ob-lstep-1"),
+    document.getElementById("ob-lstep-2"),
+    document.getElementById("ob-lstep-3"),
+    document.getElementById("ob-lstep-4"),
+  ];
+  let current = 0;
+
+  function activateStep(i) {
+    steps.forEach((s, idx) => {
+      if (!s) return;
+      s.classList.remove("active", "done");
+      if (idx < i) s.classList.add("done");
+      else if (idx === i) s.classList.add("active");
+    });
+  }
+
+  activateStep(0);
+  const interval = setInterval(() => {
+    current = (current + 1) % steps.length;
+    activateStep(current);
+  }, 1800);
+
+  return () => {
+    clearInterval(interval);
+    steps.forEach((s) => s?.classList.add("done"));
+    steps.forEach((s) => s?.classList.remove("active"));
+  };
+}
+
 // --- Step 4: Generate Plan ---
 async function generatePlan() {
+  const stopAnimation = startLoadingAnimation();
+
   try {
     const user = state.user;
     if (!user) {
@@ -144,9 +178,11 @@ async function generatePlan() {
     }
 
     const data = await res.json();
+    stopAnimation();
     renderResults(data.plan);
     goToStep(5);
   } catch (err) {
+    stopAnimation();
     // Show error in step 4
     const step4 = document.getElementById("ob-step-4");
     step4.querySelector(".ob-step-inner").innerHTML = `
@@ -180,6 +216,20 @@ function renderResults(plan) {
     tipsContainer.appendChild(el);
   });
 
+  // Training section info text
+  const trainingInfoEl = document.getElementById("ob-training-info");
+  if (trainingInfoEl) {
+    const activityLabels = {
+      "sedentary": "light activity days with recovery focus",
+      "lightly-active": "moderate training days spread across the week",
+      "moderately-active": "consistent training sessions with progressive overload",
+      "very-active": "high-frequency training with varied intensity",
+      "athlete": "advanced programming with periodisation and peak performance targets",
+    };
+    const activityDesc = activityLabels[state.activityLevel] || "a structured weekly training schedule";
+    trainingInfoEl.textContent = `Based on your activity level, we've built ${activityDesc}. The first 2 days are shown as a preview.`;
+  }
+
   // Training Plan
   const trainingContainer = document.getElementById("ob-training-plan");
   (plan.training || []).forEach((day, i) => {
@@ -206,6 +256,20 @@ function renderResults(plan) {
     trainingContainer.appendChild(card);
   });
 
+  // Nutrition section info text
+  const nutritionInfoEl = document.getElementById("ob-nutrition-info");
+  if (nutritionInfoEl) {
+    const kcal = plan.dailyCalories || "—";
+    const goalLabels = {
+      "lose-weight": "a caloric deficit to support steady fat loss while preserving muscle",
+      "build-muscle": "a caloric surplus with high protein to fuel muscle growth",
+      "get-fitter": "balanced macros to support overall health and performance",
+      "boost-endurance": "carb-focused fuelling to power your endurance training",
+    };
+    const goalDesc = goalLabels[state.goal] || "balanced nutrition";
+    nutritionInfoEl.textContent = `Your daily target is ${kcal} kcal, structured around ${goalDesc}. Each day includes breakfast, lunch, dinner, and snacks.`;
+  }
+
   // Nutrition Plan
   const nutritionContainer = document.getElementById("ob-nutrition-plan");
   (plan.nutrition || []).forEach((day, i) => {
@@ -219,15 +283,12 @@ function renderResults(plan) {
       </div>
       <div class="ob-day-body">
         ${["breakfast", "lunch", "dinner", "snacks"]
-          .filter((key) => meals[key])
-          .map(
-            (key) => `
+          .map((key) => `
           <div class="ob-meal">
             <div class="ob-meal-label">${key}</div>
-            <div class="ob-meal-text">${meals[key]}</div>
+            <div class="ob-meal-text">${meals[key] || "—"}</div>
           </div>
-        `
-          )
+        `)
           .join("")}
       </div>
     `;

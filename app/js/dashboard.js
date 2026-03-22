@@ -240,6 +240,7 @@ export function showDashboardView(viewName, settingsTab = null) {
   let path;
   if (viewName === "billing") path = "/app/billing";
   else if (viewName === "ai") path = "/app/ai";
+  else if (viewName === "plan") path = "/app/plan";
   else if (viewName === "settings")
     path = `/app/settings${
       settingsTab && settingsTab !== "profile" ? `?tab=${settingsTab}` : ""

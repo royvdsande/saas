@@ -70,12 +70,48 @@ module.exports = async (req, res) => {
     return respond(res, 400, { message: 'Missing required fields: goal, activityLevel, gender, age, weight, height.' });
   }
 
-  // Efficient system prompt — minimal tokens, structured output
-  const systemPrompt = `You are a fitness AI. Return ONLY valid JSON (no markdown, no explanation).
-Schema: {"training":[{"day":"Monday","exercises":[{"name":"string","sets":3,"reps":12,"rest":"60s"}]}],"nutrition":[{"day":"Monday","meals":{"breakfast":"string","lunch":"string","dinner":"string","snacks":"string"},"kcal":2200}],"summary":"motivational 2-sentence summary","dailyCalories":2200,"tips":["tip1","tip2","tip3"]}
-Generate a complete 7-day plan (Monday-Sunday). Be specific with exercise names and meal descriptions.`;
+  // Calculate BMR (Mifflin-St Jeor) and TDEE for personalized calorie targets
+  const bmrMale = 10 * weight + 6.25 * height - 5 * age + 5;
+  const bmrFemale = 10 * weight + 6.25 * height - 5 * age - 161;
+  const bmr = gender === 'male' ? bmrMale : gender === 'female' ? bmrFemale : (bmrMale + bmrFemale) / 2;
 
-  const userPrompt = `Goal: ${goal}. Activity level: ${activityLevel}. Gender: ${gender}. Age: ${age}. Weight: ${weight}kg. Height: ${height}cm.`;
+  const activityMultipliers = {
+    'sedentary': 1.2,
+    'lightly-active': 1.375,
+    'moderately-active': 1.55,
+    'very-active': 1.725,
+    'athlete': 1.9,
+  };
+  const tdee = Math.round(bmr * (activityMultipliers[activityLevel] || 1.55));
+
+  const goalAdjustments = {
+    'lose-weight': -400,
+    'build-muscle': 300,
+    'get-fitter': 0,
+    'boost-endurance': -100,
+  };
+  const targetCalories = tdee + (goalAdjustments[goal] || 0);
+  const proteinTarget = goal === 'build-muscle' ? Math.round(weight * 2.2) : Math.round(weight * 1.6);
+
+  const goalDescriptions = {
+    'lose-weight': 'fat loss with a caloric deficit, focusing on cardio and compound movements, high protein to preserve muscle',
+    'build-muscle': 'muscle hypertrophy with a caloric surplus, focusing on progressive overload and strength training, high protein intake',
+    'get-fitter': 'overall fitness improvement with balanced cardio and strength, moderate calorie intake',
+    'boost-endurance': 'cardiovascular endurance with a slight deficit, focusing on aerobic training, balanced macros',
+  };
+  const goalDesc = goalDescriptions[goal] || 'overall fitness improvement';
+
+  const systemPrompt = `You are an expert fitness and nutrition coach. Return ONLY valid JSON (no markdown, no explanation).
+Schema: {"training":[{"day":"Monday","exercises":[{"name":"string","sets":3,"reps":12,"rest":"60s"}]}],"nutrition":[{"day":"Monday","meals":{"breakfast":"string","lunch":"string","dinner":"string","snacks":"string"},"kcal":2200}],"summary":"motivational 2-sentence summary personalised to the user's goal and stats","dailyCalories":${targetCalories},"tips":["tip1","tip2","tip3"]}
+Rules:
+- Generate a complete 7-day plan (Monday-Sunday)
+- Every nutrition day MUST include all four meal keys: breakfast, lunch, dinner, snacks — never omit or leave them empty
+- Use EXACTLY ${targetCalories} kcal as the dailyCalories value
+- Tailor the plan for: ${goalDesc}
+- Vary exercises and meals across the 7 days — no repeated days
+- Be specific: use real exercise names, real food items with portions`;
+
+  const userPrompt = `Goal: ${goal}. Activity level: ${activityLevel}. Gender: ${gender}. Age: ${age}. Weight: ${weight}kg. Height: ${height}cm. Target calories: ${targetCalories} kcal/day. Protein target: ${proteinTarget}g/day.`;
 
   try {
     const openai = new OpenAI({ apiKey: openaiApiKey });
@@ -86,8 +122,8 @@ Generate a complete 7-day plan (Monday-Sunday). Be specific with exercise names 
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 2000,
-      temperature: 0.7,
+      max_tokens: 4000,
+      temperature: 0.8,
     });
 
     const raw = response.choices[0]?.message?.content || '';
