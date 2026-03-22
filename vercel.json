@@ -4,7 +4,6 @@
   "rewrites": [
     { "source": "/onboarding", "destination": "/onboarding/dist/index.html" },
     { "source": "/onboarding/", "destination": "/onboarding/dist/index.html" },
-    { "source": "/onboarding/assets/:path*", "destination": "/onboarding/dist/assets/:path*" },
     { "source": "/pricing", "destination": "/pricing.html" },
     { "source": "/auth/login", "destination": "/auth/login.html" },
     { "source": "/auth/signup", "destination": "/auth/signup.html" },
