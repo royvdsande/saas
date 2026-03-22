@@ -6,8 +6,10 @@ import {
 import {
   getAuth,
   onAuthStateChanged,
+  signInAnonymously,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import BINAS_CONFIG from "../../config.js";
+import { startCheckout } from "/app/js/billing.js";
 
 // Firebase init
 const firebaseConfig = {
@@ -151,8 +153,7 @@ async function generatePlan() {
   try {
     const user = state.user;
     if (!user) {
-      window.location.replace("/auth/login.html");
-      return;
+      throw new Error("Not authenticated. Please try again.");
     }
 
     const token = await user.getIdToken();
@@ -295,6 +296,9 @@ function renderResults(plan) {
     nutritionContainer.appendChild(card);
   });
 
+  // Store plan for transfer after account creation
+  try { localStorage.setItem("ob_pending_plan", JSON.stringify(plan)); } catch {}
+
   // Show paywall for non-premium users
   const paywall = document.getElementById("ob-paywall");
   paywall.classList.add("active");
@@ -302,39 +306,18 @@ function renderResults(plan) {
 
 // --- Unlock button → Stripe checkout ---
 document.getElementById("ob-unlock-btn")?.addEventListener("click", async () => {
-  try {
-    const user = state.user;
-    if (!user) return;
-
-    const token = await user.getIdToken();
-    const priceId = BINAS_CONFIG?.plans?.[1]?.monthlyPriceId || BINAS_CONFIG?.stripePriceId;
-
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ priceId }),
-    });
-
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    }
-  } catch {
-    // Fallback to pricing page
-    window.location.href = "/pricing.html";
-  }
+  const priceId = BINAS_CONFIG?.plans?.[1]?.monthlyPriceId || BINAS_CONFIG?.stripePriceId;
+  const btn = document.getElementById("ob-unlock-btn");
+  await startCheckout(null, priceId, btn);
 });
 
 // --- Auth listener ---
 setProgress(25);
 
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.replace("/auth/signup.html");
-    return;
+  if (user) {
+    state.user = user;
+  } else {
+    signInAnonymously(auth).catch(() => {});
   }
-  state.user = user;
 });

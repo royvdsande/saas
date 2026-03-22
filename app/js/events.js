@@ -139,6 +139,8 @@ export function bindEvents() {
         navigate("/app/billing");
       } else if (view === "ai") {
         navigate("/app/ai");
+      } else if (view === "plan") {
+        navigate("/app/plan");
       } else {
         navigate("/app/");
       }
