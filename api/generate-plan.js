@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
     return respond(res, 400, { message: 'Invalid request body.' });
   }
 
-  const { goal, activityLevel, gender, age, weight, height } = body;
+  const { goal, activityLevel, gender, age, weight, height, notes } = body;
   if (!goal || !activityLevel || !gender || !age || !weight || !height) {
     return respond(res, 400, { message: 'Missing required fields: goal, activityLevel, gender, age, weight, height.' });
   }
@@ -101,17 +101,20 @@ module.exports = async (req, res) => {
   };
   const goalDesc = goalDescriptions[goal] || 'overall fitness improvement';
 
+  const hasNotes = notes && typeof notes === 'string' && notes.trim().length > 0;
+  const notesSchema = hasNotes ? ',"personalNote":"2-3 sentence response addressing the user\'s specific notes/concerns and how the plan accommodates them"' : '';
+
   const systemPrompt = `You are an expert fitness and nutrition coach. Return ONLY valid JSON (no markdown, no explanation).
-Schema: {"training":[{"day":"Monday","exercises":[{"name":"string","sets":3,"reps":12,"rest":"60s"}]}],"nutrition":[{"day":"Monday","meals":{"breakfast":"string","lunch":"string","dinner":"string","snacks":"string"},"kcal":2200}],"summary":"motivational 2-sentence summary personalised to the user's goal and stats","dailyCalories":${targetCalories},"tips":["tip1","tip2","tip3"]}
+Schema: {"training":[{"day":"Monday","exercises":[{"name":"string","sets":3,"reps":12,"rest":"60s"}]}],"nutrition":[{"day":"Monday","meals":{"breakfast":"string","lunch":"string","dinner":"string","snacks":"string"},"kcal":2200}],"summary":"motivational 2-sentence summary personalised to the user's goal and stats","dailyCalories":${targetCalories},"tips":["tip1","tip2","tip3"]${notesSchema}}
 Rules:
 - Generate a complete 7-day plan (Monday-Sunday)
 - Every nutrition day MUST include all four meal keys: breakfast, lunch, dinner, snacks — never omit or leave them empty
 - Use EXACTLY ${targetCalories} kcal as the dailyCalories value
 - Tailor the plan for: ${goalDesc}
 - Vary exercises and meals across the 7 days — no repeated days
-- Be specific: use real exercise names, real food items with portions`;
+- Be specific: use real exercise names, real food items with portions${hasNotes ? '\n- The user provided additional notes — incorporate them into the plan and reference them in the personalNote, summary, and tips' : ''}`;
 
-  const userPrompt = `Goal: ${goal}. Activity level: ${activityLevel}. Gender: ${gender}. Age: ${age}. Weight: ${weight}kg. Height: ${height}cm. Target calories: ${targetCalories} kcal/day. Protein target: ${proteinTarget}g/day.`;
+  const userPrompt = `Goal: ${goal}. Activity level: ${activityLevel}. Gender: ${gender}. Age: ${age}. Weight: ${weight}kg. Height: ${height}cm. Target calories: ${targetCalories} kcal/day. Protein target: ${proteinTarget}g/day.${hasNotes ? ` Additional user notes: ${notes.trim()}` : ''}`;
 
   try {
     const openai = new OpenAI({ apiKey: openaiApiKey });

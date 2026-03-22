@@ -220,6 +220,7 @@
 /* --- Goal Cards Carousel --- */
 .ob-goal-carousel {
   margin-top: 8px;
+  padding: 6px;
 }
 .ob-goal-track {
   display: grid;
@@ -240,7 +241,6 @@
   font: inherit;
   color: var(--black);
   transition: all 0.25s ease;
-  overflow: hidden;
 }
 .ob-goal-card:hover {
   border-color: var(--gray-300);
@@ -608,6 +608,90 @@
 .ob-next-sub-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(0,0,0,.15);
+}
+
+/* --- Notes Input --- */
+.ob-sub-hint {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin: -4px 0 16px;
+  text-align: center;
+  line-height: 1.5;
+}
+.ob-notes-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 14px 16px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--black);
+  resize: vertical;
+  transition: border-color 0.2s;
+  margin-bottom: 20px;
+}
+.ob-notes-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.ob-notes-input::placeholder {
+  color: var(--gray-400);
+}
+
+/* --- Personal Note (results) --- */
+.ob-personal-note {
+  background: linear-gradient(135deg, var(--accent-50, #ecfdf5), #f0fdf4);
+  border: 1px solid var(--accent-light, #a7f3d0);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+.ob-pn-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-dark, #065f46);
+  margin-bottom: 8px;
+}
+.ob-pn-text {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--gray-700);
+  margin: 0;
+}
+.ob-pn-blur {
+  display: none;
+}
+.ob-pn-blur.active {
+  display: block;
+  position: relative;
+  margin-top: 8px;
+}
+.ob-pn-blur .ob-pn-locked {
+  filter: blur(4px);
+  user-select: none;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--gray-500);
+  margin: 0;
+}
+.ob-pn-blur.active::after {
+  content: '\1F512  Unlock full personalized advice';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-dark, #065f46);
+  background: rgba(255,255,255,0.5);
+  border-radius: 8px;
 }
 
 /* --- Loading / Generation Step --- */

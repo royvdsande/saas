@@ -244,6 +244,7 @@
           <span class="ob-mini-dot"></span>
           <span class="ob-mini-dot"></span>
           <span class="ob-mini-dot"></span>
+          <span class="ob-mini-dot"></span>
         </div>
 
         <!-- Stats sub-steps container -->
@@ -327,6 +328,17 @@
                 <span class="ob-num-unit">cm</span>
               </div>
             </div>
+            <button class="ob-next-sub-btn" id="ob-height-next">
+              Continue
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Sub-step: Extra notes (optional) -->
+          <div class="ob-sub-step" id="ob-sub-notes">
+            <p class="ob-sub-label">Anything else I should know?</p>
+            <p class="ob-sub-hint">E.g. injuries, dietary preferences, equipment available, schedule constraints...</p>
+            <textarea id="ob-notes" class="ob-notes-input" rows="3" placeholder="Optional — tell me more so I can personalize your plan..."></textarea>
             <button class="ob-cta-btn" id="ob-generate">
               Generate my plan
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -456,6 +468,18 @@
 
         <!-- Summary -->
         <p class="ob-summary" id="ob-summary"></p>
+
+        <!-- Personal Note (based on user's extra info) -->
+        <div class="ob-personal-note hidden" id="ob-personal-note">
+          <div class="ob-pn-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Personalized for you</span>
+          </div>
+          <p class="ob-pn-text" id="ob-pn-text"></p>
+          <div class="ob-pn-blur" id="ob-pn-blur">
+            <p class="ob-pn-locked" id="ob-pn-locked"></p>
+          </div>
+        </div>
 
         <!-- Tips -->
         <div class="ob-tips-wrap" id="ob-tips"></div>

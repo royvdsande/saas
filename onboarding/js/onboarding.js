@@ -32,6 +32,7 @@ const state = {
   age: 25,
   weight: 75,
   height: 178,
+  notes: "",
   user: null,
   subStep: 0, // for step 3 sub-steps
 };
@@ -289,7 +290,7 @@ $("#ob-back-2")?.addEventListener("click", () => goToStep(1));
 // ════════════════════════════════════════════
 // STEP 3: Personal Stats (sub-steps)
 // ════════════════════════════════════════════
-const subSteps = ["ob-sub-gender", "ob-sub-age", "ob-sub-weight", "ob-sub-height"];
+const subSteps = ["ob-sub-gender", "ob-sub-age", "ob-sub-weight", "ob-sub-height", "ob-sub-notes"];
 const statsDots = $$("#ob-stats-dots .ob-mini-dot");
 
 function goToSubStep(n) {
@@ -313,27 +314,29 @@ function goToSubStep(n) {
     "Let me get to know you a bit...",
     "How old are you?",
     "What do you weigh?",
-    "Almost there! Last question.",
+    "Almost there! One more measurement.",
+    "Any extra details? Or just hit generate!",
   ];
   if (coachMsg) coachMsg.textContent = msgs[n] || "";
 
-  // Show response for completed sub-step
+  // Show response confirming what the user JUST entered (previous sub-step)
   showCoachResponse(n);
 }
 
-function showCoachResponse(subIndex) {
+function showCoachResponse(toSubIndex) {
   const responseEl = $("#ob-stats-response");
   const replyEl = $("#ob-stats-reply");
   if (!responseEl || !replyEl) return;
 
-  const responses = [
-    null, // gender response shown on click
-    `Perfect, ${state.age} years. We'll factor that in. ✓`,
-    `Noted! Your plan will be calibrated for ${state.weight} kg. ✓`,
-    null,
-  ];
+  // Messages confirm the completed step based on where we're navigating TO
+  const responses = {
+    1: null, // coming from gender → no text response
+    2: `Perfect, ${state.age} years. We'll factor that in. ✓`,
+    3: `Noted! Your plan will be calibrated for ${state.weight} kg. ✓`,
+    4: `${state.height} cm — got it! ✓`,
+  };
 
-  const msg = responses[subIndex];
+  const msg = responses[toSubIndex];
   if (msg) {
     replyEl.textContent = msg;
     responseEl.classList.remove("hidden");
@@ -393,9 +396,15 @@ $("#ob-back-3")?.addEventListener("click", () => {
   }
 });
 
-// Generate button
-$("#ob-generate")?.addEventListener("click", () => {
+// Height continue → notes substep
+$("#ob-height-next")?.addEventListener("click", () => {
   state.height = parseInt($("#ob-height")?.value) || 178;
+  goToSubStep(4);
+});
+
+// Generate button (now in notes substep)
+$("#ob-generate")?.addEventListener("click", () => {
+  state.notes = $("#ob-notes")?.value?.trim() || "";
   goToStep(4);
   generatePlan();
 });
@@ -489,6 +498,7 @@ async function generatePlan() {
         age: state.age,
         weight: state.weight,
         height: state.height,
+        notes: state.notes,
       }),
     });
 
@@ -554,6 +564,26 @@ function renderResults(plan) {
   // Summary
   const summaryEl = $("#ob-summary");
   if (summaryEl) summaryEl.textContent = plan.summary || "Your personalized plan is ready!";
+
+  // Personal note (from user's extra info)
+  if (plan.personalNote) {
+    const noteEl = $("#ob-personal-note");
+    const textEl = $("#ob-pn-text");
+    const blurEl = $("#ob-pn-blur");
+    const lockedEl = $("#ob-pn-locked");
+    if (noteEl && textEl) {
+      noteEl.classList.remove("hidden");
+      const sentences = plan.personalNote.split(/(?<=\.)\s+/);
+      if (sentences.length > 1) {
+        textEl.textContent = sentences[0];
+        if (lockedEl) lockedEl.textContent = sentences.slice(1).join(" ");
+        if (blurEl) blurEl.classList.add("active");
+      } else {
+        textEl.textContent = plan.personalNote;
+        if (blurEl) blurEl.style.display = "none";
+      }
+    }
+  }
 
   // Animated stat counters
   const totalExercises = (plan.training || []).reduce((sum, d) => sum + (d.exercises?.length || 0), 0);
