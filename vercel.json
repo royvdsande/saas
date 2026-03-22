@@ -1,4 +1,6 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/onboarding", "destination": "/onboarding/index.html" },
     { "source": "/pricing", "destination": "/pricing.html" },

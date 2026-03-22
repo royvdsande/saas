@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/* ── Design tokens matching FitFlow's existing CSS variables ── */
+@theme {
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --color-accent:       #10b981;
+  --color-accent-dark:  #059669;
+  --color-accent-light: #d1fae5;
+  --color-accent-50:    #ecfdf5;
+
+  --color-fitblack:  #0a0a0a;
+  --color-fitwhite:  #ffffff;
+  --color-gray-50:   #f9f9f9;
+  --color-gray-100:  #f2f2f2;
+  --color-gray-200:  #e5e5e5;
+  --color-gray-300:  #d4d4d4;
+  --color-gray-400:  #a3a3a3;
+  --color-gray-500:  #737373;
+  --color-gray-600:  #525252;
+  --color-gray-700:  #404040;
+  --color-purple:    #8b5cf6;
+  --color-orange:    #f97316;
+
+  --radius-sm:   6px;
+  --radius:      10px;
+  --radius-lg:   14px;
+  --radius-full: 9999px;
+}
+
+/* ── Global resets ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: #ffffff;
+  color: #0a0a0a;
+  overflow-x: hidden;
+}
+
+/* ── Custom slider thumb styling (cross-browser) ── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #e5e5e5;
+  border-radius: 9999px;
+  height: 6px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #10b981;
+  margin-top: -9px;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 2px 8px rgba(0,0,0,0.15);
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover,
+input[type="range"]:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.25), 0 4px 12px rgba(0,0,0,0.2);
+  transform: scale(1.15);
+}
+
+input[type="range"]::-moz-range-track {
+  background: #e5e5e5;
+  border-radius: 9999px;
+  height: 6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* ── Drag avatar cursor feedback ── */
+.drag-avatar {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.drag-avatar:active {
+  cursor: grabbing;
+}
