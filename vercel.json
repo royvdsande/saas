@@ -1,5 +1,6 @@
 {
   "buildCommand": "cd onboarding && npm install && npm run build",
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/onboarding", "destination": "/onboarding/dist/index.html" },
     { "source": "/onboarding/", "destination": "/onboarding/dist/index.html" },
