@@ -9,6 +9,9 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    rollupOptions: {
+      input: "entry.html",
+    },
   },
   server: {
     proxy: {

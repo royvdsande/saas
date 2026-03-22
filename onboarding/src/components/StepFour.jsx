@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { motion } from "framer-motion";
 
 const ACTIVITY_LABELS = {
@@ -16,7 +16,10 @@ const GOAL_LABELS = {
   "boost-endurance": "carb-focused fuelling to power your endurance training",
 };
 
-export default function StepFour({ plan, formData, user }) {
+export default function StepFour({ plan, formData }) {
+  const [email, setEmail] = useState("");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
   // Handle error state
   if (plan?.error) {
     return (
@@ -46,25 +49,28 @@ export default function StepFour({ plan, formData, user }) {
   const goalDesc = GOAL_LABELS[formData.goal] || "balanced nutrition";
 
   const handleUnlock = useCallback(async () => {
+    if (!email || !email.includes("@")) return;
+    setCheckoutLoading(true);
+
     try {
-      if (!user) return;
-      const token = await user.getIdToken();
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          priceId: "price_1TDM6gLzjWXxGtsSmBBGHvnY",
+          email,
+          priceId: "price_1TDM7zLzjWXxGtsSSjb4tnbS", // Pro plan
+          onboarding: true,
         }),
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
+      else throw new Error("No checkout URL");
     } catch {
       window.location.href = "/pricing.html";
+    } finally {
+      setCheckoutLoading(false);
     }
-  }, [user]);
+  }, [email]);
 
   return (
     <div className="relative">
@@ -215,17 +221,32 @@ export default function StepFour({ plan, formData, user }) {
             Unlock your complete 7-day plan
           </h3>
           <p className="text-[14px] text-gray-500 max-w-[380px] leading-relaxed">
-            Get full access to all training schedules, detailed meal plans, and
-            weekly updates.
+            Start your <strong>7-day free trial</strong> — get full access to all
+            training schedules, detailed meal plans, and weekly updates.
           </p>
+
+          {/* Email input */}
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
+            className="w-full max-w-[320px] px-4 py-3 rounded-full border border-gray-200 text-[15px] text-center outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
+          />
+
           <motion.button
             onClick={handleUnlock}
+            disabled={!email || !email.includes("@") || checkoutLoading}
             whileHover={{ scale: 1.03, y: -1 }}
             whileTap={{ scale: 0.97 }}
-            className="w-full max-w-[320px] py-3.5 rounded-full bg-accent text-white text-[15px] font-bold hover:bg-accent-dark transition-all shadow-[0_4px_14px_rgba(16,185,129,0.3)] cursor-pointer"
+            className="w-full max-w-[320px] py-3.5 rounded-full bg-accent text-white text-[15px] font-bold hover:bg-accent-dark transition-all shadow-[0_4px_14px_rgba(16,185,129,0.3)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Unlock full plan →
+            {checkoutLoading ? "Loading..." : "Start free trial →"}
           </motion.button>
+          <p className="text-[12px] text-gray-400 max-w-[300px]">
+            7 days free, then €9/month. Cancel anytime.
+          </p>
           <a
             href="/app/"
             className="text-[13px] text-gray-500 no-underline mt-1 hover:text-[#0a0a0a] transition-colors"

@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { auth, onAuthStateChanged } from "./utils/firebase";
 import ProgressBar from "./components/ProgressBar";
 import StepOne from "./components/StepOne";
 import StepTwo from "./components/StepTwo";
@@ -17,8 +16,6 @@ const pageVariants = {
 
 export default function App() {
   const [step, setStep] = useState(1);
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
 
   // Onboarding state
   const [formData, setFormData] = useState({
@@ -33,19 +30,6 @@ export default function App() {
   // Results from API
   const [plan, setPlan] = useState(null);
 
-  // Firebase auth listener
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) {
-        window.location.replace("/auth/signup.html");
-        return;
-      }
-      setUser(firebaseUser);
-      setAuthLoading(false);
-    });
-    return unsubscribe;
-  }, []);
-
   const updateField = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
@@ -58,19 +42,14 @@ export default function App() {
     setStep((s) => Math.max(s - 1, 1));
   }, []);
 
-  // Generate plan API call
+  // Generate plan API call (no auth required)
   const generatePlan = useCallback(async () => {
-    if (!user) return;
     setStep(3); // Go to loading screen
 
     try {
-      const token = await user.getIdToken();
       const res = await fetch("/api/generate-plan", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           goal: formData.goal,
           activityLevel: formData.activityLevel,
@@ -93,15 +72,7 @@ export default function App() {
       setPlan({ error: err.message || "Could not generate your plan." });
       setStep(4);
     }
-  }, [user, formData]);
-
-  if (authLoading) {
-    return (
-      <div className="min-h-dvh flex items-center justify-center bg-white">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-accent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  }, [formData]);
 
   return (
     <div className="min-h-dvh flex flex-col items-center bg-white overflow-x-hidden">
@@ -183,7 +154,7 @@ export default function App() {
               exit="exit"
               transition={{ duration: 0.35, ease: "easeInOut" }}
             >
-              <StepFour plan={plan} formData={formData} user={user} />
+              <StepFour plan={plan} formData={formData} />
             </motion.div>
           )}
         </AnimatePresence>

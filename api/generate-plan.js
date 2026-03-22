@@ -41,17 +41,13 @@ module.exports = async (req, res) => {
     return respond(res, 500, { message: 'OpenAI API key missing from configuration.' });
   }
 
-  // Auth
+  // Auth (optional — onboarding works without login)
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
-  if (!token) {
-    return respond(res, 401, { message: 'Authentication required.' });
-  }
-
-  const jwtPayload = decodeJwtPayload(token);
-  const uid = jwtPayload?.user_id || jwtPayload?.sub || null;
-  if (!uid) {
-    return respond(res, 401, { message: 'Invalid token.' });
+  let uid = null;
+  if (token) {
+    const jwtPayload = decodeJwtPayload(token);
+    uid = jwtPayload?.user_id || jwtPayload?.sub || null;
   }
 
   // Parse body
@@ -138,8 +134,8 @@ Rules:
       return respond(res, 500, { message: 'AI returned invalid format. Please try again.' });
     }
 
-    // Save to Firestore if available
-    if (admin.apps.length) {
+    // Save to Firestore if available and user is authenticated
+    if (admin.apps.length && uid) {
       try {
         const db = admin.firestore();
         await db.collection('users').doc(uid).set({

@@ -25,16 +25,18 @@ function getFirebase() {
 async function authenticate(req) {
   const authHeader = req.headers.authorization || '';
   if (!authHeader.startsWith('Bearer ')) {
-    throw new Error('Geen geldige auth token gevonden. Log opnieuw in.');
+    return null;
   }
 
   const idToken = authHeader.replace('Bearer ', '').trim();
-  if (!idToken) {
-    throw new Error('Leeg auth token ontvangen.');
-  }
+  if (!idToken) return null;
 
-  const { auth } = getFirebase();
-  return auth.verifyIdToken(idToken);
+  try {
+    const { auth } = getFirebase();
+    return await auth.verifyIdToken(idToken);
+  } catch {
+    return null;
+  }
 }
 
 function respond(res, statusCode, payload) {
@@ -53,14 +55,9 @@ module.exports = async (req, res) => {
     return respond(res, 500, { message: 'Stripe secret key ontbreekt in de configuratie.' });
   }
 
-  let decodedToken;
-  try {
-    decodedToken = await authenticate(req);
-  } catch (error) {
-    return respond(res, 401, { message: error.message || 'Ongeldige sessie.' });
-  }
+  // Try to authenticate (optional for onboarding flow)
+  const decodedToken = await authenticate(req);
 
-  const { db } = getFirebase();
   const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' });
 
   let body = {};
@@ -70,51 +67,89 @@ module.exports = async (req, res) => {
     return respond(res, 400, { message: 'Ongeldige JSON-body.' });
   }
 
-  const email = (decodedToken.email || body.email || '').trim();
+  const isOnboarding = body.onboarding === true;
+  const email = (decodedToken?.email || body.email || '').trim();
 
   if (!email) {
     return respond(res, 400, { message: 'E-mailadres is verplicht.' });
   }
 
+  // For authenticated requests, require valid token
+  if (!isOnboarding && !decodedToken) {
+    return respond(res, 401, { message: 'Geen geldige auth token gevonden. Log opnieuw in.' });
+  }
+
+  const selectedPriceId = body.priceId || priceId;
   const origin = req.headers.origin || `https://${req.headers.host}`;
-  const successUrl = body.successUrl || `${origin}/?status=success`;
-  const cancelUrl = body.cancelUrl || `${origin}/?status=cancel`;
 
   try {
-    const customerDoc = await db.collection('customers').doc(decodedToken.uid).get();
-    const existingCustomerId = customerDoc.exists
-      ? customerDoc.get('stripeCustomerId') || customerDoc.get('stripeId')
-      : undefined;
+    const { db } = getFirebase();
+    let existingCustomerId;
+
+    // Look up existing Stripe customer by Firebase UID
+    if (decodedToken?.uid) {
+      const customerDoc = await db.collection('customers').doc(decodedToken.uid).get();
+      existingCustomerId = customerDoc.exists
+        ? customerDoc.get('stripeCustomerId') || customerDoc.get('stripeId')
+        : undefined;
+    }
+
+    if (isOnboarding) {
+      // Onboarding flow: subscription with 7-day free trial, no auth required
+      const successUrl = `${origin}/auth/signup.html?checkout=success&email=${encodeURIComponent(email)}`;
+      const cancelUrl = `${origin}/onboarding`;
+
+      const sessionParams = {
+        mode: 'subscription',
+        customer_email: existingCustomerId ? undefined : email,
+        customer: existingCustomerId || undefined,
+        billing_address_collection: 'auto',
+        line_items: [{ price: selectedPriceId, quantity: 1 }],
+        subscription_data: {
+          trial_period_days: 7,
+          metadata: {
+            binas_premium: 'true',
+            source: 'onboarding',
+          },
+        },
+        allow_promotion_codes: true,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: {
+          binas_premium: 'true',
+          price_id: selectedPriceId,
+          source: 'onboarding',
+          firebase_email: email,
+        },
+      };
+
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      return respond(res, 200, { url: session.url });
+    }
+
+    // Authenticated flow (from dashboard/pricing)
+    const successUrl = body.successUrl || `${origin}/?status=success`;
+    const cancelUrl = body.cancelUrl || `${origin}/?status=cancel`;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
-      customer_email: email,
-      customer: existingCustomerId,
+      customer_email: existingCustomerId ? undefined : email,
+      customer: existingCustomerId || undefined,
       billing_address_collection: 'auto',
-      customer_update: {
-        address: 'never',
-        name: 'never',
-        shipping: 'never',
-      },
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: selectedPriceId, quantity: 1 }],
       allow_promotion_codes: true,
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
         binas_premium: 'true',
-        price_id: priceId,
+        price_id: selectedPriceId,
         firebase_uid: decodedToken.uid,
         firebase_email: email,
       },
       payment_intent_data: {
         metadata: {
           binas_premium: 'true',
-          price_id: priceId,
+          price_id: selectedPriceId,
           firebase_uid: decodedToken.uid,
           firebase_email: email,
         },
