@@ -46,7 +46,7 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       mode: "subscription",
       price: priceId,
       trial_period_days: 14,
-      success_url: wasLoggedIn || window.location.pathname.startsWith("/app")
+      success_url: wasLoggedIn || window.location.pathname.startsWith("/app") || window.location.pathname.startsWith("/onboarding")
         ? `${window.location.origin}/app/?checkout=success`
         : `${window.location.origin}/pricing.html?checkout=success&anonymous=true`,
       cancel_url: window.location.pathname.startsWith("/app")
