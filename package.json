@@ -4,7 +4,8 @@
   "description": "Een statische pagina met een Mozilla PDF.js-viewer voor de Binas-tabellen, gecombineerd met een snelle inhoudsopgave aan de linkerzijde.",
   "main": "script.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cd onboarding && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
