@@ -11,7 +11,7 @@ import {
 import BINAS_CONFIG from "../../config.js";
 import { startCheckout } from "/app/js/billing.js";
 
-// Firebase init
+// ─── Firebase ───
 const firebaseConfig = {
   apiKey: "AIzaSyBgXo3zllXtFJZDn4elpY8DemEQG_ltMk0",
   authDomain: BINAS_CONFIG?.authDomain || "account.binas.app",
@@ -23,109 +23,431 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// State
+// ─── State ───
 const state = {
-  step: 1,
+  step: 0,
   goal: null,
   activityLevel: null,
   gender: null,
-  age: null,
-  weight: null,
-  height: null,
+  age: 25,
+  weight: 75,
+  height: 178,
   user: null,
+  subStep: 0, // for step 3 sub-steps
 };
 
-// Elements
-const progressBar = document.getElementById("ob-progress");
-const steps = [1, 2, 3, 4, 5].map((n) => document.getElementById(`ob-step-${n}`));
+// ─── Elements ───
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+const progressBar = $("#ob-progress");
 
 function setProgress(pct) {
-  progressBar.style.width = pct + "%";
+  progressBar.style.width = Math.min(100, pct) + "%";
 }
 
+// ─── Step Navigation ───
 function goToStep(n) {
-  const current = steps[state.step - 1];
-  const next = steps[n - 1];
-  if (!current || !next) return;
+  const currentEl = $(`#ob-step-${state.step}`);
+  const nextEl = $(`#ob-step-${n}`);
+  if (!currentEl || !nextEl) return;
 
-  current.classList.add("ob-slide-out");
+  currentEl.classList.add("ob-exit");
   setTimeout(() => {
-    current.classList.remove("active", "ob-slide-out");
-    next.classList.add("active");
+    currentEl.classList.remove("active", "ob-exit");
+    nextEl.classList.add("active");
     state.step = n;
-    setProgress(n <= 4 ? (n / 4) * 100 : 100);
-  }, 280);
+    // Progress: 0=0%, 1=20%, 2=40%, 3=60%, 4=80%, 5=100%
+    setProgress(n * 20);
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 300);
 }
 
-// --- Step 1: Goals ---
-document.querySelectorAll("#ob-goals .ob-card").forEach((card) => {
+// ─── Typewriter Effect ───
+function typeWriter(el, text, speed = 35) {
+  return new Promise((resolve) => {
+    let i = 0;
+    el.textContent = "";
+    const cursor = el.parentElement?.querySelector(".ob-cursor");
+    if (cursor) cursor.classList.remove("hidden");
+
+    function type() {
+      if (i < text.length) {
+        el.textContent += text[i];
+        i++;
+        setTimeout(type, speed);
+      } else {
+        if (cursor) cursor.classList.add("hidden");
+        resolve();
+      }
+    }
+    type();
+  });
+}
+
+// ─── Show Element with Animation ───
+function showEl(el, delay = 0) {
+  setTimeout(() => {
+    el.classList.remove("hidden");
+  }, delay);
+}
+
+// ─── Animated Counter ───
+function animateCounter(el, target, duration = 1200, suffix = "") {
+  const start = 0;
+  const startTime = performance.now();
+
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out cubic
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (target - start) * ease);
+    el.textContent = current.toLocaleString() + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ─── Create Sparkles ───
+function createSparkles() {
+  const container = $("#ob-sparkles");
+  if (!container) return;
+  const colors = ["#10b981", "#34d399", "#6ee7b7", "#a7f3d0", "#8b5cf6", "#f97316"];
+
+  for (let i = 0; i < 30; i++) {
+    const sparkle = document.createElement("div");
+    sparkle.className = "ob-sparkle";
+    sparkle.style.left = Math.random() * 100 + "%";
+    sparkle.style.top = Math.random() * 60 + 20 + "%";
+    sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+    sparkle.style.animationDelay = Math.random() * 0.8 + "s";
+    sparkle.style.width = sparkle.style.height = (3 + Math.random() * 5) + "px";
+    container.appendChild(sparkle);
+  }
+  // Clean up after animation
+  setTimeout(() => { container.innerHTML = ""; }, 2500);
+}
+
+// ════════════════════════════════════════════
+// STEP 0: Coach Intro
+// ════════════════════════════════════════════
+async function initIntro() {
+  const textEl = $("#ob-intro-text");
+  const btnEl = $("#ob-start-btn");
+  const proofEl = $("#ob-social-proof");
+
+  await typeWriter(textEl, "Hey! 👋 I'm your AI fitness coach. Let's build your perfect plan together.", 30);
+
+  showEl(btnEl, 300);
+  showEl(proofEl, 600);
+}
+
+$("#ob-start-btn")?.addEventListener("click", () => goToStep(1));
+
+// Start intro on load
+setTimeout(initIntro, 400);
+
+// ════════════════════════════════════════════
+// STEP 1: Goal Selection
+// ════════════════════════════════════════════
+const goalReplies = {
+  "lose-weight": "Great choice! 🔥 I'll build a plan focused on burning fat while keeping your energy up.",
+  "build-muscle": "Let's get strong! 💪 Your plan will focus on progressive overload and muscle growth.",
+  "get-fitter": "Love it! ❤️ We'll create a balanced plan to boost your overall fitness.",
+  "boost-endurance": "Time to level up! ⚡ Your plan will focus on building stamina and endurance.",
+};
+
+// Mobile swipe dot tracking
+const goalTrack = $("#ob-goal-track");
+const goalDots = $$("#ob-goal-dots .ob-dot");
+
+if (goalTrack) {
+  goalTrack.addEventListener("scroll", () => {
+    const scrollLeft = goalTrack.scrollLeft;
+    const cardWidth = goalTrack.querySelector(".ob-goal-card")?.offsetWidth || 260;
+    const gap = 12;
+    const index = Math.round(scrollLeft / (cardWidth + gap));
+    goalDots.forEach((d, i) => d.classList.toggle("active", i === index));
+  });
+}
+
+$$("#ob-goals .ob-goal-card").forEach((card) => {
   card.addEventListener("click", () => {
-    document.querySelectorAll("#ob-goals .ob-card").forEach((c) => c.classList.remove("selected"));
+    $$("#ob-goals .ob-goal-card").forEach((c) => c.classList.remove("selected"));
     card.classList.add("selected");
     state.goal = card.dataset.value;
-    // Auto-advance after short delay
-    setTimeout(() => goToStep(2), 350);
+
+    // Show coach response
+    const responseEl = $("#ob-goal-response");
+    const replyEl = $("#ob-goal-reply");
+    replyEl.textContent = goalReplies[state.goal] || "Great choice!";
+    responseEl.classList.remove("hidden");
+
+    // Auto-advance after delay
+    setTimeout(() => goToStep(2), 1200);
   });
 });
 
-// --- Step 2: Activity ---
-document.querySelectorAll("#ob-activity .ob-pill").forEach((pill) => {
-  pill.addEventListener("click", () => {
-    document.querySelectorAll("#ob-activity .ob-pill").forEach((p) => p.classList.remove("selected"));
-    pill.classList.add("selected");
-    state.activityLevel = pill.dataset.value;
-    setTimeout(() => goToStep(3), 350);
+// ════════════════════════════════════════════
+// STEP 2: Activity Level
+// ════════════════════════════════════════════
+const activityLabels = {
+  sedentary: "Sedentary",
+  "lightly-active": "Lightly Active",
+  "moderately-active": "Moderately Active",
+  "very-active": "Very Active",
+  athlete: "Athlete",
+};
+
+const activityReplies = {
+  sedentary: "No worries — everyone starts somewhere! We'll ease you in gently. 🌱",
+  "lightly-active": "Good foundation! We'll gradually build on your current activity. 🚶",
+  "moderately-active": "Nice! You're already doing well. Let's take it up a notch. 🏃",
+  "very-active": "Impressive! Your plan will match your high energy level. 💥",
+  athlete: "Beast mode! We'll create an advanced program for peak performance. 🏆",
+};
+
+// SVG figures for each activity level
+const activityFigures = {
+  sedentary: `<circle cx="50" cy="22" r="14" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M50 36 L50 65" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M50 65 L35 75 L32 110" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M50 65 L65 75 L68 110" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M30 52 L50 50 L70 52" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" fill="none"/>`,
+  "lightly-active": `<circle cx="50" cy="22" r="14" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M50 36 L50 72" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M50 72 L38 108" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M50 72 L62 108" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M32 55 L50 48 L68 55" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" fill="none"/>`,
+  "moderately-active": `<circle cx="50" cy="20" r="14" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M50 34 L48 68" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M48 68 L32 105" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M48 68 L65 100" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M30 50 L48 42 L70 48" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <line x1="72" y1="38" x2="82" y2="38" stroke="var(--accent)" stroke-width="1.5" opacity="0.3"/>`,
+  "very-active": `<circle cx="52" cy="16" r="14" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M52 30 L48 60" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M48 60 L30 95" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M48 60 L70 90" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M25 42 L48 34 L75 40" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <line x1="78" y1="30" x2="92" y2="30" stroke="var(--accent)" stroke-width="1.5" opacity="0.4"/>
+    <line x1="80" y1="38" x2="95" y2="38" stroke="var(--accent)" stroke-width="1.5" opacity="0.25"/>`,
+  athlete: `<circle cx="55" cy="14" r="14" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M55 28 L48 58" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M48 58 L25 92" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M48 58 L72 85" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M22 38 L48 28 L78 35" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <line x1="80" y1="24" x2="98" y2="24" stroke="var(--accent)" stroke-width="2" opacity="0.5"/>
+    <line x1="82" y1="32" x2="100" y2="32" stroke="var(--accent)" stroke-width="2" opacity="0.35"/>
+    <line x1="78" y1="40" x2="95" y2="40" stroke="var(--accent)" stroke-width="2" opacity="0.2"/>`,
+};
+
+$$(".ob-slider-stop").forEach((stop) => {
+  stop.addEventListener("click", () => {
+    const value = stop.dataset.value;
+    const index = parseInt(stop.dataset.index);
+    state.activityLevel = value;
+
+    // Update slider UI
+    $$(".ob-slider-stop").forEach((s, i) => {
+      s.classList.toggle("active", i === index);
+      s.classList.toggle("passed", i < index);
+    });
+
+    // Fill track
+    const fillPct = (index / 4) * 100;
+    const fillEl = $("#ob-slider-fill");
+    if (fillEl) {
+      fillEl.style.width = `calc(${fillPct}% - ${fillPct > 0 ? 0 : 20}px)`;
+    }
+
+    // Update figure SVG
+    const figureSvg = $("#ob-figure-svg");
+    if (figureSvg && activityFigures[value]) {
+      figureSvg.innerHTML = activityFigures[value];
+      figureSvg.style.transform = `scale(${1 + index * 0.05})`;
+    }
+
+    // Update label
+    const label = $("#ob-activity-label");
+    if (label) label.textContent = activityLabels[value] || value;
+
+    // Show coach response
+    const responseEl = $("#ob-activity-response");
+    const replyEl = $("#ob-activity-reply");
+    replyEl.textContent = activityReplies[value] || "Got it!";
+    responseEl.classList.remove("hidden");
+
+    // Auto-advance
+    setTimeout(() => goToStep(3), 1200);
   });
 });
 
-document.getElementById("ob-back-2")?.addEventListener("click", () => goToStep(1));
+$("#ob-back-2")?.addEventListener("click", () => goToStep(1));
 
-// --- Step 3: Stats ---
-document.querySelectorAll("#ob-gender .ob-gender-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#ob-gender .ob-gender-btn").forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    state.gender = btn.dataset.value;
-    validateStep3();
+// ════════════════════════════════════════════
+// STEP 3: Personal Stats (sub-steps)
+// ════════════════════════════════════════════
+const subSteps = ["ob-sub-gender", "ob-sub-age", "ob-sub-weight", "ob-sub-height"];
+const statsDots = $$("#ob-stats-dots .ob-mini-dot");
+
+function goToSubStep(n) {
+  const currentEl = $(`#${subSteps[state.subStep]}`);
+  const nextEl = $(`#${subSteps[n]}`);
+  if (!currentEl || !nextEl) return;
+
+  currentEl.classList.remove("active");
+  nextEl.classList.add("active");
+  state.subStep = n;
+
+  // Update dots
+  statsDots.forEach((d, i) => {
+    d.classList.toggle("active", i === n);
+    d.classList.toggle("done", i < n);
   });
-});
 
-const ageInput = document.getElementById("ob-age");
-const weightInput = document.getElementById("ob-weight");
-const heightInput = document.getElementById("ob-height");
-const generateBtn = document.getElementById("ob-generate");
+  // Update coach message
+  const coachMsg = $("#ob-stats-coach");
+  const msgs = [
+    "Let me get to know you a bit...",
+    "How old are you?",
+    "What do you weigh?",
+    "Almost there! Last question.",
+  ];
+  if (coachMsg) coachMsg.textContent = msgs[n] || "";
 
-function validateStep3() {
-  state.age = ageInput.value ? parseInt(ageInput.value) : null;
-  state.weight = weightInput.value ? parseInt(weightInput.value) : null;
-  state.height = heightInput.value ? parseInt(heightInput.value) : null;
-  const valid = state.gender && state.age && state.weight && state.height;
-  generateBtn.disabled = !valid;
+  // Show response for completed sub-step
+  showCoachResponse(n);
 }
 
-[ageInput, weightInput, heightInput].forEach((input) => {
-  input.addEventListener("input", validateStep3);
+function showCoachResponse(subIndex) {
+  const responseEl = $("#ob-stats-response");
+  const replyEl = $("#ob-stats-reply");
+  if (!responseEl || !replyEl) return;
+
+  const responses = [
+    null, // gender response shown on click
+    `Perfect, ${state.age} years. We'll factor that in. ✓`,
+    `Noted! Your plan will be calibrated for ${state.weight} kg. ✓`,
+    null,
+  ];
+
+  const msg = responses[subIndex];
+  if (msg) {
+    replyEl.textContent = msg;
+    responseEl.classList.remove("hidden");
+  } else {
+    responseEl.classList.add("hidden");
+  }
+}
+
+// Gender selection
+$$("#ob-gender .ob-gender-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    $$("#ob-gender .ob-gender-card").forEach((c) => c.classList.remove("selected"));
+    card.classList.add("selected");
+    state.gender = card.dataset.value;
+
+    // Auto advance to age
+    setTimeout(() => goToSubStep(1), 400);
+  });
 });
 
-document.getElementById("ob-back-3")?.addEventListener("click", () => goToStep(2));
+// Number +/- buttons
+function setupNumInput(inputId, minusId, plusId, stateKey, min, max) {
+  const input = $(`#${inputId}`);
+  const minusBtn = $(`#${minusId}`);
+  const plusBtn = $(`#${plusId}`);
+  if (!input) return;
 
-generateBtn.addEventListener("click", () => {
+  input.value = state[stateKey];
+
+  function update(val) {
+    val = Math.max(min, Math.min(max, val));
+    input.value = val;
+    state[stateKey] = val;
+  }
+
+  minusBtn?.addEventListener("click", () => update(parseInt(input.value) - 1));
+  plusBtn?.addEventListener("click", () => update(parseInt(input.value) + 1));
+  input.addEventListener("change", () => update(parseInt(input.value) || min));
+  input.addEventListener("input", () => { state[stateKey] = parseInt(input.value) || min; });
+
+  // Long-press for fast increment
+  let holdInterval;
+  [minusBtn, plusBtn].forEach((btn, idx) => {
+    if (!btn) return;
+    const delta = idx === 0 ? -1 : 1;
+    btn.addEventListener("pointerdown", () => {
+      holdInterval = setInterval(() => update(parseInt(input.value) + delta), 100);
+    });
+    btn.addEventListener("pointerup", () => clearInterval(holdInterval));
+    btn.addEventListener("pointerleave", () => clearInterval(holdInterval));
+  });
+}
+
+setupNumInput("ob-age", "ob-age-minus", "ob-age-plus", "age", 14, 99);
+setupNumInput("ob-weight", "ob-weight-minus", "ob-weight-plus", "weight", 30, 300);
+setupNumInput("ob-height", "ob-height-minus", "ob-height-plus", "height", 120, 250);
+
+// Sub-step continue buttons
+$("#ob-age-next")?.addEventListener("click", () => {
+  state.age = parseInt($("#ob-age")?.value) || 25;
+  goToSubStep(2);
+});
+$("#ob-weight-next")?.addEventListener("click", () => {
+  state.weight = parseInt($("#ob-weight")?.value) || 75;
+  goToSubStep(3);
+});
+
+// Back button
+$("#ob-back-3")?.addEventListener("click", () => {
+  if (state.subStep > 0) {
+    goToSubStep(state.subStep - 1);
+  } else {
+    goToStep(2);
+  }
+});
+
+// Generate button
+$("#ob-generate")?.addEventListener("click", () => {
+  state.height = parseInt($("#ob-height")?.value) || 178;
   goToStep(4);
   generatePlan();
 });
 
-// --- Step 4: Loading animation ---
-function startLoadingAnimation() {
-  const steps = [
-    document.getElementById("ob-lstep-1"),
-    document.getElementById("ob-lstep-2"),
-    document.getElementById("ob-lstep-3"),
-    document.getElementById("ob-lstep-4"),
-  ];
-  let current = 0;
+// ════════════════════════════════════════════
+// STEP 4: Plan Generation
+// ════════════════════════════════════════════
+const genMessages = [
+  "Analyzing your profile...",
+  "Calculating your calorie targets...",
+  "Building your training schedule...",
+  "Designing your nutrition plan...",
+  "Adding personal tips...",
+  "Almost ready! ✨",
+];
 
+function startGenerationAnimation() {
+  const ringProgress = $("#ob-ring-progress");
+  const pctEl = $("#ob-gen-pct");
+  const stepsEls = [$("#ob-gstep-1"), $("#ob-gstep-2"), $("#ob-gstep-3"), $("#ob-gstep-4")];
+  const circumference = 339.29;
+  let currentStep = 0;
+  let progress = 0;
+
+  // Animate progress ring
+  const progressInterval = setInterval(() => {
+    progress = Math.min(progress + 1.2, 95); // Stop at 95% until done
+    const offset = circumference - (progress / 100) * circumference;
+    if (ringProgress) ringProgress.style.strokeDashoffset = offset;
+    if (pctEl) pctEl.textContent = Math.round(progress) + "%";
+  }, 80);
+
+  // Cycle through loading steps
   function activateStep(i) {
-    steps.forEach((s, idx) => {
+    stepsEls.forEach((s, idx) => {
       if (!s) return;
       s.classList.remove("active", "done");
       if (idx < i) s.classList.add("done");
@@ -134,27 +456,41 @@ function startLoadingAnimation() {
   }
 
   activateStep(0);
-  const interval = setInterval(() => {
-    current = (current + 1) % steps.length;
-    activateStep(current);
-  }, 1800);
+  const stepInterval = setInterval(() => {
+    currentStep++;
+    if (currentStep < stepsEls.length) {
+      activateStep(currentStep);
+    }
+  }, 2000);
+
+  // Cycle coach messages
+  let msgIdx = 0;
+  const msgEl = $("#ob-gen-msg-1");
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % genMessages.length;
+    if (msgEl) msgEl.textContent = genMessages[msgIdx];
+  }, 2200);
 
   return () => {
-    clearInterval(interval);
-    steps.forEach((s) => s?.classList.add("done"));
-    steps.forEach((s) => s?.classList.remove("active"));
+    clearInterval(progressInterval);
+    clearInterval(stepInterval);
+    clearInterval(msgInterval);
+    // Complete to 100%
+    if (ringProgress) ringProgress.style.strokeDashoffset = "0";
+    if (pctEl) pctEl.textContent = "100%";
+    stepsEls.forEach((s) => {
+      s?.classList.add("done");
+      s?.classList.remove("active");
+    });
   };
 }
 
-// --- Step 4: Generate Plan ---
 async function generatePlan() {
-  const stopAnimation = startLoadingAnimation();
+  const stopAnimation = startGenerationAnimation();
 
   try {
     const user = state.user;
-    if (!user) {
-      throw new Error("Not authenticated. Please try again.");
-    }
+    if (!user) throw new Error("Not authenticated. Please try again.");
 
     const token = await user.getIdToken();
     const res = await fetch("/api/generate-plan", {
@@ -180,139 +516,151 @@ async function generatePlan() {
 
     const data = await res.json();
     stopAnimation();
-    renderResults(data.plan);
-    goToStep(5);
+
+    // Brief pause to show 100% completion
+    setTimeout(() => {
+      renderResults(data.plan);
+      goToStep(5);
+    }, 600);
   } catch (err) {
     stopAnimation();
-    // Show error in step 4
-    const step4 = document.getElementById("ob-step-4");
-    step4.querySelector(".ob-step-inner").innerHTML = `
-      <div class="ob-error">
-        <h2>Something went wrong</h2>
-        <p>${err.message || "Could not generate your plan. Please try again."}</p>
-        <button class="btn btn-accent" onclick="location.reload()">Try again</button>
-      </div>
-    `;
+    const step4 = $("#ob-step-4");
+    if (step4) {
+      step4.querySelector(".ob-step-inner").innerHTML = `
+        <div style="text-align:center;padding:60px 20px;">
+          <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;">Something went wrong</h2>
+          <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px;">${err.message || "Could not generate your plan. Please try again."}</p>
+          <button class="ob-cta-btn" onclick="location.reload()">Try again</button>
+        </div>
+      `;
+    }
   }
 }
 
-// --- Step 5: Render Results ---
+// ════════════════════════════════════════════
+// STEP 5: Results
+// ════════════════════════════════════════════
+function getExerciseEmoji(name) {
+  const n = name.toLowerCase();
+  if (/squat|lunge|leg press|calf|deadlift|leg curl|leg ext/i.test(n)) return "🦵";
+  if (/bench|push.?up|chest|fly|press/i.test(n)) return "🏋️";
+  if (/pull.?up|row|lat|back|chin/i.test(n)) return "💪";
+  if (/curl|bicep|tricep|arm/i.test(n)) return "💪";
+  if (/run|jog|sprint|cardio|hiit|burpee|jump/i.test(n)) return "🏃";
+  if (/plank|core|ab|crunch|sit.?up/i.test(n)) return "🔥";
+  if (/stretch|yoga|mobility|cool/i.test(n)) return "🧘";
+  if (/cycle|bike|spin/i.test(n)) return "🚴";
+  if (/swim/i.test(n)) return "🏊";
+  if (/shoulder|lateral|overhead/i.test(n)) return "🏋️";
+  return "💪";
+}
+
+const mealEmojis = {
+  breakfast: "🥚",
+  lunch: "🥗",
+  dinner: "🍽️",
+  snacks: "🍎",
+};
+
 function renderResults(plan) {
   if (!plan) return;
 
-  // Summary
-  document.getElementById("ob-summary").textContent = plan.summary || "Your personalized plan is ready!";
+  // Create sparkles
+  createSparkles();
 
-  // Stats
-  document.getElementById("ob-stat-calories").textContent = plan.dailyCalories || "—";
+  // Summary
+  const summaryEl = $("#ob-summary");
+  if (summaryEl) summaryEl.textContent = plan.summary || "Your personalized plan is ready!";
+
+  // Animated stat counters
   const totalExercises = (plan.training || []).reduce((sum, d) => sum + (d.exercises?.length || 0), 0);
-  document.getElementById("ob-stat-exercises").textContent = totalExercises;
+  setTimeout(() => {
+    animateCounter($("#ob-r-calories"), plan.dailyCalories || 2000);
+    animateCounter($("#ob-r-days"), 7);
+    animateCounter($("#ob-r-exercises"), totalExercises);
+  }, 300);
 
   // Tips
-  const tipsContainer = document.getElementById("ob-tips");
+  const tipsContainer = $("#ob-tips");
   (plan.tips || []).forEach((tip) => {
     const el = document.createElement("div");
-    el.className = "ob-tip";
+    el.className = "ob-tip-card";
     el.textContent = tip;
     tipsContainer.appendChild(el);
   });
 
-  // Training section info text
-  const trainingInfoEl = document.getElementById("ob-training-info");
-  if (trainingInfoEl) {
-    const activityLabels = {
-      "sedentary": "light activity days with recovery focus",
-      "lightly-active": "moderate training days spread across the week",
-      "moderately-active": "consistent training sessions with progressive overload",
-      "very-active": "high-frequency training with varied intensity",
-      "athlete": "advanced programming with periodisation and peak performance targets",
-    };
-    const activityDesc = activityLabels[state.activityLevel] || "a structured weekly training schedule";
-    trainingInfoEl.textContent = `Based on your activity level, we've built ${activityDesc}. The first 2 days are shown as a preview.`;
-  }
-
-  // Training Plan
-  const trainingContainer = document.getElementById("ob-training-plan");
+  // Training Plan - horizontal scroll cards
+  const trainingContainer = $("#ob-training-plan");
   (plan.training || []).forEach((day, i) => {
     const card = document.createElement("div");
-    card.className = "ob-day-card" + (i >= 2 ? " ob-blurred" : "");
+    card.className = "ob-day-card" + (i >= 2 ? " ob-blurred" : "") + (i < 2 ? " ob-preview" : "");
+
+    const exercises = (day.exercises || []).map((ex) => `
+      <div class="ob-ex-item">
+        <span class="ob-ex-emoji">${getExerciseEmoji(ex.name)}</span>
+        <div class="ob-ex-info">
+          <div class="ob-ex-name">${ex.name}</div>
+          <div class="ob-ex-detail">${ex.sets} &times; ${ex.reps} &bull; ${ex.rest}</div>
+        </div>
+      </div>
+    `).join("");
+
     card.innerHTML = `
-      <div class="ob-day-header">
+      <div class="ob-day-head">
         <span>${day.day}</span>
         ${i < 2 ? '<span class="ob-day-badge">Preview</span>' : ""}
       </div>
-      <div class="ob-day-body">
-        ${(day.exercises || [])
-          .map(
-            (ex) => `
-          <div class="ob-exercise">
-            <span class="ob-ex-name">${ex.name}</span>
-            <span class="ob-ex-detail">${ex.sets} &times; ${ex.reps} &bull; ${ex.rest}</span>
-          </div>
-        `
-          )
-          .join("")}
-      </div>
+      <div class="ob-day-body">${exercises}</div>
     `;
     trainingContainer.appendChild(card);
   });
 
-  // Nutrition section info text
-  const nutritionInfoEl = document.getElementById("ob-nutrition-info");
-  if (nutritionInfoEl) {
-    const kcal = plan.dailyCalories || "—";
-    const goalLabels = {
-      "lose-weight": "a caloric deficit to support steady fat loss while preserving muscle",
-      "build-muscle": "a caloric surplus with high protein to fuel muscle growth",
-      "get-fitter": "balanced macros to support overall health and performance",
-      "boost-endurance": "carb-focused fuelling to power your endurance training",
-    };
-    const goalDesc = goalLabels[state.goal] || "balanced nutrition";
-    nutritionInfoEl.textContent = `Your daily target is ${kcal} kcal, structured around ${goalDesc}. Each day includes breakfast, lunch, dinner, and snacks.`;
-  }
-
-  // Nutrition Plan
-  const nutritionContainer = document.getElementById("ob-nutrition-plan");
+  // Nutrition Plan - horizontal scroll cards
+  const nutritionContainer = $("#ob-nutrition-plan");
   (plan.nutrition || []).forEach((day, i) => {
     const meals = day.meals || {};
     const card = document.createElement("div");
-    card.className = "ob-day-card" + (i >= 1 ? " ob-blurred" : "");
+    card.className = "ob-day-card" + (i >= 1 ? " ob-blurred" : "") + (i < 1 ? " ob-preview" : "");
+
+    const mealItems = ["breakfast", "lunch", "dinner", "snacks"].map((key) => `
+      <div class="ob-meal-item">
+        <div class="ob-meal-head">
+          <span>${mealEmojis[key] || "🍽️"}</span>
+          ${key}
+        </div>
+        <div class="ob-meal-text">${meals[key] || "—"}</div>
+      </div>
+    `).join("");
+
     card.innerHTML = `
-      <div class="ob-day-header">
+      <div class="ob-day-head">
         <span>${day.day}</span>
-        <span style="font-size:12px;color:var(--gray-500);font-weight:500">${day.kcal || "—"} kcal</span>
+        <span class="ob-day-kcal">${day.kcal || "—"} kcal</span>
       </div>
-      <div class="ob-day-body">
-        ${["breakfast", "lunch", "dinner", "snacks"]
-          .map((key) => `
-          <div class="ob-meal">
-            <div class="ob-meal-label">${key}</div>
-            <div class="ob-meal-text">${meals[key] || "—"}</div>
-          </div>
-        `)
-          .join("")}
-      </div>
+      <div class="ob-day-body">${mealItems}</div>
     `;
     nutritionContainer.appendChild(card);
   });
 
   // Store plan for transfer after account creation
-  try { localStorage.setItem("ob_pending_plan", JSON.stringify(plan)); } catch {}
+  try {
+    localStorage.setItem("ob_pending_plan", JSON.stringify(plan));
+  } catch {}
 
-  // Show paywall for non-premium users
-  const paywall = document.getElementById("ob-paywall");
-  paywall.classList.add("active");
+  // Show paywall
+  const paywall = $("#ob-paywall");
+  if (paywall) paywall.classList.add("active");
 }
 
-// --- Unlock button → Stripe checkout ---
-document.getElementById("ob-unlock-btn")?.addEventListener("click", async () => {
+// ─── Unlock Button → Stripe ───
+$("#ob-unlock-btn")?.addEventListener("click", async () => {
   const priceId = BINAS_CONFIG?.plans?.[1]?.monthlyPriceId || BINAS_CONFIG?.stripePriceId;
-  const btn = document.getElementById("ob-unlock-btn");
+  const btn = $("#ob-unlock-btn");
   await startCheckout(null, priceId, btn);
 });
 
-// --- Auth listener ---
-setProgress(25);
+// ─── Auth Listener ───
+setProgress(0);
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
