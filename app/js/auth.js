@@ -4,10 +4,13 @@ import {
   sendSignInLinkToEmail,
   GoogleAuthProvider,
   signInWithPopup,
+  linkWithPopup,
   updateProfile,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  EmailAuthProvider,
+  linkWithCredential,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state, plusLocalKey, storedEmailKey, initFirebase } from "./state.js";
 import { els } from "./elements.js";
@@ -64,10 +67,24 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
   setStatus(statusEl, "", "info");
 
   try {
-    const result = await createUserWithEmailAndPassword(state.auth, email, password);
-    await updateProfile(result.user, { displayName: name });
-    await sendEmailVerification(result.user);
-    state.currentUser = result.user;
+    const currentUser = state.auth.currentUser;
+    let user;
+
+    // If anonymous user exists (e.g. from onboarding checkout), link instead of create
+    if (currentUser && currentUser.isAnonymous) {
+      const credential = EmailAuthProvider.credential(email, password);
+      const result = await linkWithCredential(currentUser, credential);
+      user = result.user;
+      await updateProfile(user, { displayName: name });
+      await sendEmailVerification(user);
+    } else {
+      const result = await createUserWithEmailAndPassword(state.auth, email, password);
+      user = result.user;
+      await updateProfile(user, { displayName: name });
+      await sendEmailVerification(user);
+    }
+
+    state.currentUser = user;
     setStatus(
       els.dashboardStatus,
       "Welcome! We've sent a verification email. Please check your inbox.",
@@ -75,6 +92,25 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
     );
     navigate("/app/");
   } catch (error) {
+    // If linking fails because email already in use, fall back to regular signup
+    if (error.code === "auth/email-already-in-use" && state.auth.currentUser?.isAnonymous) {
+      try {
+        // Store anonymous UID for potential data migration
+        const anonUid = state.auth.currentUser.uid;
+        localStorage.setItem("ob_anonymous_uid", anonUid);
+        const result = await createUserWithEmailAndPassword(state.auth, email, password);
+        await updateProfile(result.user, { displayName: name });
+        await sendEmailVerification(result.user);
+        state.currentUser = result.user;
+        navigate("/app/");
+        return;
+      } catch (innerError) {
+        const msg = getFirebaseErrorMessage(innerError.code);
+        setStatus(statusEl, msg, "error");
+        setLoadingState(button, false);
+        return;
+      }
+    }
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
   } finally {
@@ -115,7 +151,27 @@ export async function signInWithGoogle(statusEl, button) {
 
   try {
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(state.auth, provider);
+    const currentUser = state.auth.currentUser;
+    let result;
+
+    // If anonymous user exists (e.g. from onboarding checkout), link instead of sign in
+    if (currentUser && currentUser.isAnonymous) {
+      try {
+        result = await linkWithPopup(currentUser, provider);
+      } catch (linkError) {
+        // If linking fails (e.g. Google account already exists), fall back to regular sign in
+        if (linkError.code === "auth/credential-already-in-use" || linkError.code === "auth/email-already-in-use") {
+          const anonUid = currentUser.uid;
+          localStorage.setItem("ob_anonymous_uid", anonUid);
+          result = await signInWithPopup(state.auth, provider);
+        } else {
+          throw linkError;
+        }
+      }
+    } else {
+      result = await signInWithPopup(state.auth, provider);
+    }
+
     state.currentUser = result.user;
     navigate("/app/");
   } catch (error) {

@@ -31,7 +31,6 @@ import {
   performDeleteAccount,
   updateUserPassword,
 } from "./settings.js";
-import { sendChatMessage } from "./ai.js";
 
 function updatePasswordHint(input, hintEl) {
   if (!hintEl) return;
@@ -289,19 +288,6 @@ export function bindEvents() {
   });
 
   els.tableCta?.addEventListener("click", () => { window.location.href = "/pricing.html"; });
-
-  // AI chat
-  els.aiChatSend?.addEventListener("click", () => {
-    const text = els.aiChatInput?.value.trim();
-    if (text) sendChatMessage(text, els.aiChatStatus);
-  });
-  els.aiChatInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      const text = els.aiChatInput.value.trim();
-      if (text) sendChatMessage(text, els.aiChatStatus);
-    }
-  });
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".sidebar-user-wrap")) {

@@ -105,8 +105,4 @@ export const els = {
   settingsNewPassword: document.getElementById("settings-new-password"),
   settingsUpdatePasswordBtn: document.getElementById("settings-update-password-btn"),
   settingsPasswordUpdateStatus: document.getElementById("settings-password-update-status"),
-  aiChatInput: document.getElementById("ai-chat-input"),
-  aiChatSend: document.getElementById("ai-chat-send"),
-  aiChatMessages: document.getElementById("ai-chat-messages"),
-  aiChatStatus: document.getElementById("ai-chat-status"),
 };
