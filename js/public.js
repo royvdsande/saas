@@ -1,4 +1,4 @@
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { initFirebase, state } from "/app/js/state.js";
 
 function closeMobileMenus() {
@@ -38,17 +38,6 @@ function bindShellEvents() {
 state.currentPageId = "page-public";
 initFirebase();
 bindShellEvents();
-
-// "Get started" buttons sign out existing user and go to onboarding
-document.querySelectorAll('a[href="/onboarding"]').forEach((link) => {
-  link.addEventListener("click", async (e) => {
-    if (state.currentUser) {
-      e.preventDefault();
-      try { await signOut(state.auth); } catch {}
-      window.location.href = "/onboarding";
-    }
-  });
-});
 
 onAuthStateChanged(state.auth, (user) => {
   state.currentUser = user && !user.isAnonymous ? user : null;
