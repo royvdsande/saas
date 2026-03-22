@@ -42,16 +42,31 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       await signInAnonymously(state.auth);
     }
 
+    const isOnboarding = window.location.pathname.startsWith("/onboarding");
+    let successUrl, cancelUrl;
+
+    if (wasLoggedIn) {
+      // Already has a real account — go straight to app
+      successUrl = `${window.location.origin}/app/?checkout=success`;
+      cancelUrl = `${window.location.origin}/app/?checkout=cancel`;
+    } else if (isOnboarding) {
+      // Anonymous user from onboarding — send to signup to create/link account
+      successUrl = `${window.location.origin}/auth/signup.html?checkout=success&link_anonymous=true`;
+      cancelUrl = `${window.location.origin}/onboarding/?checkout=cancel`;
+    } else if (window.location.pathname.startsWith("/app")) {
+      successUrl = `${window.location.origin}/app/?checkout=success`;
+      cancelUrl = `${window.location.origin}/app/?checkout=cancel`;
+    } else {
+      successUrl = `${window.location.origin}/pricing.html?checkout=success&anonymous=true`;
+      cancelUrl = `${window.location.origin}/pricing.html?checkout=cancel`;
+    }
+
     const sessionData = {
       mode: "subscription",
       price: priceId,
       trial_period_days: 14,
-      success_url: wasLoggedIn || window.location.pathname.startsWith("/app") || window.location.pathname.startsWith("/onboarding")
-        ? `${window.location.origin}/app/?checkout=success`
-        : `${window.location.origin}/pricing.html?checkout=success&anonymous=true`,
-      cancel_url: window.location.pathname.startsWith("/app")
-        ? `${window.location.origin}/app/?checkout=cancel`
-        : `${window.location.origin}/pricing.html?checkout=cancel`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       allow_promotion_codes: true,
     };
 

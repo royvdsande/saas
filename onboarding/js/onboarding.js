@@ -354,42 +354,25 @@ $$("#ob-gender .ob-gender-card").forEach((card) => {
   });
 });
 
-// Number +/- buttons
-function setupNumInput(inputId, minusId, plusId, stateKey, min, max) {
+// Number inputs (direct typing)
+function setupNumInput(inputId, stateKey, min, max) {
   const input = $(`#${inputId}`);
-  const minusBtn = $(`#${minusId}`);
-  const plusBtn = $(`#${plusId}`);
   if (!input) return;
-
-  input.value = state[stateKey];
-
-  function update(val) {
+  input.addEventListener("input", () => {
+    const val = parseInt(input.value);
+    if (!isNaN(val)) state[stateKey] = Math.max(min, Math.min(max, val));
+  });
+  input.addEventListener("change", () => {
+    let val = parseInt(input.value) || min;
     val = Math.max(min, Math.min(max, val));
     input.value = val;
     state[stateKey] = val;
-  }
-
-  minusBtn?.addEventListener("click", () => update(parseInt(input.value) - 1));
-  plusBtn?.addEventListener("click", () => update(parseInt(input.value) + 1));
-  input.addEventListener("change", () => update(parseInt(input.value) || min));
-  input.addEventListener("input", () => { state[stateKey] = parseInt(input.value) || min; });
-
-  // Long-press for fast increment
-  let holdInterval;
-  [minusBtn, plusBtn].forEach((btn, idx) => {
-    if (!btn) return;
-    const delta = idx === 0 ? -1 : 1;
-    btn.addEventListener("pointerdown", () => {
-      holdInterval = setInterval(() => update(parseInt(input.value) + delta), 100);
-    });
-    btn.addEventListener("pointerup", () => clearInterval(holdInterval));
-    btn.addEventListener("pointerleave", () => clearInterval(holdInterval));
   });
 }
 
-setupNumInput("ob-age", "ob-age-minus", "ob-age-plus", "age", 14, 99);
-setupNumInput("ob-weight", "ob-weight-minus", "ob-weight-plus", "weight", 30, 300);
-setupNumInput("ob-height", "ob-height-minus", "ob-height-plus", "height", 120, 250);
+setupNumInput("ob-age", "age", 14, 99);
+setupNumInput("ob-weight", "weight", 30, 300);
+setupNumInput("ob-height", "height", 120, 250);
 
 // Sub-step continue buttons
 $("#ob-age-next")?.addEventListener("click", () => {
