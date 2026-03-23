@@ -274,6 +274,29 @@ export function showDashboardView(viewName, settingsTab = null) {
   }
 }
 
+// --- Helper: exercise emoji ---
+function getExerciseEmoji(name) {
+  const n = name.toLowerCase();
+  if (/squat|lunge|leg press|calf|deadlift|leg curl|leg ext/i.test(n)) return "🦵";
+  if (/bench|push.?up|chest|fly|press/i.test(n)) return "🏋️";
+  if (/pull.?up|row|lat|back|chin/i.test(n)) return "💪";
+  if (/curl|bicep|tricep|arm/i.test(n)) return "💪";
+  if (/run|jog|sprint|cardio|hiit|burpee|jump/i.test(n)) return "🏃";
+  if (/plank|core|ab|crunch|sit.?up/i.test(n)) return "🔥";
+  if (/stretch|yoga|mobility|cool/i.test(n)) return "🧘";
+  if (/cycle|bike|spin/i.test(n)) return "🚴";
+  if (/shoulder|lateral|overhead/i.test(n)) return "🏋️";
+  return "💪";
+}
+
+// --- Helper: trigger checkout ---
+function triggerPlanUpgrade() {
+  import("./billing.js").then(({ startCheckout }) => {
+    const priceId = BINAS_CONFIG?.plans?.[1]?.monthlyPriceId || BINAS_CONFIG?.stripePriceId;
+    startCheckout(priceId);
+  });
+}
+
 // --- My Plan view ---
 async function loadPlanView() {
   const container = document.getElementById("plan-content");
@@ -285,6 +308,7 @@ async function loadPlanView() {
     const userDoc = await getDoc(doc(state.firestore, "users", state.currentUser.uid));
     const data = userDoc.exists() ? userDoc.data() : null;
     const plan = data?.plan;
+    const profile = data?.planProfile;
 
     if (!plan) {
       container.innerHTML = `
@@ -300,64 +324,143 @@ async function loadPlanView() {
     }
 
     const isPremium = state.isPremiumUser;
+    const macros = plan.dailyMacros || {};
     let html = "";
 
-    // Summary + stats
+    // ── Summary card ──
     if (plan.summary) {
-      html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-body"><p style="font-size:15px;line-height:1.6">${plan.summary}</p>
-        <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-          <span style="font-size:13px;color:var(--gray-500)"><strong style="color:var(--accent,#10b981)">${plan.dailyCalories || "—"}</strong> daily kcal</span>
-          <span style="font-size:13px;color:var(--gray-500)"><strong style="color:var(--accent,#10b981)">7</strong> days planned</span>
+      html += `<div class="sc-card plan-summary-card" style="margin-bottom:16px"><div class="sc-card-body">
+        <p class="plan-summary-text">${plan.summary}</p>
+        ${plan.personalNote ? `<p class="plan-personal-note">${plan.personalNote}</p>` : ""}
+        <div class="plan-stat-row">
+          <span class="plan-stat"><strong>${plan.dailyCalories || "—"}</strong> kcal / day</span>
+          <span class="plan-stat"><strong>7</strong> day plan</span>
+          ${profile?.workoutSplit ? `<span class="plan-stat"><strong>${profile.workoutSplit.replace(/-/g, " ")}</strong> split</span>` : ""}
+          ${profile?.workoutFrequency ? `<span class="plan-stat"><strong>${profile.workoutFrequency}x</strong> / week</span>` : ""}
         </div>
       </div></div>`;
     }
 
-    // Tips
-    if (plan.tips?.length) {
-      html += `<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">${plan.tips.map((t) => `<div style="flex:1;min-width:140px;background:var(--accent-50,#ecfdf5);border:1px solid var(--accent-light,#d1fae5);border-radius:var(--radius,10px);padding:10px 12px;font-size:13px;color:var(--accent-dark,#059669);line-height:1.5">${t}</div>`).join("")}</div>`;
+    // ── Daily macro overview ──
+    if (macros.protein) {
+      html += `<div class="sc-card plan-macros-overview" style="margin-bottom:16px"><div class="sc-card-header"><h3>Daily Macro Targets</h3></div><div class="sc-card-body">
+        <div class="plan-macro-grid">
+          <div class="plan-macro-item">
+            <span class="plan-macro-value">${plan.dailyCalories || "—"}</span>
+            <span class="plan-macro-label">Calories</span>
+          </div>
+          <div class="plan-macro-item">
+            <span class="plan-macro-value">${macros.carbs || "—"}g</span>
+            <span class="plan-macro-label">Carbs</span>
+          </div>
+          <div class="plan-macro-item plan-macro-gated${isPremium ? "" : " plan-macro-locked"}">
+            ${isPremium
+              ? `<span class="plan-macro-value">${macros.protein || "—"}g</span><span class="plan-macro-label">Protein</span>`
+              : `<span class="plan-macro-value plan-macro-blur">${macros.protein || "—"}g</span>
+                 <span class="plan-macro-label">Protein</span>
+                 <div class="plan-macro-lock-overlay">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                   <button class="plan-macro-upgrade-btn" data-macro-upgrade>Upgrade</button>
+                 </div>`
+            }
+          </div>
+          <div class="plan-macro-item plan-macro-gated${isPremium ? "" : " plan-macro-locked"}">
+            ${isPremium
+              ? `<span class="plan-macro-value">${macros.fat || "—"}g</span><span class="plan-macro-label">Fat</span>`
+              : `<span class="plan-macro-value plan-macro-blur">${macros.fat || "—"}g</span>
+                 <span class="plan-macro-label">Fat</span>
+                 <div class="plan-macro-lock-overlay">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                   <button class="plan-macro-upgrade-btn" data-macro-upgrade>Upgrade</button>
+                 </div>`
+            }
+          </div>
+        </div>
+      </div></div>`;
     }
 
-    // Training
-    html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-header"><h3>Training Plan</h3></div><div class="sc-card-body" style="padding:0">`;
+    // ── Tips ──
+    if (plan.tips?.length) {
+      html += `<div class="plan-tips-row" style="margin-bottom:16px">${plan.tips.map((t) => `<div class="plan-tip-card">${t}</div>`).join("")}</div>`;
+    }
+
+    // ── Training plan ──
+    html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-header"><h3>Training Plan</h3>${profile?.workoutSplit ? `<p>Split: ${profile.workoutSplit.replace(/-/g, " ")} &bull; ${profile.workoutFrequency || 4}x/week &bull; ~${profile.workoutDuration || 60} min</p>` : ""}</div><div class="sc-card-body" style="padding:0">`;
     (plan.training || []).forEach((day, i) => {
       const blurred = !isPremium && i >= 2;
-      html += `<div style="border-bottom:1px solid var(--gray-100);${blurred ? "filter:blur(6px);user-select:none;pointer-events:none" : ""}">
-        <div style="padding:12px 16px;font-size:13px;font-weight:700;background:var(--gray-50);border-bottom:1px solid var(--gray-100)">${day.day}</div>
-        <div style="padding:8px 16px">${(day.exercises || []).map((ex) => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-50)"><span style="font-size:14px;font-weight:500">${ex.name}</span><span style="font-size:13px;color:var(--gray-500)">${ex.sets} &times; ${ex.reps} &bull; ${ex.rest}</span></div>`).join("")}</div>
+      const isRest = !day.exercises || day.exercises.length === 0;
+      html += `<div class="plan-day-block${blurred ? " plan-day-blurred" : ""}">
+        <div class="plan-day-header">
+          <div>
+            <span class="plan-day-name">${day.day}</span>
+            ${day.label ? `<span class="plan-day-label">${day.label}</span>` : ""}
+          </div>
+          ${i < 2 && !isPremium ? '<span class="badge badge-green" style="font-size:10px">Preview</span>' : ""}
+        </div>
+        ${day.description ? `<div class="plan-day-desc">${day.description}</div>` : ""}
+        <div class="plan-day-exercises">${isRest
+          ? `<div class="plan-rest-msg">Rest & recover — your muscles grow outside the gym.</div>`
+          : (day.exercises || []).map((ex) => `
+            <div class="plan-ex-row">
+              <span class="plan-ex-emoji">${getExerciseEmoji(ex.name)}</span>
+              <div class="plan-ex-info">
+                <span class="plan-ex-name">${ex.name}</span>
+                <span class="plan-ex-detail">${ex.sets} &times; ${ex.reps} &bull; ${ex.rest}</span>
+                ${ex.note ? `<span class="plan-ex-note">${ex.note}</span>` : ""}
+              </div>
+            </div>`).join("")}
+        </div>
       </div>`;
     });
     html += `</div></div>`;
 
-    // Nutrition
-    html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-header"><h3>Nutrition Plan</h3></div><div class="sc-card-body" style="padding:0">`;
+    // ── Nutrition plan ──
+    html += `<div class="sc-card" style="margin-bottom:16px"><div class="sc-card-header"><h3>Nutrition Plan</h3><p>${plan.dailyCalories || "—"} kcal target${profile?.dietaryPreference && profile.dietaryPreference !== "no-preference" ? ` &bull; ${profile.dietaryPreference}` : ""}</p></div><div class="sc-card-body" style="padding:0">`;
     (plan.nutrition || []).forEach((day, i) => {
       const blurred = !isPremium && i >= 1;
       const meals = day.meals || {};
-      html += `<div style="border-bottom:1px solid var(--gray-100);${blurred ? "filter:blur(6px);user-select:none;pointer-events:none" : ""}">
-        <div style="padding:12px 16px;font-size:13px;font-weight:700;background:var(--gray-50);border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between"><span>${day.day}</span><span style="font-weight:500;color:var(--gray-500)">${day.kcal || "—"} kcal</span></div>
-        <div style="padding:8px 16px">${["breakfast", "lunch", "dinner", "snacks"].filter((k) => meals[k]).map((k) => `<div style="padding:4px 0;border-bottom:1px solid var(--gray-50)"><span style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--gray-400)">${k}</span><p style="font-size:14px;margin-top:2px">${meals[k]}</p></div>`).join("")}</div>
+      const dayMacros = day.macros || {};
+      html += `<div class="plan-day-block${blurred ? " plan-day-blurred" : ""}">
+        <div class="plan-day-header">
+          <div>
+            <span class="plan-day-name">${day.day}</span>
+            <span class="plan-day-kcal">${day.kcal || "—"} kcal</span>
+          </div>
+        </div>
+        ${day.description ? `<div class="plan-day-desc">${day.description}</div>` : ""}
+        ${dayMacros.protein ? `<div class="plan-day-macros">
+          <span class="plan-dm-tag plan-dm-cal">${day.kcal || "—"} kcal</span>
+          <span class="plan-dm-tag plan-dm-carbs">C: ${dayMacros.carbs}g</span>
+          <span class="plan-dm-tag plan-dm-protein${isPremium ? "" : " plan-dm-locked"}">${isPremium ? `P: ${dayMacros.protein}g` : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Protein`}</span>
+          <span class="plan-dm-tag plan-dm-fat${isPremium ? "" : " plan-dm-locked"}">${isPremium ? `F: ${dayMacros.fat}g` : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Fat`}</span>
+        </div>` : ""}
+        <div class="plan-day-meals">
+          ${["breakfast", "lunch", "dinner", "snacks"].filter((k) => meals[k]).map((k) => `
+            <div class="plan-meal-item">
+              <span class="plan-meal-label">${k}</span>
+              <p class="plan-meal-text">${meals[k]}</p>
+            </div>`).join("")}
+        </div>
       </div>`;
     });
     html += `</div></div>`;
 
-    // Paywall for non-premium
+    // ── Bottom paywall for non-premium ──
     if (!isPremium) {
-      html += `<div style="text-align:center;padding:32px 24px;background:linear-gradient(135deg,var(--accent-50,#ecfdf5),#f0fdf4);border:1px solid var(--accent-light,#d1fae5);border-radius:var(--radius-lg,14px);margin-top:-60px;position:relative">
+      html += `<div class="plan-paywall-bottom">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#10b981)" stroke-width="1.5" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <h3 style="font-size:18px;font-weight:800;margin-bottom:6px">Unlock your complete plan</h3>
-        <p style="font-size:14px;color:var(--gray-500);margin-bottom:16px;max-width:360px;margin-left:auto;margin-right:auto">Upgrade to see all 7 days of training and nutrition, plus weekly updates.</p>
-        <button class="btn btn-primary" id="plan-unlock-btn" style="background:var(--accent,#10b981);border-color:var(--accent,#10b981)">Upgrade now &rarr;</button>
+        <h3>Unlock your complete plan</h3>
+        <p>Upgrade to see all 7 days of training & nutrition, full macro breakdowns (protein & fat), and weekly plan updates.</p>
+        <button class="btn btn-primary" id="plan-unlock-btn" style="background:var(--accent,#10b981);border-color:var(--accent,#10b981)">Upgrade to Premium &rarr;</button>
       </div>`;
     }
 
     container.innerHTML = html;
 
-    // Bind unlock button
-    document.getElementById("plan-unlock-btn")?.addEventListener("click", () => {
-      import("./billing.js").then(({ startCheckout }) => {
-        const priceId = BINAS_CONFIG?.plans?.[1]?.monthlyPriceId || BINAS_CONFIG?.stripePriceId;
-        startCheckout(priceId);
-      });
+    // Bind upgrade buttons
+    document.getElementById("plan-unlock-btn")?.addEventListener("click", triggerPlanUpgrade);
+    container.querySelectorAll("[data-macro-upgrade]").forEach((btn) => {
+      btn.addEventListener("click", triggerPlanUpgrade);
     });
   } catch {
     container.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray-500)"><p>Could not load your plan. Please try again later.</p></div>`;
