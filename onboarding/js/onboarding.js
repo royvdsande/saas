@@ -32,7 +32,14 @@ const state = {
   age: 25,
   weight: 75,
   height: 178,
-  notes: "",
+  workoutFrequency: null,
+  workoutTime: null,
+  workoutDuration: null,
+  workoutSplit: null,
+  skipLegs: null,
+  dietaryPreference: null,
+  currentDiet: "",
+  extraInfo: "",
   user: null,
   subStep: 0, // for step 3 sub-steps
 };
@@ -290,7 +297,11 @@ $("#ob-back-2")?.addEventListener("click", () => goToStep(1));
 // ════════════════════════════════════════════
 // STEP 3: Personal Stats (sub-steps)
 // ════════════════════════════════════════════
-const subSteps = ["ob-sub-gender", "ob-sub-age", "ob-sub-weight", "ob-sub-height", "ob-sub-notes"];
+const subSteps = [
+  "ob-sub-gender", "ob-sub-age", "ob-sub-weight", "ob-sub-height",
+  "ob-sub-workout-prefs", "ob-sub-workout-split", "ob-sub-skip-legs",
+  "ob-sub-diet-prefs", "ob-sub-current-diet", "ob-sub-extra-info",
+];
 const statsDots = $$("#ob-stats-dots .ob-mini-dot");
 
 function goToSubStep(n) {
@@ -314,8 +325,13 @@ function goToSubStep(n) {
     "Let me get to know you a bit...",
     "How old are you?",
     "What do you weigh?",
-    "Almost there! One more measurement.",
-    "Any extra details? Or just hit generate!",
+    "One more measurement!",
+    "Let's set up your workout schedule.",
+    "Pick the training style you like best.",
+    "Quick question about leg day...",
+    "Now let's talk nutrition.",
+    "Tell me what you currently eat.",
+    "Last one — anything else I should know?",
   ];
   if (coachMsg) coachMsg.textContent = msgs[n] || "";
 
@@ -334,6 +350,11 @@ function showCoachResponse(toSubIndex) {
     2: `Perfect, ${state.age} years. We'll factor that in. ✓`,
     3: `Noted! Your plan will be calibrated for ${state.weight} kg. ✓`,
     4: `${state.height} cm — got it! ✓`,
+    5: state.workoutFrequency ? `${state.workoutFrequency}x/week, ${state.workoutDuration || "??"} min — locked in! ✓` : null,
+    6: state.workoutSplit ? `Great pick! I'll design your program around that. ✓` : null,
+    7: state.skipLegs !== null ? (state.skipLegs ? "No leg day — you've got it covered elsewhere. ✓" : "Leg day included — never skip it! ✓") : null,
+    8: state.dietaryPreference ? `${state.dietaryPreference === "no-preference" ? "No restrictions" : state.dietaryPreference.charAt(0).toUpperCase() + state.dietaryPreference.slice(1)} — noted! ✓` : null,
+    9: state.currentDiet ? "Thanks! I'll work with your current eating habits. ✓" : null,
   };
 
   const msg = responses[toSubIndex];
@@ -396,15 +417,67 @@ $("#ob-back-3")?.addEventListener("click", () => {
   }
 });
 
-// Height continue → notes substep
+// Height continue → workout prefs substep
 $("#ob-height-next")?.addEventListener("click", () => {
   state.height = parseInt($("#ob-height")?.value) || 178;
   goToSubStep(4);
 });
 
-// Generate button (now in notes substep)
+// ─── Chip Selection Helper ───
+function setupChipRow(containerId, stateKey) {
+  $$("#" + containerId + " .ob-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      $$("#" + containerId + " .ob-chip").forEach((c) => c.classList.remove("selected"));
+      chip.classList.add("selected");
+      state[stateKey] = chip.dataset.value;
+    });
+  });
+}
+
+setupChipRow("ob-freq-chips", "workoutFrequency");
+setupChipRow("ob-time-chips", "workoutTime");
+setupChipRow("ob-duration-chips", "workoutDuration");
+setupChipRow("ob-diet-chips", "dietaryPreference");
+
+// Workout prefs continue
+$("#ob-workout-prefs-next")?.addEventListener("click", () => {
+  goToSubStep(5);
+});
+
+// Workout split selection (auto-advance)
+$$("#ob-split-cards .ob-split-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    $$("#ob-split-cards .ob-split-card").forEach((c) => c.classList.remove("selected"));
+    card.classList.add("selected");
+    state.workoutSplit = card.dataset.value;
+    setTimeout(() => goToSubStep(6), 400);
+  });
+});
+
+// Skip legs selection (auto-advance)
+$$("#ob-skip-legs .ob-yesno-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    $$("#ob-skip-legs .ob-yesno-card").forEach((c) => c.classList.remove("selected"));
+    card.classList.add("selected");
+    state.skipLegs = card.dataset.value === "yes";
+    setTimeout(() => goToSubStep(7), 400);
+  });
+});
+
+// Dietary prefs continue
+$("#ob-diet-prefs-next")?.addEventListener("click", () => {
+  goToSubStep(8);
+});
+
+// Current diet continue
+$("#ob-current-diet-next")?.addEventListener("click", () => {
+  state.currentDiet = $("#ob-current-diet")?.value?.trim() || "";
+  goToSubStep(9);
+});
+
+// Generate button (in extra-info substep)
 $("#ob-generate")?.addEventListener("click", () => {
-  state.notes = $("#ob-notes")?.value?.trim() || "";
+  state.extraInfo = $("#ob-extra-info")?.value?.trim() || "";
   goToStep(4);
   generatePlan();
 });
@@ -498,7 +571,14 @@ async function generatePlan() {
         age: state.age,
         weight: state.weight,
         height: state.height,
-        notes: state.notes,
+        workoutFrequency: state.workoutFrequency,
+        workoutTime: state.workoutTime,
+        workoutDuration: state.workoutDuration,
+        workoutSplit: state.workoutSplit,
+        skipLegs: state.skipLegs,
+        dietaryPreference: state.dietaryPreference,
+        currentDiet: state.currentDiet,
+        extraInfo: state.extraInfo,
       }),
     });
 
