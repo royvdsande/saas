@@ -1010,6 +1010,54 @@
   font-size: 12px;
   color: var(--gray-500);
 }
+.ob-ex-note {
+  font-size: 11px;
+  color: var(--gray-400);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* Day label & description */
+.ob-day-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.ob-day-desc {
+  font-size: 12px;
+  color: var(--gray-500);
+  line-height: 1.5;
+  margin: 0 0 8px;
+  padding: 0 2px;
+}
+.ob-rest-msg {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 14px;
+  color: var(--gray-400);
+  font-style: italic;
+}
+
+/* Macro bar */
+.ob-macro-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.ob-macro-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.2px;
+}
+.ob-macro-p { background: #ede9fe; color: #7c3aed; }
+.ob-macro-c { background: #fef3c7; color: #d97706; }
+.ob-macro-f { background: #fce7f3; color: #db2777; }
 
 /* Meal item */
 .ob-meal-item {

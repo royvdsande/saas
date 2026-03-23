@@ -686,6 +686,7 @@ function renderResults(plan) {
   const trainingContainer = $("#ob-training-plan");
   (plan.training || []).forEach((day, i) => {
     const card = document.createElement("div");
+    const isRest = !day.exercises || day.exercises.length === 0;
     card.className = "ob-day-card" + (i >= 2 ? " ob-blurred" : "") + (i < 2 ? " ob-preview" : "");
 
     const exercises = (day.exercises || []).map((ex) => `
@@ -694,6 +695,7 @@ function renderResults(plan) {
         <div class="ob-ex-info">
           <div class="ob-ex-name">${ex.name}</div>
           <div class="ob-ex-detail">${ex.sets} &times; ${ex.reps} &bull; ${ex.rest}</div>
+          ${ex.note ? `<div class="ob-ex-note">${ex.note}</div>` : ""}
         </div>
       </div>
     `).join("");
@@ -701,9 +703,11 @@ function renderResults(plan) {
     card.innerHTML = `
       <div class="ob-day-head">
         <span>${day.day}</span>
+        ${day.label ? `<span class="ob-day-label">${day.label}</span>` : ""}
         ${i < 2 ? '<span class="ob-day-badge">Preview</span>' : ""}
       </div>
-      <div class="ob-day-body">${exercises}</div>
+      ${day.description ? `<p class="ob-day-desc">${day.description}</p>` : ""}
+      <div class="ob-day-body">${isRest ? '<div class="ob-rest-msg">Rest & recover</div>' : exercises}</div>
     `;
     trainingContainer.appendChild(card);
   });
@@ -712,6 +716,7 @@ function renderResults(plan) {
   const nutritionContainer = $("#ob-nutrition-plan");
   (plan.nutrition || []).forEach((day, i) => {
     const meals = day.meals || {};
+    const macros = day.macros || {};
     const card = document.createElement("div");
     card.className = "ob-day-card" + (i >= 1 ? " ob-blurred" : "") + (i < 1 ? " ob-preview" : "");
 
@@ -725,11 +730,21 @@ function renderResults(plan) {
       </div>
     `).join("");
 
+    const macroBar = macros.protein ? `
+      <div class="ob-macro-bar">
+        <span class="ob-macro-tag ob-macro-p">P: ${macros.protein}g</span>
+        <span class="ob-macro-tag ob-macro-c">C: ${macros.carbs}g</span>
+        <span class="ob-macro-tag ob-macro-f">F: ${macros.fat}g</span>
+      </div>
+    ` : "";
+
     card.innerHTML = `
       <div class="ob-day-head">
         <span>${day.day}</span>
         <span class="ob-day-kcal">${day.kcal || "—"} kcal</span>
       </div>
+      ${day.description ? `<p class="ob-day-desc">${day.description}</p>` : ""}
+      ${macroBar}
       <div class="ob-day-body">${mealItems}</div>
     `;
     nutritionContainer.appendChild(card);
