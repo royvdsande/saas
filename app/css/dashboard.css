@@ -265,3 +265,106 @@
 .billing-upgrade-card--primary { border-color: var(--black); }
 .billing-upgrade-card--current { border-color: var(--black); background: var(--gray-50); }
 .billing-portal-link { display: flex; align-items: center; gap: 8px; justify-content: flex-start; }
+
+/* ===== MY PLAN VIEW ===== */
+
+/* Summary card */
+.plan-summary-text { font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+.plan-personal-note { font-size: 13px; color: var(--gray-500); line-height: 1.6; font-style: italic; margin-bottom: 12px; padding: 10px 14px; background: var(--gray-50); border-radius: var(--radius); border-left: 3px solid var(--accent, #10b981); }
+.plan-stat-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.plan-stat { font-size: 13px; color: var(--gray-500); }
+.plan-stat strong { color: var(--accent, #10b981); }
+
+/* Macro overview grid */
+.plan-macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.plan-macro-item { text-align: center; padding: 16px 8px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); position: relative; }
+.plan-macro-value { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.plan-macro-label { display: block; font-size: 12px; color: var(--gray-400); margin-top: 2px; text-transform: uppercase; font-weight: 500; letter-spacing: 0.04em; }
+
+/* Locked macro items (protein & fat for free users) */
+.plan-macro-locked { position: relative; }
+.plan-macro-locked .plan-macro-blur { filter: blur(8px); user-select: none; }
+.plan-macro-lock-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: rgba(255,255,255,0.6);
+  border-radius: var(--radius);
+  color: var(--gray-500);
+  z-index: 2;
+}
+.plan-macro-upgrade-btn {
+  background: var(--accent, #10b981); color: white;
+  border: none; border-radius: var(--radius-full, 999px);
+  font-size: 11px; font-weight: 600;
+  padding: 5px 14px; cursor: pointer;
+  transition: opacity .15s;
+}
+.plan-macro-upgrade-btn:hover { opacity: .85; }
+
+/* Tips row */
+.plan-tips-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.plan-tip-card {
+  flex: 1; min-width: 140px;
+  background: var(--accent-50, #ecfdf5); border: 1px solid var(--accent-light, #d1fae5);
+  border-radius: var(--radius, 10px); padding: 10px 12px;
+  font-size: 13px; color: var(--accent-dark, #059669); line-height: 1.5;
+}
+
+/* Day block (shared by training & nutrition) */
+.plan-day-block { border-bottom: 1px solid var(--gray-100); }
+.plan-day-block:last-child { border-bottom: none; }
+.plan-day-blurred { filter: blur(6px); user-select: none; pointer-events: none; }
+
+.plan-day-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: var(--gray-50); border-bottom: 1px solid var(--gray-100);
+}
+.plan-day-name { font-size: 14px; font-weight: 700; margin-right: 10px; }
+.plan-day-label { font-size: 12px; font-weight: 600; color: var(--accent, #10b981); }
+.plan-day-kcal { font-size: 12px; font-weight: 500; color: var(--gray-500); margin-left: 8px; }
+
+.plan-day-desc { padding: 10px 16px 4px; font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+
+/* Training exercises */
+.plan-day-exercises { padding: 6px 16px 10px; }
+.plan-ex-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--gray-50); }
+.plan-ex-row:last-child { border-bottom: none; }
+.plan-ex-emoji { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.plan-ex-info { flex: 1; min-width: 0; }
+.plan-ex-name { display: block; font-size: 14px; font-weight: 500; }
+.plan-ex-detail { display: block; font-size: 12px; color: var(--gray-500); margin-top: 1px; }
+.plan-ex-note { display: block; font-size: 11px; color: var(--gray-400); font-style: italic; margin-top: 2px; }
+.plan-rest-msg { text-align: center; padding: 20px 0; font-size: 14px; color: var(--gray-400); font-style: italic; }
+
+/* Nutrition day macros */
+.plan-day-macros { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px 16px 0; }
+.plan-dm-tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px; }
+.plan-dm-cal { background: #e0f2fe; color: #0369a1; }
+.plan-dm-carbs { background: #fef3c7; color: #d97706; }
+.plan-dm-protein { background: #ede9fe; color: #7c3aed; }
+.plan-dm-fat { background: #fce7f3; color: #db2777; }
+.plan-dm-locked { background: var(--gray-100); color: var(--gray-400); cursor: default; }
+
+/* Nutrition meals */
+.plan-day-meals { padding: 8px 16px 12px; }
+.plan-meal-item { padding: 5px 0; border-bottom: 1px solid var(--gray-50); }
+.plan-meal-item:last-child { border-bottom: none; }
+.plan-meal-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--gray-400); letter-spacing: 0.03em; }
+.plan-meal-text { font-size: 14px; margin-top: 2px; line-height: 1.5; }
+
+/* Bottom paywall */
+.plan-paywall-bottom {
+  text-align: center; padding: 32px 24px;
+  background: linear-gradient(135deg, var(--accent-50, #ecfdf5), #f0fdf4);
+  border: 1px solid var(--accent-light, #d1fae5);
+  border-radius: var(--radius-lg, 14px);
+  margin-top: -60px; position: relative;
+}
+.plan-paywall-bottom h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+.plan-paywall-bottom p { font-size: 14px; color: var(--gray-500); margin-bottom: 16px; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .plan-macro-grid { grid-template-columns: repeat(2, 1fr); }
+  .plan-tips-row { flex-direction: column; }
+}

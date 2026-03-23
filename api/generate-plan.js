@@ -65,12 +65,17 @@ module.exports = async (req, res) => {
     return respond(res, 400, { message: 'Invalid request body.' });
   }
 
-  const { goal, activityLevel, gender, age, weight, height, notes } = body;
+  const {
+    goal, activityLevel, gender, age, weight, height,
+    workoutFrequency, workoutTime, workoutDuration, workoutSplit,
+    skipLegs, dietaryPreference, currentDiet, extraInfo,
+  } = body;
+
   if (!goal || !activityLevel || !gender || !age || !weight || !height) {
     return respond(res, 400, { message: 'Missing required fields: goal, activityLevel, gender, age, weight, height.' });
   }
 
-  // Calculate BMR (Mifflin-St Jeor) and TDEE for personalized calorie targets
+  // ─── Calculate BMR (Mifflin-St Jeor) and TDEE ───
   const bmrMale = 10 * weight + 6.25 * height - 5 * age + 5;
   const bmrFemale = 10 * weight + 6.25 * height - 5 * age - 161;
   const bmr = gender === 'male' ? bmrMale : gender === 'female' ? bmrFemale : (bmrMale + bmrFemale) / 2;
@@ -91,8 +96,13 @@ module.exports = async (req, res) => {
     'boost-endurance': -100,
   };
   const targetCalories = tdee + (goalAdjustments[goal] || 0);
-  const proteinTarget = goal === 'build-muscle' ? Math.round(weight * 2.2) : Math.round(weight * 1.6);
 
+  // ─── Macro targets ───
+  const proteinTarget = goal === 'build-muscle' ? Math.round(weight * 2.2) : Math.round(weight * 1.6);
+  const fatTarget = Math.round(targetCalories * 0.25 / 9); // ~25% of cals from fat
+  const carbTarget = Math.round((targetCalories - proteinTarget * 4 - fatTarget * 9) / 4);
+
+  // ─── Goal description ───
   const goalDescriptions = {
     'lose-weight': 'fat loss with a caloric deficit, focusing on cardio and compound movements, high protein to preserve muscle',
     'build-muscle': 'muscle hypertrophy with a caloric surplus, focusing on progressive overload and strength training, high protein intake',
@@ -101,20 +111,114 @@ module.exports = async (req, res) => {
   };
   const goalDesc = goalDescriptions[goal] || 'overall fitness improvement';
 
-  const hasNotes = notes && typeof notes === 'string' && notes.trim().length > 0;
-  const notesSchema = hasNotes ? ',"personalNote":"2-3 sentence response addressing the user\'s specific notes/concerns and how the plan accommodates them"' : '';
+  // ─── Workout split mapping ───
+  const splitDescriptions = {
+    'push-pull-legs': 'Push/Pull/Legs split — push days (chest, shoulders, triceps), pull days (back, biceps), leg days (quads, hamstrings, glutes, calves). Rotate across the week.',
+    'arnold-split': 'Arnold split — Day A: chest + back, Day B: shoulders + arms, Day C: legs. Emphasize supersets and high volume.',
+    'upper-lower': 'Upper/Lower split — alternate upper-body days (chest, back, shoulders, arms) and lower-body days (quads, hamstrings, glutes, calves).',
+    'full-body': 'Full Body — each session trains all major muscle groups with compound lifts. Great for moderate frequency.',
+    'bro-split': 'Bro split — dedicate each day to one muscle group: chest, back, shoulders, arms, legs. High volume per muscle.',
+  };
+  const splitDesc = splitDescriptions[workoutSplit] || 'a balanced training split appropriate for the user\'s frequency';
 
-  const systemPrompt = `You are an expert fitness and nutrition coach. Return ONLY valid JSON (no markdown, no explanation).
-Schema: {"training":[{"day":"Monday","exercises":[{"name":"string","sets":3,"reps":12,"rest":"60s"}]}],"nutrition":[{"day":"Monday","meals":{"breakfast":"string","lunch":"string","dinner":"string","snacks":"string"},"kcal":2200}],"summary":"motivational 2-sentence summary personalised to the user's goal and stats","dailyCalories":${targetCalories},"tips":["tip1","tip2","tip3"]${notesSchema}}
-Rules:
-- Generate a complete 7-day plan (Monday-Sunday)
-- Every nutrition day MUST include all four meal keys: breakfast, lunch, dinner, snacks — never omit or leave them empty
-- Use EXACTLY ${targetCalories} kcal as the dailyCalories value
-- Tailor the plan for: ${goalDesc}
-- Vary exercises and meals across the 7 days — no repeated days
-- Be specific: use real exercise names, real food items with portions${hasNotes ? '\n- The user provided additional notes — incorporate them into the plan and reference them in the personalNote, summary, and tips' : ''}`;
+  // ─── Build contextual flags ───
+  const freqDays = parseInt(workoutFrequency) || 4;
+  const sessionMin = parseInt(workoutDuration) || 60;
+  const skipLegsFlag = skipLegs === true;
+  const hasCurrentDiet = currentDiet && typeof currentDiet === 'string' && currentDiet.trim().length > 0;
+  const hasDietPref = dietaryPreference && dietaryPreference !== 'no-preference';
+  const hasExtraInfo = extraInfo && typeof extraInfo === 'string' && extraInfo.trim().length > 0;
 
-  const userPrompt = `Goal: ${goal}. Activity level: ${activityLevel}. Gender: ${gender}. Age: ${age}. Weight: ${weight}kg. Height: ${height}cm. Target calories: ${targetCalories} kcal/day. Protein target: ${proteinTarget}g/day.${hasNotes ? ` Additional user notes: ${notes.trim()}` : ''}`;
+  // ─── System prompt ───
+  const systemPrompt = `You are an elite-level personal trainer and sports nutritionist creating a deeply personalized, world-class fitness and nutrition plan. Return ONLY valid JSON (no markdown, no backticks, no explanation outside the JSON).
+
+═══ OUTPUT SCHEMA ═══
+{
+  "training": [
+    {
+      "day": "Monday",
+      "label": "Push Day — Chest & Shoulders Focus",
+      "description": "A vivid 2-3 sentence motivational description of today's session. Explain WHY these exercises were chosen for this day and how they fit the overall program arc. Be energetic and specific.",
+      "exercises": [
+        {
+          "name": "Barbell Bench Press",
+          "sets": 4,
+          "reps": "8-10",
+          "rest": "90s",
+          "note": "Short coaching cue or reason, e.g. 'Focus on controlled eccentric — 3 sec down'"
+        }
+      ]
+    }
+  ],
+  "nutrition": [
+    {
+      "day": "Monday",
+      "description": "1-2 sentences describing the nutritional strategy for this day and why it pairs with the workout.",
+      "meals": {
+        "breakfast": "Detailed meal with portions, e.g. '2 whole eggs + 3 egg whites scrambled with spinach & feta (350 kcal)'",
+        "lunch": "Detailed meal with portions",
+        "dinner": "Detailed meal with portions",
+        "snacks": "1-2 snacks with portions"
+      },
+      "kcal": 2200,
+      "macros": { "protein": 160, "carbs": 220, "fat": 65 }
+    }
+  ],
+  "summary": "A 3-4 sentence motivational and personalized summary that references the user's specific stats, goal, chosen split, and lifestyle. Make them feel seen.",
+  "dailyCalories": ${targetCalories},
+  "dailyMacros": { "protein": ${proteinTarget}, "carbs": ${carbTarget}, "fat": ${fatTarget} },
+  "tips": ["tip1", "tip2", "tip3", "tip4", "tip5"],
+  "personalNote": "2-3 sentences addressing the user's specific situation, extra info, injuries, or lifestyle factors. Always present."
+}
+
+═══ TRAINING RULES ═══
+- Schedule EXACTLY ${freqDays} training days across Mon-Sun. Remaining days are rest/active recovery.
+- For rest days, include them in the training array with "label": "Rest Day" or "Active Recovery", a motivational description encouraging recovery, and an empty exercises array [].
+- Follow this split: ${splitDesc}
+- Each session should fit within ~${sessionMin} minutes (adjust volume accordingly: fewer sets for shorter sessions, more for longer).${workoutTime ? `\n- The user prefers working out in the ${workoutTime} — reference this in tips if relevant (e.g. pre-workout nutrition timing).` : ''}
+${skipLegsFlag
+    ? `- IMPORTANT: The user explicitly wants to SKIP all dedicated leg training (they get leg work from other sports). Do NOT include any leg-focused exercises (squats, leg press, lunges, leg curls, leg extensions, calf raises, Romanian deadlifts targeting legs). Replace leg days with extra upper body, core, or cardio work. In the personalNote, acknowledge this choice.`
+    : '- Include leg training as part of the split. Never skip leg day.'}
+- Use real, specific exercise names (not generic). Include barbell, dumbbell, cable, and bodyweight variations.
+- Vary exercises meaningfully across the week — no copy-paste days.
+- For every exercise, include a short "note" with a coaching cue, form tip, or explanation of why it's included.
+- Each day's "description" must be vivid, motivational, and explain the purpose of that session in the overall program.
+
+═══ NUTRITION RULES ═══
+- Target: ${targetCalories} kcal/day | Protein: ${proteinTarget}g | Carbs: ${carbTarget}g | Fat: ${fatTarget}g
+- Every day MUST include all four meal keys: breakfast, lunch, dinner, snacks — never omit any.
+- Each meal must list specific foods with approximate portions/weights AND approximate kcal per meal in parentheses.
+- Each nutrition day MUST include a "macros" object with protein, carbs, and fat values in grams. These should roughly add up to the daily targets (small variations across days are fine).${hasDietPref ? `\n- STRICT dietary restriction: ${dietaryPreference}. Every single meal must comply — no exceptions. Do not include any foods that violate this restriction.` : ''}
+${hasCurrentDiet
+    ? `- CRITICAL — The user described their current eating habits: "${currentDiet.trim()}"\n  Base the meal plan on this. Keep familiar foods and meal patterns where possible — improve portions, swap in healthier alternatives, and optimize macros, but do NOT throw out their routine entirely. The plan should feel like an upgraded version of what they already eat, not a foreign diet.`
+    : '- No current diet was provided — create a practical, easy-to-follow meal plan with common foods.'}
+- Vary meals across the 7 days. At least 4-5 different breakfasts, lunches, and dinners throughout the week.
+- Each day's nutrition "description" should explain the eating strategy for that day (e.g. higher carbs on heavy training days, lighter on rest days).
+
+═══ PERSONALIZATION ═══
+${hasExtraInfo ? `- The user shared additional context: "${extraInfo.trim()}"\n  Factor this into the plan: adjust exercises around injuries, acknowledge other sports, adapt scheduling. Reference this in the personalNote.` : '- No extra info was provided.'}
+- The "summary" should be warm, motivational, and reference the user's specific numbers (age, weight, goal, split choice).
+- The "personalNote" must always be present and address the user's unique situation.
+- Generate 5 actionable, specific tips (not generic). At least 2 should directly reference the user's profile or preferences.
+- Make the overall plan feel like it was handcrafted by a world-class coach who truly listened.`;
+
+  const userPrompt = `Create my complete 7-day fitness plan.
+
+PROFILE:
+- Goal: ${goal}
+- Gender: ${gender}, Age: ${age}, Weight: ${weight}kg, Height: ${height}cm
+- Activity level: ${activityLevel}
+- Target: ${targetCalories} kcal/day | ${proteinTarget}g protein | ${carbTarget}g carbs | ${fatTarget}g fat
+
+WORKOUT PREFERENCES:
+- Frequency: ${freqDays} days/week
+- Session duration: ~${sessionMin} minutes${workoutTime ? `\n- Preferred time: ${workoutTime}` : ''}
+- Training split: ${workoutSplit || 'your recommendation'}
+- Skip leg training: ${skipLegsFlag ? 'YES — I get enough leg work from other activities' : 'No — include legs'}
+
+DIET:${hasDietPref ? `\n- Dietary restriction: ${dietaryPreference}` : '\n- No specific dietary restrictions'}${hasCurrentDiet ? `\n- What I currently eat on an average day: ${currentDiet.trim()}` : ''}
+
+${hasExtraInfo ? `EXTRA CONTEXT:\n${extraInfo.trim()}` : ''}`;
 
   try {
     const openai = new OpenAI({ apiKey: openaiApiKey });
@@ -125,7 +229,7 @@ Rules:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 4000,
+      max_tokens: 8000,
       temperature: 0.8,
     });
 
@@ -147,7 +251,13 @@ Rules:
         const db = admin.firestore();
         await db.collection('users').doc(uid).set({
           plan,
-          planProfile: { goal, activityLevel, gender, age, weight, height },
+          planProfile: {
+            goal, activityLevel, gender, age, weight, height,
+            workoutFrequency: freqDays, workoutTime, workoutDuration: sessionMin,
+            workoutSplit, skipLegs: skipLegsFlag, dietaryPreference,
+            currentDiet: currentDiet || null, extraInfo: extraInfo || null,
+            targetCalories, proteinTarget, carbTarget, fatTarget,
+          },
           planGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
         }, { merge: true });
       } catch {

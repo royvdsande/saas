@@ -245,6 +245,11 @@
           <span class="ob-mini-dot"></span>
           <span class="ob-mini-dot"></span>
           <span class="ob-mini-dot"></span>
+          <span class="ob-mini-dot"></span>
+          <span class="ob-mini-dot"></span>
+          <span class="ob-mini-dot"></span>
+          <span class="ob-mini-dot"></span>
+          <span class="ob-mini-dot"></span>
         </div>
 
         <!-- Stats sub-steps container -->
@@ -334,11 +339,129 @@
             </button>
           </div>
 
-          <!-- Sub-step: Extra notes (optional) -->
-          <div class="ob-sub-step" id="ob-sub-notes">
+          <!-- Sub-step: Workout Preferences -->
+          <div class="ob-sub-step" id="ob-sub-workout-prefs">
+            <p class="ob-sub-label">How do you want to work out?</p>
+            <div class="ob-field-group">
+              <label class="ob-field-label">How many days per week?</label>
+              <div class="ob-chip-row" id="ob-freq-chips">
+                <button class="ob-chip" data-value="2">2</button>
+                <button class="ob-chip" data-value="3">3</button>
+                <button class="ob-chip" data-value="4">4</button>
+                <button class="ob-chip" data-value="5">5</button>
+                <button class="ob-chip" data-value="6">6</button>
+              </div>
+            </div>
+            <div class="ob-field-group">
+              <label class="ob-field-label">Preferred time of day</label>
+              <div class="ob-chip-row" id="ob-time-chips">
+                <button class="ob-chip" data-value="morning">Morning</button>
+                <button class="ob-chip" data-value="afternoon">Afternoon</button>
+                <button class="ob-chip" data-value="evening">Evening</button>
+                <button class="ob-chip" data-value="no-preference">No preference</button>
+              </div>
+            </div>
+            <div class="ob-field-group">
+              <label class="ob-field-label">Session duration</label>
+              <div class="ob-chip-row" id="ob-duration-chips">
+                <button class="ob-chip" data-value="30">30 min</button>
+                <button class="ob-chip" data-value="45">45 min</button>
+                <button class="ob-chip" data-value="60">60 min</button>
+                <button class="ob-chip" data-value="90">90 min</button>
+              </div>
+            </div>
+            <button class="ob-next-sub-btn" id="ob-workout-prefs-next">
+              Continue
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Sub-step: Workout Split -->
+          <div class="ob-sub-step" id="ob-sub-workout-split">
+            <p class="ob-sub-label">Pick a training split</p>
+            <p class="ob-sub-hint">We'll tailor the program to your preference.</p>
+            <div class="ob-split-cards" id="ob-split-cards">
+              <button class="ob-split-card" data-value="push-pull-legs">
+                <span class="ob-split-icon">🏋️</span>
+                <span class="ob-split-name">Push / Pull / Legs</span>
+                <span class="ob-split-desc">Classic 3-way split, great for hypertrophy</span>
+              </button>
+              <button class="ob-split-card" data-value="arnold-split">
+                <span class="ob-split-icon">💪</span>
+                <span class="ob-split-name">Arnold Split</span>
+                <span class="ob-split-desc">Chest+back, shoulders+arms, legs — high volume</span>
+              </button>
+              <button class="ob-split-card" data-value="upper-lower">
+                <span class="ob-split-icon">⚡</span>
+                <span class="ob-split-name">Upper / Lower</span>
+                <span class="ob-split-desc">Simple 2-way split, good for 4 days/week</span>
+              </button>
+              <button class="ob-split-card" data-value="full-body">
+                <span class="ob-split-icon">🔥</span>
+                <span class="ob-split-name">Full Body</span>
+                <span class="ob-split-desc">Train everything each session, ideal for 2–3 days</span>
+              </button>
+              <button class="ob-split-card" data-value="bro-split">
+                <span class="ob-split-icon">🎯</span>
+                <span class="ob-split-name">Bro Split</span>
+                <span class="ob-split-desc">One muscle group per day, 5–6 days/week</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sub-step: Skip Legs -->
+          <div class="ob-sub-step" id="ob-sub-skip-legs">
+            <p class="ob-sub-label">Do you want to skip dedicated leg training?</p>
+            <p class="ob-sub-hint">For example, if you already play soccer, run, or cycle regularly.</p>
+            <div class="ob-yesno-cards" id="ob-skip-legs">
+              <button class="ob-yesno-card" data-value="yes">
+                <span class="ob-yesno-icon">⚽</span>
+                <span class="ob-yesno-label">Yes, skip legs</span>
+                <span class="ob-yesno-desc">I get enough leg work from other sports</span>
+              </button>
+              <button class="ob-yesno-card" data-value="no">
+                <span class="ob-yesno-icon">🦵</span>
+                <span class="ob-yesno-label">No, include legs</span>
+                <span class="ob-yesno-desc">I want a complete leg workout</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sub-step: Dietary Preferences -->
+          <div class="ob-sub-step" id="ob-sub-diet-prefs">
+            <p class="ob-sub-label">Any dietary preferences?</p>
+            <div class="ob-chip-row ob-chip-wrap" id="ob-diet-chips">
+              <button class="ob-chip" data-value="no-preference">No preference</button>
+              <button class="ob-chip" data-value="vegetarian">Vegetarian</button>
+              <button class="ob-chip" data-value="vegan">Vegan</button>
+              <button class="ob-chip" data-value="pescatarian">Pescatarian</button>
+              <button class="ob-chip" data-value="keto">Keto</button>
+              <button class="ob-chip" data-value="halal">Halal</button>
+              <button class="ob-chip" data-value="gluten-free">Gluten-free</button>
+              <button class="ob-chip" data-value="lactose-free">Lactose-free</button>
+            </div>
+            <button class="ob-next-sub-btn" id="ob-diet-prefs-next">
+              Continue
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Sub-step: Current Diet (open text) -->
+          <div class="ob-sub-step" id="ob-sub-current-diet">
+            <p class="ob-sub-label">What does an average day of eating look like for you?</p>
+            <p class="ob-sub-hint">Tell me roughly what you eat — I'll try to improve it without completely changing your routine.</p>
+            <textarea id="ob-current-diet" class="ob-notes-input" rows="4" placeholder="E.g. breakfast: oatmeal with banana, lunch: chicken wrap, dinner: pasta with veggies, snacks: protein bar..."></textarea>
+            <button class="ob-next-sub-btn" id="ob-current-diet-next">
+              Continue
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Sub-step: Extra Info (open text) -->
+          <div class="ob-sub-step" id="ob-sub-extra-info">
             <p class="ob-sub-label">Anything else I should know?</p>
-            <p class="ob-sub-hint">E.g. injuries, dietary preferences, equipment available, schedule constraints...</p>
-            <textarea id="ob-notes" class="ob-notes-input" rows="3" placeholder="Optional — tell me more so I can personalize your plan..."></textarea>
+            <p class="ob-sub-hint">Other sports you do, injuries, allergies, or any extra context that helps me build the perfect plan.</p>
+            <textarea id="ob-extra-info" class="ob-notes-input" rows="3" placeholder="Optional — e.g. I play soccer twice a week, I have a shoulder injury, I only have dumbbells at home..."></textarea>
             <button class="ob-cta-btn" id="ob-generate">
               Generate my plan
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
