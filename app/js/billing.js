@@ -96,13 +96,12 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
   }
 }
 
-export async function openBillingPortal(statusEl, flow = null) {
+export async function openBillingPortal(statusEl, flow = null, triggerButton = null) {
   if (!state.currentUser) {
     setStatus(statusEl, "Sign in to open the billing portal.", "error");
     return;
   }
-  const portalBtns = document.querySelectorAll("[data-portal-flow]");
-  portalBtns.forEach((b) => setLoadingState(b, true));
+  if (triggerButton) setLoadingState(triggerButton, true);
   setStatus(statusEl, "", "info");
   try {
     const token = await state.currentUser.getIdToken();
@@ -117,7 +116,7 @@ export async function openBillingPortal(statusEl, flow = null) {
     window.location.href = data.url;
   } catch (error) {
     setStatus(statusEl, error.message, "error");
-    portalBtns.forEach((b) => setLoadingState(b, false));
+    if (triggerButton) setLoadingState(triggerButton, false);
   }
 }
 
