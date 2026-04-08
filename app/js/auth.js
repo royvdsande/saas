@@ -146,9 +146,26 @@ export async function signInWithEmailPassword(email, password, statusEl, button)
 
 export async function signInWithGoogle(statusEl, button) {
   initFirebase();
-  setLoadingState(button, true, "Opening Google...");
+
+  // Token identifies this specific invocation so a stale finally/timer from a
+  // previous cancelled attempt doesn't reset a newly started loading state.
+  const token = ((button._signInToken | 0) + 1) & 0xffff;
+  button._signInToken = token;
+
+  setLoadingState(button, true);
   setStatus(statusEl, "", "info");
 
+  // Fallback: if Firebase's popup-closed detection stalls (known browser issue),
+  // reset loading state when the main window regains focus after the popup closes.
+  let focusTimer = null;
+  const onWindowFocus = () => {
+    focusTimer = setTimeout(() => {
+      if (button._signInToken === token) setLoadingState(button, false);
+    }, 500);
+  };
+  window.addEventListener("focus", onWindowFocus, { once: true });
+
+  let loginSucceeded = false;
   try {
     const provider = new GoogleAuthProvider();
     const currentUser = state.auth.currentUser;
@@ -173,6 +190,7 @@ export async function signInWithGoogle(statusEl, button) {
     }
 
     state.currentUser = result.user;
+    loginSucceeded = true;
     navigate("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
@@ -180,7 +198,11 @@ export async function signInWithGoogle(statusEl, button) {
       setStatus(statusEl, msg, "error");
     }
   } finally {
-    setLoadingState(button, false);
+    window.removeEventListener("focus", onWindowFocus);
+    clearTimeout(focusTimer);
+    if (!loginSucceeded && button._signInToken === token) {
+      setLoadingState(button, false);
+    }
   }
 }
 

@@ -16,6 +16,7 @@ export function setLoadingState(button, isLoading) {
   if (isLoading) {
     if (!button.dataset.originalLabel) {
       button.dataset.originalLabel = button.innerHTML;
+      button.style.minHeight = button.offsetHeight + "px";
     }
     button.disabled = true;
     button.innerHTML = '<span class="btn-dots"><span></span><span></span><span></span></span>';
@@ -23,6 +24,7 @@ export function setLoadingState(button, isLoading) {
     button.disabled = false;
     if (button.dataset.originalLabel) {
       button.innerHTML = button.dataset.originalLabel;
+      button.style.minHeight = "";
       delete button.dataset.originalLabel;
     }
   }
