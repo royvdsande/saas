@@ -39,6 +39,7 @@ const firebaseConfig = {
 // Shared mutable state — all modules read/write via this object
 export const state = {
   currentUser: null,
+  authReady: false,
   isPremiumUser: false,
   currentPlanLabel: "Free",
   dashboardContext: null,

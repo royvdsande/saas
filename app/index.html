@@ -43,7 +43,7 @@
           </div>
           <div class="ctx-group"><div class="ctx-item danger" id="dashboard-signout"><span class="ctx-item-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</span></div></div>
         </div>
-        <div class="sidebar-user" id="dashboard-user-trigger"><div class="user-avatar" id="dashboard-user-avatar">R</div><div class="user-info"><div class="user-name" id="dashboard-user-name">FitFlow user</div><div class="user-email" id="dashboard-user-email">mail@example.com</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray-400)"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+        <div class="sidebar-user" id="dashboard-user-trigger"><div class="user-avatar skeleton" id="dashboard-user-avatar">R</div><div class="user-info"><div class="user-name skeleton" id="dashboard-user-name">FitFlow user</div><div class="user-email skeleton" id="dashboard-user-email">mail@example.com</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gray-400)"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
       </div>
     </aside>
 
@@ -55,15 +55,15 @@
       <div class="main-content">
         <div id="dash-view-overview" class="dash-view active">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap">
-            <h2 class="dash-title" id="dashboard-greeting" style="margin-bottom:0">Good afternoon 👋</h2>
+            <h2 class="dash-title skeleton" id="dashboard-greeting" style="margin-bottom:0">Good afternoon 👋</h2>
             <button class="btn btn-primary" id="dashboard-checkout-cta">Upgrade to Pro</button>
           </div>
           <div id="dashboard-status" class="auth-status" hidden></div>
           <div class="stats-grid">
-            <div class="stat-card"><p class="stat-label">Plan</p><p class="stat-value" id="stat-plan">Free</p><p class="stat-change" id="stat-plan-copy">No active subscription</p></div>
-            <div class="stat-card"><p class="stat-label">Provider</p><p class="stat-value" id="stat-provider">Email</p><p class="stat-change up" id="stat-provider-copy">Not signed in</p></div>
-            <div class="stat-card"><p class="stat-label">Customer</p><p class="stat-value" id="stat-customer">—</p><p class="stat-change" id="stat-customer-copy">Not synced yet</p></div>
-            <div class="stat-card"><p class="stat-label">Firestore</p><p class="stat-value" id="stat-firestore">Ready</p><p class="stat-change" id="stat-firestore-copy">Connected to account status</p></div>
+            <div class="stat-card"><p class="stat-label">Plan</p><p class="stat-value skeleton" id="stat-plan">Free</p><p class="stat-change skeleton" id="stat-plan-copy">No active subscription</p></div>
+            <div class="stat-card"><p class="stat-label">Provider</p><p class="stat-value skeleton" id="stat-provider">Email</p><p class="stat-change up skeleton" id="stat-provider-copy">Not signed in</p></div>
+            <div class="stat-card"><p class="stat-label">Customer</p><p class="stat-value skeleton" id="stat-customer">—</p><p class="stat-change skeleton" id="stat-customer-copy">Not synced yet</p></div>
+            <div class="stat-card"><p class="stat-label">Firestore</p><p class="stat-value skeleton" id="stat-firestore">Ready</p><p class="stat-change skeleton" id="stat-firestore-copy">Connected to account status</p></div>
           </div>
           <div class="data-card">
             <div class="data-card-header"><h3>Account &amp; billing activity</h3><button class="btn btn-outline" id="table-cta" style="font-size:13px;padding:6px 12px">Open pricing</button></div>

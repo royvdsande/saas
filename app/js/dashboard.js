@@ -113,6 +113,7 @@ export function updateSettingsPage() {
 }
 
 export function updateAccountSurfaces() {
+  if (!state.authReady) return;
   updateAuthNavigation();
 
   const firstName =
@@ -201,6 +202,16 @@ export function updateAccountSurfaces() {
     els.modalCheckoutBtn.textContent = state.isPremiumUser ? "Premium active" : "Start checkout";
 
   updateSettingsPage();
+
+  [
+    els.dashboardGreeting,
+    els.dashboardUserName, els.dashboardUserEmail, els.dashboardUserAvatar,
+    els.ctxUserName, els.ctxUserEmail,
+    els.statPlan, els.statPlanCopy,
+    els.statProvider, els.statProviderCopy,
+    els.statCustomer, els.statCustomerCopy,
+    els.statFirestore, els.statFirestoreCopy,
+  ].forEach(el => el?.classList.remove('skeleton'));
 }
 
 export function updateSecurityTab() {
