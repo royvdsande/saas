@@ -33,6 +33,17 @@ function bindShellEvents() {
       closeMobileMenus();
     }
   });
+
+  // Close mobile menu when clicking an anchor link inside it
+  document.querySelectorAll(".mobile-menu .mobile-menu-link").forEach((link) => {
+    link.addEventListener("click", () => closeMobileMenus());
+  });
+
+  // Close mobile menu when resizing to desktop
+  const mediaQuery = window.matchMedia("(min-width: 768px)");
+  mediaQuery.addEventListener("change", (e) => {
+    if (e.matches) closeMobileMenus();
+  });
 }
 
 function bindScrollActiveNav() {
