@@ -160,6 +160,7 @@ export async function openBillingPortal(statusEl, flow = null, triggerButton = n
 
 export function renderBillingView() {
   const currentPriceId = state.dashboardContext?.currentPriceId || null;
+  const renewalDate = state.dashboardContext?.renewalDate || null;
   const plans = BINAS_CONFIG?.plans || [];
   const currentPlan = plans.find(
     (p) => p.monthlyPriceId === currentPriceId || p.yearlyPriceId === currentPriceId
@@ -168,9 +169,14 @@ export function renderBillingView() {
   // Update header plan info
   if (els.billingPlanName) els.billingPlanName.textContent = currentPlan ? currentPlan.name : "Free";
   if (els.billingPlanSub) {
-    els.billingPlanSub.textContent = currentPlan
-      ? `Your ${currentPlan.name} plan is active.`
-      : "No active subscription.";
+    if (currentPlan && renewalDate) {
+      const formattedDate = renewalDate.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+      els.billingPlanSub.textContent = `Your subscription will auto renew on ${formattedDate}`;
+    } else if (currentPlan) {
+      els.billingPlanSub.textContent = `Your ${currentPlan.name} plan is active.`;
+    } else {
+      els.billingPlanSub.textContent = "No active subscription.";
+    }
   }
   if (els.billingPlanBadge) {
     els.billingPlanBadge.textContent = currentPlan ? currentPlan.name : "Free";
@@ -193,11 +199,11 @@ export function renderBillingView() {
       btn.textContent = "Get started";
       btn.disabled = false;
     } else {
-      // Determine upgrade or downgrade by plan index
+      // Has active subscription — disable upgrade/downgrade
       const currentIdx = plans.findIndex((p) => p.id === currentPlan.id);
       const planIdx = plans.findIndex((p) => p.id === plan.id);
       btn.textContent = planIdx > currentIdx ? "Upgrade" : "Downgrade";
-      btn.disabled = false;
+      btn.disabled = true;
     }
   });
 

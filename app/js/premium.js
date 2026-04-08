@@ -71,6 +71,8 @@ export async function getDashboardContext(user) {
     activeSub?.data()?.price?.id ||
     activeSub?.data()?.items?.[0]?.price?.id ||
     null;
+  const renewalTimestamp = activeSub?.data()?.current_period_end;
+  const renewalDate = renewalTimestamp?.toDate?.() ?? null;
 
   return {
     userDoc: userDocSnap.exists() ? userDocSnap.data() : {},
@@ -78,5 +80,6 @@ export async function getDashboardContext(user) {
     paymentsCount: paymentsSnap.size,
     subscriptionsCount: subscriptionsSnap.size,
     currentPriceId,
+    renewalDate,
   };
 }
