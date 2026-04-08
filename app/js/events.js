@@ -148,7 +148,7 @@ export function bindEvents() {
     const portalBtn = e.target.closest("[data-portal-flow]");
     if (portalBtn) {
       const flow = portalBtn.dataset.portalFlow;
-      openBillingPortal(els.billingStatus, flow === "default" ? null : flow);
+      openBillingPortal(els.billingStatus, flow === "default" ? null : flow, portalBtn);
     }
   });
 

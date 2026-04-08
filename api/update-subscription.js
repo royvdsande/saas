@@ -51,10 +51,6 @@ module.exports = async (req, res) => {
     return respond(res, 401, { message: error.message || 'Invalid session.' });
   }
 
-  const { db } = getFirebase();
-  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' });
-
-  // Parse request body
   let body = {};
   try {
     const chunks = [];
@@ -63,50 +59,43 @@ module.exports = async (req, res) => {
     if (raw) body = JSON.parse(raw);
   } catch { /* empty body is fine */ }
 
-  const { flow } = body;
+  const { newPriceId } = body;
+  if (!newPriceId) {
+    return respond(res, 400, { message: 'newPriceId is required.' });
+  }
+
+  const { db } = getFirebase();
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' });
 
   try {
-    const customerDoc = await db.collection('customers').doc(decodedToken.uid).get();
-    const stripeCustomerId = customerDoc.exists
-      ? customerDoc.get('stripeCustomerId') || customerDoc.get('stripeId')
-      : null;
+    const subsSnap = await db
+      .collection('customers')
+      .doc(decodedToken.uid)
+      .collection('subscriptions')
+      .where('status', 'in', ['active', 'trialing'])
+      .limit(1)
+      .get();
 
-    if (!stripeCustomerId) {
-      return respond(res, 400, { message: 'No Stripe customer profile found. Purchase a product first.' });
+    if (subsSnap.empty) {
+      return respond(res, 404, { message: 'No active subscription found.' });
     }
 
-    const origin = req.headers.origin || `https://${req.headers.host}`;
-    const returnUrl = `${origin}/app/billing`;
+    const subDoc = subsSnap.docs[0];
+    const subId = subDoc.id;
+    const items = subDoc.get('items') || [];
+    const subItemId = items[0]?.id;
 
-    const sessionParams = {
-      customer: stripeCustomerId,
-      return_url: returnUrl,
-    };
-
-    if (flow === 'payment_method_update') {
-      sessionParams.flow_data = { type: 'payment_method_update' };
-    } else if (flow === 'subscription_cancel') {
-      // Try to get the active subscription ID for directed cancellation flow
-      const subsSnap = await db
-        .collection('customers')
-        .doc(decodedToken.uid)
-        .collection('subscriptions')
-        .where('status', 'in', ['active', 'trialing'])
-        .limit(1)
-        .get();
-      const activeSub = subsSnap.docs[0];
-      if (activeSub) {
-        sessionParams.flow_data = {
-          type: 'subscription_cancel',
-          subscription_cancel: { subscription: activeSub.id },
-        };
-      }
+    if (!subItemId) {
+      return respond(res, 500, { message: 'Could not determine subscription item.' });
     }
 
-    const session = await stripe.billingPortal.sessions.create(sessionParams);
+    await stripe.subscriptions.update(subId, {
+      items: [{ id: subItemId, price: newPriceId }],
+      proration_behavior: 'create_prorations',
+    });
 
-    return respond(res, 200, { url: session.url });
+    return respond(res, 200, { success: true });
   } catch (error) {
-    return respond(res, 500, { message: 'Could not create billing portal session.' });
+    return respond(res, 500, { message: 'Could not update subscription.' });
   }
 };
