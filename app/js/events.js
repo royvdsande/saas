@@ -254,7 +254,7 @@ export function bindEvents() {
     window.location.href = "/";
   });
 
-  els.tableCta?.addEventListener("click", () => { window.location.href = "/pricing.html"; });
+  els.tableCta?.addEventListener("click", () => { window.location.href = "/pricing"; });
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".sidebar-user-wrap")) {

@@ -27,7 +27,7 @@
   --radius: 10px; --radius-sm: 6px; --radius-lg: 14px; --radius-full: 9999px;
   --nav-h: 56px;
 }
-html { font-family: 'Geist', -apple-system, sans-serif; }
+html { font-family: 'Geist', -apple-system, sans-serif; scroll-behavior: smooth; }
 body { background: var(--white); color: var(--black); -webkit-font-smoothing: antialiased; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
