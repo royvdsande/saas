@@ -31,10 +31,13 @@ async function changePlan(statusTarget, planId, triggerButton) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Could not change plan.");
+    state.dashboardContext = state.dashboardContext || {};
+    state.dashboardContext.currentPriceId = newPriceId;
+    renderBillingView();
     setStatus(statusTarget, "Plan updated successfully.", "success");
-    window.location.reload();
   } catch (error) {
     setStatus(statusTarget, error.message, "error");
+  } finally {
     if (triggerButton) setLoadingState(triggerButton, false);
   }
 }
