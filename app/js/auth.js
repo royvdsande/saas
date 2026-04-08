@@ -146,8 +146,15 @@ export async function signInWithEmailPassword(email, password, statusEl, button)
 
 export async function signInWithGoogle(statusEl, button) {
   initFirebase();
-  setLoadingState(button, true, "Opening Google...");
+  setLoadingState(button, true);
   setStatus(statusEl, "", "info");
+
+  // Fallback: if Firebase's popup-closed detection stalls (known browser issue),
+  // reset loading state when the main window regains focus after the popup closes.
+  const onWindowFocus = () => {
+    setTimeout(() => setLoadingState(button, false), 500);
+  };
+  window.addEventListener("focus", onWindowFocus, { once: true });
 
   try {
     const provider = new GoogleAuthProvider();
@@ -180,6 +187,7 @@ export async function signInWithGoogle(statusEl, button) {
       setStatus(statusEl, msg, "error");
     }
   } finally {
+    window.removeEventListener("focus", onWindowFocus);
     setLoadingState(button, false);
   }
 }
