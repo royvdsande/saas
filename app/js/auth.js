@@ -146,6 +146,12 @@ export async function signInWithEmailPassword(email, password, statusEl, button)
 
 export async function signInWithGoogle(statusEl, button) {
   initFirebase();
+
+  // Token identifies this specific invocation so a stale finally/timer from a
+  // previous cancelled attempt doesn't reset a newly started loading state.
+  const token = ((button._signInToken | 0) + 1) & 0xffff;
+  button._signInToken = token;
+
   setLoadingState(button, true);
   setStatus(statusEl, "", "info");
 
@@ -153,7 +159,9 @@ export async function signInWithGoogle(statusEl, button) {
   // reset loading state when the main window regains focus after the popup closes.
   let focusTimer = null;
   const onWindowFocus = () => {
-    focusTimer = setTimeout(() => setLoadingState(button, false), 500);
+    focusTimer = setTimeout(() => {
+      if (button._signInToken === token) setLoadingState(button, false);
+    }, 500);
   };
   window.addEventListener("focus", onWindowFocus, { once: true });
 
@@ -192,7 +200,7 @@ export async function signInWithGoogle(statusEl, button) {
   } finally {
     window.removeEventListener("focus", onWindowFocus);
     clearTimeout(focusTimer);
-    if (!loginSucceeded) {
+    if (!loginSucceeded && button._signInToken === token) {
       setLoadingState(button, false);
     }
   }
