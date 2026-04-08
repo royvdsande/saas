@@ -103,7 +103,6 @@ export function buildTableRows() {
 export function updateSettingsPage() {
   if (!state.currentUser) return;
   const avatarMarkup = getAvatarMarkup(state.currentUser);
-  if (els.settingsAvatar) els.settingsAvatar.innerHTML = avatarMarkup;
   if (els.settingsUserAvatar) els.settingsUserAvatar.innerHTML = avatarMarkup;
   if (els.settingsUserName)
     els.settingsUserName.textContent = state.currentUser.displayName || state.currentUser.email || "Guest";
@@ -111,7 +110,6 @@ export function updateSettingsPage() {
   if (els.settingsNameInput && !els.settingsNameInput.matches(":focus")) {
     els.settingsNameInput.value = state.currentUser.displayName || "";
   }
-  if (els.settingsCurrentEmail) els.settingsCurrentEmail.value = state.currentUser.email || "";
 }
 
 export function updateAccountSurfaces() {

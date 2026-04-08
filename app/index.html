@@ -198,20 +198,6 @@
 
           <div class="settings-view active" id="settings-view-profile">
             <div class="sc-card">
-              <div class="sc-card-header"><h3>Profile photo</h3><p>Choose a photo for your profile.</p></div>
-              <div class="sc-card-body">
-                <div class="sc-avatar-row">
-                  <div class="avatar-lg" id="settings-avatar">R</div>
-                  <div style="display:flex;gap:8px;align-items:center">
-                    <label class="btn btn-outline" for="settings-photo-input" style="cursor:pointer;margin:0">Change</label>
-                    <input type="file" id="settings-photo-input" accept="image/*" style="display:none">
-                    <button class="btn btn-outline" id="settings-remove-photo-btn">Remove</button>
-                  </div>
-                </div>
-                <div id="settings-photo-status" class="auth-status" hidden></div>
-              </div>
-            </div>
-            <div class="sc-card">
               <div class="sc-card-header"><h3>Your name</h3><p>Update the name shown on your profile.</p></div>
               <div class="sc-card-body">
                 <div class="field" style="margin-bottom:14px">
@@ -220,21 +206,6 @@
                 </div>
                 <button class="btn btn-primary" id="settings-update-name-btn">Update profile</button>
                 <div id="settings-name-status" class="auth-status" hidden></div>
-              </div>
-            </div>
-            <div class="sc-card">
-              <div class="sc-card-header"><h3>Email address</h3><p>Update the email address you use to sign in.</p></div>
-              <div class="sc-card-body">
-                <div class="field" style="margin-bottom:12px">
-                  <label>Current email</label>
-                  <input class="sc-input" id="settings-current-email" type="email" disabled placeholder="—">
-                </div>
-                <div class="field" style="margin-bottom:14px">
-                  <label>New email</label>
-                  <input class="sc-input" id="settings-new-email-input" type="email" autocomplete="email" placeholder="new@example.com">
-                </div>
-                <button class="btn btn-primary" id="settings-update-email-btn">Update email</button>
-                <div id="settings-email-status" class="auth-status" hidden></div>
               </div>
             </div>
             <div class="sc-card sc-card--danger">

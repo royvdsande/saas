@@ -1,5 +1,4 @@
 import { signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { updateProfile } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state } from "./state.js";
 import { els } from "./elements.js";
 import { setStatus, getFirebaseErrorMessage } from "./utils.js";
@@ -23,9 +22,7 @@ import { startCheckout, openBillingPortal } from "./billing.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
 import {
   updateUserName,
-  updateUserEmailAddr,
   sendPasswordReset,
-  removeProfilePhoto,
   deleteAccount,
   closeDeleteConfirmModal,
   performDeleteAccount,
@@ -168,39 +165,9 @@ export function bindEvents() {
     btn.addEventListener("click", () => showSettingsTab(btn.dataset.settingsTab));
   });
 
-  // Profile: photo upload
-  els.settingsPhotoInput?.addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !state.currentUser) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setStatus(els.settingsPhotoStatus, "Photo must be under 5 MB.", "error");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      try {
-        await updateProfile(state.currentUser, { photoURL: ev.target.result });
-        updateAccountSurfaces();
-        setStatus(els.settingsPhotoStatus, "Profile photo updated.", "success");
-      } catch {
-        setStatus(els.settingsPhotoStatus, "Could not save photo.", "error");
-      }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  });
-  els.settingsRemovePhotoBtn?.addEventListener("click", () =>
-    removeProfilePhoto(els.settingsPhotoStatus, els.settingsRemovePhotoBtn)
-  );
-
   // Profile: name
   els.settingsUpdateNameBtn?.addEventListener("click", () =>
     updateUserName(els.settingsNameInput?.value.trim(), els.settingsNameStatus, els.settingsUpdateNameBtn)
-  );
-
-  // Profile: email
-  els.settingsUpdateEmailBtn?.addEventListener("click", () =>
-    updateUserEmailAddr(els.settingsNewEmailInput?.value.trim(), els.settingsEmailStatus, els.settingsUpdateEmailBtn)
   );
 
   // Profile: delete account
