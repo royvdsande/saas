@@ -217,6 +217,7 @@ export async function refreshAccountState(user, options = {}) {
   state.currentUser = user && !user.isAnonymous ? user : null;
 
   if (!state.currentUser) {
+    state.authReady = true;
     state.dashboardContext = null;
     state.isPremiumUser = hasLocalPlusStatus();
     state.currentPlanLabel = state.isPremiumUser ? "Premium" : "Free";
@@ -235,6 +236,7 @@ export async function refreshAccountState(user, options = {}) {
   state.isPremiumUser = hasCloudPlus || hasLocalPlusStatus();
   state.currentPlanLabel = state.isPremiumUser ? "Premium" : "Free";
   state.dashboardContext = await getDashboardContext(state.currentUser);
+  state.authReady = true;
   updateAccountSurfaces();
 
   if (options.showDashboard) {

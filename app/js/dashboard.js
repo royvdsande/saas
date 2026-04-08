@@ -1,4 +1,5 @@
 import { state, BINAS_CONFIG } from "./state.js";
+import { finishProgress } from "./router.js";
 import { els } from "./elements.js";
 import {
   formatDate,
@@ -103,7 +104,6 @@ export function buildTableRows() {
 export function updateSettingsPage() {
   if (!state.currentUser) return;
   const avatarMarkup = getAvatarMarkup(state.currentUser);
-  if (els.settingsAvatar) els.settingsAvatar.innerHTML = avatarMarkup;
   if (els.settingsUserAvatar) els.settingsUserAvatar.innerHTML = avatarMarkup;
   if (els.settingsUserName)
     els.settingsUserName.textContent = state.currentUser.displayName || state.currentUser.email || "Guest";
@@ -111,10 +111,10 @@ export function updateSettingsPage() {
   if (els.settingsNameInput && !els.settingsNameInput.matches(":focus")) {
     els.settingsNameInput.value = state.currentUser.displayName || "";
   }
-  if (els.settingsCurrentEmail) els.settingsCurrentEmail.value = state.currentUser.email || "";
 }
 
 export function updateAccountSurfaces() {
+  if (!state.authReady) return;
   updateAuthNavigation();
 
   const firstName =
@@ -203,6 +203,11 @@ export function updateAccountSurfaces() {
     els.modalCheckoutBtn.textContent = state.isPremiumUser ? "Premium active" : "Start checkout";
 
   updateSettingsPage();
+
+  [
+    els.dashboardUserName, els.dashboardUserEmail, els.dashboardUserAvatar,
+    els.ctxUserName, els.ctxUserEmail,
+  ].forEach(el => el?.classList.remove('skeleton'));
 }
 
 export function updateSecurityTab() {
@@ -237,6 +242,10 @@ export function showSettingsTab(tabName) {
 }
 
 export function showDashboardView(viewName, settingsTab = null) {
+  const loadingEl = document.getElementById("dash-loading-state");
+  if (loadingEl) loadingEl.hidden = true;
+  finishProgress();
+
   let path;
   if (viewName === "billing") path = "/app/billing";
   else if (viewName === "ai") path = "/app/ai";
@@ -302,7 +311,7 @@ async function loadPlanView() {
   const container = document.getElementById("plan-content");
   if (!container || !state.currentUser || !state.firestore) return;
 
-  container.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray-400)"><p style="font-size:14px">Loading your plan...</p></div>`;
+  container.innerHTML = `<div style="padding:4px 0"><div class="skeleton" style="height:22px;width:160px;margin-bottom:16px;"></div><div class="skeleton" style="height:96px;border-radius:var(--radius-lg);margin-bottom:12px;"></div><div class="skeleton" style="height:64px;border-radius:var(--radius-lg);margin-bottom:12px;"></div><div class="skeleton" style="height:64px;border-radius:var(--radius-lg);"></div></div>`;
 
   try {
     const userDoc = await getDoc(doc(state.firestore, "users", state.currentUser.uid));

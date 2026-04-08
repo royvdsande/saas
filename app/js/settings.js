@@ -1,6 +1,5 @@
 import {
   updateProfile,
-  updateEmail,
   sendPasswordResetEmail,
   deleteUser,
   GoogleAuthProvider,
@@ -32,28 +31,6 @@ export async function updateUserName(name, statusEl, button) {
   }
 }
 
-export async function updateUserEmailAddr(newEmail, statusEl, button) {
-  if (!newEmail) { setStatus(statusEl, "Please enter a new email address.", "error"); return; }
-  if (!state.currentUser) { setStatus(statusEl, "Not signed in.", "error"); return; }
-  setLoadingState(button, true, "Updating...");
-  setStatus(statusEl, "", "info");
-  try {
-    await updateEmail(state.currentUser, newEmail);
-    if (els.settingsCurrentEmail) els.settingsCurrentEmail.value = newEmail;
-    if (els.settingsNewEmailInput) els.settingsNewEmailInput.value = "";
-    setStatus(statusEl, "Email address updated. Check your inbox for verification.", "success");
-    updateAccountSurfaces();
-  } catch (error) {
-    const msg =
-      error.code === "auth/requires-recent-login"
-        ? "Please sign in again to change your email."
-        : getFirebaseErrorMessage(error.code);
-    setStatus(statusEl, msg, "error");
-  } finally {
-    setLoadingState(button, false);
-  }
-}
-
 export async function sendPasswordReset(statusEl, button) {
   if (!state.currentUser?.email) { setStatus(statusEl, "No email address found.", "error"); return; }
   setLoadingState(button, true, "Sending...");
@@ -61,20 +38,6 @@ export async function sendPasswordReset(statusEl, button) {
   try {
     await sendPasswordResetEmail(state.auth, state.currentUser.email);
     setStatus(statusEl, `Password reset email sent to ${state.currentUser.email}.`, "success");
-  } catch (error) {
-    setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
-  } finally {
-    setLoadingState(button, false);
-  }
-}
-
-export async function removeProfilePhoto(statusEl, button) {
-  if (!state.currentUser) return;
-  setLoadingState(button, true, "Removing...");
-  try {
-    await updateProfile(state.currentUser, { photoURL: null });
-    updateAccountSurfaces();
-    setStatus(statusEl, "Profile photo removed.", "success");
   } catch (error) {
     setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
   } finally {

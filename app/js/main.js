@@ -2,7 +2,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/fi
 import { state, plusLocalKey, initFirebase } from "./state.js";
 import { els } from "./elements.js";
 import { setStatus } from "./utils.js";
-import { navigate, renderRoute } from "./router.js";
+import { navigate, renderRoute, preInitRoute } from "./router.js";
 import { refreshAccountState, completeMagicLinkSignIn } from "./auth.js";
 import { updatePricingCopy, updateAccountSurfaces } from "./dashboard.js";
 import { bindEvents } from "./events.js";
@@ -66,6 +66,7 @@ function init() {
   updatePricingCopy();
   bindEvents();
   updateAccountSurfaces();
+  preInitRoute();
   initAuth();
 }
 

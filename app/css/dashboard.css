@@ -368,3 +368,31 @@
   .plan-macro-grid { grid-template-columns: repeat(2, 1fr); }
   .plan-tips-row { flex-direction: column; }
 }
+
+/* ===== CONTENT LOADING STATE ===== */
+.dash-loading-state { display: block; }
+.dash-loading-state[hidden] { display: none; }
+.dls-title  { height: 28px; width: 180px; margin-bottom: 20px; }
+.dls-grid   { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+.dls-card   { height: 90px; border-radius: var(--radius-lg); }
+.dls-block  { height: 180px; border-radius: var(--radius-lg); }
+@media (max-width: 640px) {
+  .dls-grid { grid-template-columns: repeat(2,1fr); }
+}
+
+/* ===== SKELETON LOADING ===== */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  color: transparent !important;
+  border-radius: 4px;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.user-avatar.skeleton { border-radius: 50%; }
