@@ -45,6 +45,36 @@ export function navigate(path, { showProgress = true } = {}) {
   if (showProgress) setTimeout(finishProgress, 80);
 }
 
+export function preInitRoute() {
+  const path = getNormalizedAppPath();
+  const tab  = new URLSearchParams(window.location.search).get("tab");
+
+  const viewName =
+    path === "/app/billing"  ? "billing"  :
+    path === "/app/settings" ? "settings" :
+    path === "/app/plan"     ? "plan"     :
+    path === "/app/ai"       ? "ai"       : "overview";
+
+  const labels = { billing: "Billing", settings: "Settings", plan: "My Plan", ai: "AI Test" };
+  const label  = labels[viewName] || "Home";
+
+  const topbarLabel = document.getElementById("dashboard-topbar-label");
+  if (topbarLabel) topbarLabel.textContent = label;
+  document.title = `FitFlow | ${label}`;
+
+  const settingsTab = tab || "profile";
+  document.querySelectorAll("#sidebar-dash [data-dashboard-view]").forEach((btn) => {
+    if (viewName === "settings" && btn.dataset.dashboardView === "settings") {
+      btn.classList.toggle("active", btn.dataset.settingsTab === settingsTab);
+    } else {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.dashboardView === viewName && btn.dataset.dashboardView !== "settings"
+      );
+    }
+  });
+}
+
 export function renderRoute() {
   const path = getNormalizedAppPath();
   const tab = new URLSearchParams(window.location.search).get("tab");

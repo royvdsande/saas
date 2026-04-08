@@ -204,13 +204,8 @@ export function updateAccountSurfaces() {
   updateSettingsPage();
 
   [
-    els.dashboardGreeting,
     els.dashboardUserName, els.dashboardUserEmail, els.dashboardUserAvatar,
     els.ctxUserName, els.ctxUserEmail,
-    els.statPlan, els.statPlanCopy,
-    els.statProvider, els.statProviderCopy,
-    els.statCustomer, els.statCustomerCopy,
-    els.statFirestore, els.statFirestoreCopy,
   ].forEach(el => el?.classList.remove('skeleton'));
 }
 
@@ -246,6 +241,9 @@ export function showSettingsTab(tabName) {
 }
 
 export function showDashboardView(viewName, settingsTab = null) {
+  const loadingEl = document.getElementById("dash-loading-state");
+  if (loadingEl) loadingEl.hidden = true;
+
   let path;
   if (viewName === "billing") path = "/app/billing";
   else if (viewName === "ai") path = "/app/ai";
@@ -311,7 +309,7 @@ async function loadPlanView() {
   const container = document.getElementById("plan-content");
   if (!container || !state.currentUser || !state.firestore) return;
 
-  container.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--gray-400)"><p style="font-size:14px">Loading your plan...</p></div>`;
+  container.innerHTML = `<div style="padding:4px 0"><div class="skeleton" style="height:22px;width:160px;margin-bottom:16px;"></div><div class="skeleton" style="height:96px;border-radius:var(--radius-lg);margin-bottom:12px;"></div><div class="skeleton" style="height:64px;border-radius:var(--radius-lg);margin-bottom:12px;"></div><div class="skeleton" style="height:64px;border-radius:var(--radius-lg);"></div></div>`;
 
   try {
     const userDoc = await getDoc(doc(state.firestore, "users", state.currentUser.uid));
