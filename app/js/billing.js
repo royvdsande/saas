@@ -57,8 +57,8 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       successUrl = `${window.location.origin}/app/?checkout=success`;
       cancelUrl = `${window.location.origin}/app/?checkout=cancel`;
     } else {
-      successUrl = `${window.location.origin}/pricing.html?checkout=success&anonymous=true`;
-      cancelUrl = `${window.location.origin}/pricing.html?checkout=cancel`;
+      successUrl = `${window.location.origin}/pricing?checkout=success&anonymous=true`;
+      cancelUrl = `${window.location.origin}/pricing?checkout=cancel`;
     }
 
     const sessionData = {
