@@ -46,6 +46,7 @@ export function navigate(path, { showProgress = true } = {}) {
 }
 
 export function preInitRoute() {
+  startProgress();
   const path = getNormalizedAppPath();
   const tab  = new URLSearchParams(window.location.search).get("tab");
 

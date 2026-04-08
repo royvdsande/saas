@@ -1,4 +1,5 @@
 import { state, BINAS_CONFIG } from "./state.js";
+import { finishProgress } from "./router.js";
 import { els } from "./elements.js";
 import {
   formatDate,
@@ -243,6 +244,7 @@ export function showSettingsTab(tabName) {
 export function showDashboardView(viewName, settingsTab = null) {
   const loadingEl = document.getElementById("dash-loading-state");
   if (loadingEl) loadingEl.hidden = true;
+  finishProgress();
 
   let path;
   if (viewName === "billing") path = "/app/billing";
