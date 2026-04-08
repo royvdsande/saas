@@ -9,7 +9,10 @@ function getFirebase() {
     if (serviceAccount) {
       admin.initializeApp({ credential: admin.credential.cert(JSON.parse(serviceAccount)) });
     } else {
-      admin.initializeApp({ credential: admin.credential.applicationDefault() });
+      admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        projectId: process.env.FIREBASE_PROJECT_ID,
+      });
     }
   }
   return { auth: admin.auth(), db: admin.firestore() };
