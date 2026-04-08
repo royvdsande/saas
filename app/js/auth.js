@@ -151,11 +151,13 @@ export async function signInWithGoogle(statusEl, button) {
 
   // Fallback: if Firebase's popup-closed detection stalls (known browser issue),
   // reset loading state when the main window regains focus after the popup closes.
+  let focusTimer = null;
   const onWindowFocus = () => {
-    setTimeout(() => setLoadingState(button, false), 500);
+    focusTimer = setTimeout(() => setLoadingState(button, false), 500);
   };
   window.addEventListener("focus", onWindowFocus, { once: true });
 
+  let loginSucceeded = false;
   try {
     const provider = new GoogleAuthProvider();
     const currentUser = state.auth.currentUser;
@@ -180,6 +182,7 @@ export async function signInWithGoogle(statusEl, button) {
     }
 
     state.currentUser = result.user;
+    loginSucceeded = true;
     navigate("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
@@ -188,7 +191,10 @@ export async function signInWithGoogle(statusEl, button) {
     }
   } finally {
     window.removeEventListener("focus", onWindowFocus);
-    setLoadingState(button, false);
+    clearTimeout(focusTimer);
+    if (!loginSucceeded) {
+      setLoadingState(button, false);
+    }
   }
 }
 
