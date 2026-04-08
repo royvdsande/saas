@@ -44,6 +44,7 @@
 .nav-links { display: flex; align-items: center; gap: 4px; }
 .nav-link { padding: 6px 12px; font-size: 14px; color: var(--gray-600); border-radius: var(--radius-sm); transition: all .12s; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; }
 .nav-link:hover { background: var(--gray-100); color: var(--black); }
+.nav-link-active { background: var(--gray-100); color: var(--black); }
 .nav-actions { display: flex; align-items: center; gap: 8px; }
 .nav-burger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; background: none; border: none; cursor: pointer; border-radius: var(--radius-sm); padding: 6px; -webkit-tap-highlight-color: transparent; }
 .nav-burger span { display: block; height: 1.5px; background: var(--black); border-radius: 2px; transition: all .2s; }
