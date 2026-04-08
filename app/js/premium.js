@@ -72,11 +72,21 @@ export async function getDashboardContext(user) {
     activeSub?.data()?.items?.[0]?.price?.id ||
     null;
 
+  const rawPeriodEnd = activeSub?.data()?.current_period_end || null;
+  let currentPeriodEnd = null;
+  if (rawPeriodEnd) {
+    // Firestore Timestamp has .toDate(), plain number is Unix seconds
+    currentPeriodEnd = typeof rawPeriodEnd.toDate === "function"
+      ? rawPeriodEnd.toDate()
+      : new Date(rawPeriodEnd * 1000);
+  }
+
   return {
     userDoc: userDocSnap.exists() ? userDocSnap.data() : {},
     customerDoc: customerDocSnap.exists() ? customerDocSnap.data() : {},
     paymentsCount: paymentsSnap.size,
     subscriptionsCount: subscriptionsSnap.size,
     currentPriceId,
+    currentPeriodEnd,
   };
 }

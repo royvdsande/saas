@@ -158,8 +158,18 @@ export async function openBillingPortal(statusEl, flow = null, triggerButton = n
   }
 }
 
+const DUTCH_MONTHS = [
+  "januari", "februari", "maart", "april", "mei", "juni",
+  "juli", "augustus", "september", "oktober", "november", "december",
+];
+
+function formatDutchDate(date) {
+  return `${date.getDate()} ${DUTCH_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 export function renderBillingView() {
   const currentPriceId = state.dashboardContext?.currentPriceId || null;
+  const currentPeriodEnd = state.dashboardContext?.currentPeriodEnd || null;
   const plans = BINAS_CONFIG?.plans || [];
   const currentPlan = plans.find(
     (p) => p.monthlyPriceId === currentPriceId || p.yearlyPriceId === currentPriceId
@@ -175,6 +185,16 @@ export function renderBillingView() {
   if (els.billingPlanBadge) {
     els.billingPlanBadge.textContent = currentPlan ? currentPlan.name : "Free";
     els.billingPlanBadge.className = currentPlan ? "badge badge-blue" : "badge badge-gray";
+  }
+
+  // Show renewal date when subscribed
+  if (els.billingPlanRenewal) {
+    if (currentPlan && currentPeriodEnd) {
+      els.billingPlanRenewal.textContent = `Your subscription will auto renew on ${formatDutchDate(currentPeriodEnd)}`;
+      els.billingPlanRenewal.hidden = false;
+    } else {
+      els.billingPlanRenewal.hidden = true;
+    }
   }
 
   // Update each plan card CTA
@@ -193,11 +213,11 @@ export function renderBillingView() {
       btn.textContent = "Get started";
       btn.disabled = false;
     } else {
-      // Determine upgrade or downgrade by plan index
+      // Upgrade/downgrade temporarily disabled
       const currentIdx = plans.findIndex((p) => p.id === currentPlan.id);
       const planIdx = plans.findIndex((p) => p.id === plan.id);
       btn.textContent = planIdx > currentIdx ? "Upgrade" : "Downgrade";
-      btn.disabled = false;
+      btn.disabled = true;
     }
   });
 

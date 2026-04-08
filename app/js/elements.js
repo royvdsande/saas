@@ -73,6 +73,7 @@ export const els = {
   billingStatus: document.getElementById("billing-status"),
   billingPlanName: document.getElementById("billing-plan-name"),
   billingPlanSub: document.getElementById("billing-plan-sub"),
+  billingPlanRenewal: document.getElementById("billing-plan-renewal"),
   billingPlanBadge: document.getElementById("billing-plan-badge"),
   billingUpgradeGrid: document.getElementById("billing-upgrade-grid"),
   billingManageCard: document.getElementById("billing-manage-card"),
