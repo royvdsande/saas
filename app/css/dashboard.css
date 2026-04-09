@@ -197,15 +197,6 @@
 }
 .sc-toggle-password:hover { color: var(--gray-600); }
 
-/* ===== PASSWORD HINT ===== */
-.password-hint {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--gray-400);
-}
-
 /* ===== CONNECTED ACCOUNT ROW ===== */
 .connected-row {
   display: flex;
