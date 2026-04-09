@@ -1,3 +1,4 @@
+import { translateCurrentPage } from "./i18n.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { initFirebase, state } from "/app/js/state.js";
 
@@ -89,6 +90,7 @@ if (isLandingPage) {
   setTimeout(() => { document.body.style.opacity = "1"; }, 3000);
 }
 
+translateCurrentPage();
 state.currentPageId = "page-public";
 initFirebase();
 bindShellEvents();

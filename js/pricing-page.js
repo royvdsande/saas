@@ -1,4 +1,5 @@
 import "./public.js";
+import { t } from "./i18n.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state, plusLocalKey } from "/app/js/state.js";
 import { startCheckout } from "/app/js/billing.js";
@@ -33,7 +34,7 @@ function handleCheckoutMessage() {
     if (params.get("anonymous") === "true") {
       localStorage.setItem(plusLocalKey, "true");
     }
-    setStatus(pricingStatus, "Checkout completed. Your premium status is being synced.", "success");
+    setStatus(pricingStatus, t("pricing.checkout.success", "Checkout completed. Your premium status is being synced."), "success");
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
