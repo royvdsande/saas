@@ -96,10 +96,15 @@ bindScrollActiveNav();
 onAuthStateChanged(state.auth, (user) => {
   state.currentUser = user && !user.isAnonymous ? user : null;
 
-  // Redirect authenticated users from landing page to dashboard
+  // Redirect authenticated users from landing page to dashboard,
+  // unless they explicitly navigated here via the "Homepage" button.
   if (isLandingPage && state.currentUser) {
-    window.location.replace("/app/");
-    return;
+    if (sessionStorage.getItem("bypass_homepage_redirect")) {
+      sessionStorage.removeItem("bypass_homepage_redirect");
+    } else {
+      window.location.replace("/app/");
+      return;
+    }
   }
 
   if (isLandingPage) {
