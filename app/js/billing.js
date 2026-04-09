@@ -160,21 +160,47 @@ export async function openBillingPortal(statusEl, flow = null, triggerButton = n
 
 export function renderBillingView() {
   const currentPriceId = state.dashboardContext?.currentPriceId || null;
+  const renewalDate = state.dashboardContext?.renewalDate || null;
   const plans = BINAS_CONFIG?.plans || [];
   const currentPlan = plans.find(
     (p) => p.monthlyPriceId === currentPriceId || p.yearlyPriceId === currentPriceId
   );
+  const fmtDate = (d) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const fmtTs  = (ts) => fmtDate(new Date(ts * 1000));
 
   // Update header plan info
   if (els.billingPlanName) els.billingPlanName.textContent = currentPlan ? currentPlan.name : "Free";
   if (els.billingPlanSub) {
-    els.billingPlanSub.textContent = currentPlan
-      ? `Your ${currentPlan.name} plan is active.`
-      : "No active subscription.";
+    // Best text we can show from Firestore alone
+    els.billingPlanSub.textContent = currentPlan && renewalDate
+      ? `Your subscription will auto renew on ${fmtDate(renewalDate)}.`
+      : currentPlan
+        ? `Your ${currentPlan.name} plan is active.`
+        : "No active subscription.";
   }
   if (els.billingPlanBadge) {
     els.billingPlanBadge.textContent = currentPlan ? currentPlan.name : "Free";
     els.billingPlanBadge.className = currentPlan ? "badge badge-blue" : "badge badge-gray";
+  }
+
+  // Override with live Stripe data when available (adds cancellation status, trial info)
+  if (currentPlan && state.currentUser && els.billingPlanSub) {
+    state.currentUser.getIdToken()
+      .then((token) => fetch("/api/subscription-status", { headers: { Authorization: `Bearer ${token}` } }))
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (!data || !data.status || !els.billingPlanSub) return;
+        if (data.status === "trialing" && data.trialEnd) {
+          els.billingPlanSub.textContent = data.cancelAtPeriodEnd
+            ? `Your trial ends on ${fmtTs(data.trialEnd)} and will not renew.`
+            : `Your trial ends on ${fmtTs(data.trialEnd)}. Your subscription starts after.`;
+        } else if (data.cancelAtPeriodEnd && data.currentPeriodEnd) {
+          els.billingPlanSub.textContent = `Your subscription ends on ${fmtTs(data.currentPeriodEnd)} and will not renew.`;
+        } else if (data.currentPeriodEnd) {
+          els.billingPlanSub.textContent = `Your subscription will auto renew on ${fmtTs(data.currentPeriodEnd)}.`;
+        }
+      })
+      .catch(() => {});
   }
 
   // Update each plan card CTA
@@ -193,11 +219,11 @@ export function renderBillingView() {
       btn.textContent = "Get started";
       btn.disabled = false;
     } else {
-      // Determine upgrade or downgrade by plan index
+      // Has active subscription — disable upgrade/downgrade
       const currentIdx = plans.findIndex((p) => p.id === currentPlan.id);
       const planIdx = plans.findIndex((p) => p.id === plan.id);
       btn.textContent = planIdx > currentIdx ? "Upgrade" : "Downgrade";
-      btn.disabled = false;
+      btn.disabled = true;
     }
   });
 

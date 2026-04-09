@@ -67,10 +67,16 @@ export async function getDashboardContext(user) {
   const activeSub = subscriptionsSnap.docs.find((d) =>
     ["active", "trialing"].includes(d.data().status)
   );
+  const subData = activeSub?.data() ?? null;
   const currentPriceId =
-    activeSub?.data()?.price?.id ||
-    activeSub?.data()?.items?.[0]?.price?.id ||
+    subData?.price?.id ||
+    subData?.items?.[0]?.price?.id ||
     null;
+  const tsVal = subData?.current_period_end;
+  const renewalDate = !tsVal ? null
+    : typeof tsVal.toDate === "function" ? tsVal.toDate()
+    : typeof tsVal === "number" ? new Date(tsVal * 1000)
+    : null;
 
   return {
     userDoc: userDocSnap.exists() ? userDocSnap.data() : {},
@@ -78,5 +84,6 @@ export async function getDashboardContext(user) {
     paymentsCount: paymentsSnap.size,
     subscriptionsCount: subscriptionsSnap.size,
     currentPriceId,
+    renewalDate,
   };
 }
