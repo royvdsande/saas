@@ -325,6 +325,7 @@ export function bindEvents() {
 
   els.ctxOpenHomepage?.addEventListener("click", () => {
     els.dashboardAccountMenu.classList.remove("open");
+    sessionStorage.setItem("bypass_homepage_redirect", "1");
     window.location.href = "/";
   });
 

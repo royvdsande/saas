@@ -77,11 +77,40 @@ function bindScrollActiveNav() {
   onScroll();
 }
 
+const isLandingPage =
+  window.location.pathname === "/" ||
+  window.location.pathname === "/index.html";
+
+// Hide body immediately to prevent a flash of the landing page before redirect
+if (isLandingPage) {
+  document.body.style.opacity = "0";
+  document.body.style.transition = "opacity 0.2s ease";
+  // Safety fallback: always reveal after 3s in case of unexpected delays
+  setTimeout(() => { document.body.style.opacity = "1"; }, 3000);
+}
+
 state.currentPageId = "page-public";
 initFirebase();
 bindShellEvents();
 bindScrollActiveNav();
 onAuthStateChanged(state.auth, (user) => {
   state.currentUser = user && !user.isAnonymous ? user : null;
+
+  // Redirect authenticated users from landing page to dashboard,
+  // unless they explicitly navigated here via the "Homepage" button.
+  if (isLandingPage && state.currentUser) {
+    if (sessionStorage.getItem("bypass_homepage_redirect")) {
+      // Keep the flag alive so refreshing the page also skips the redirect.
+      // It will be cleared when the user navigates back to the dashboard.
+    } else {
+      window.location.replace("/app/");
+      return;
+    }
+  }
+
+  if (isLandingPage) {
+    document.body.style.opacity = "1";
+  }
+
   updateAuthNavigation();
 });

@@ -8,6 +8,10 @@ import { updatePricingCopy, updateAccountSurfaces } from "./dashboard.js";
 import { bindEvents } from "./events.js";
 import { initSidebarState } from "./ui.js";
 
+// Clear homepage bypass flag — user is back in the dashboard, so the next
+// direct visit to / should redirect to the dashboard again as normal.
+sessionStorage.removeItem("bypass_homepage_redirect");
+
 let _routeInitialized = false;
 
 async function initAuth() {
