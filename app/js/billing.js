@@ -182,8 +182,10 @@ export function renderBillingView() {
       subText = `Your trial ends on ${fmt(trialEnd)}. Your subscription will start automatically after the trial.`;
     } else if (currentPlan && cancelAt) {
       subText = `Your subscription will be cancelled on ${fmt(cancelAt)}.`;
-    } else if (currentPlan && cancelAtPeriodEnd && renewalDate) {
-      subText = `Your subscription ends on ${fmt(renewalDate)} and will not renew.`;
+    } else if (currentPlan && cancelAtPeriodEnd) {
+      subText = renewalDate
+        ? `Your subscription ends on ${fmt(renewalDate)} and will not renew.`
+        : "Your subscription will not renew after the current period.";
     } else if (currentPlan && renewalDate) {
       subText = `Your subscription will auto renew on ${fmt(renewalDate)}.`;
     } else if (currentPlan) {

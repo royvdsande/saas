@@ -8,6 +8,7 @@ import {
   getAvatarMarkup,
 } from "./utils.js";
 import { renderBillingView } from "./billing.js";
+import { getDashboardContext } from "./premium.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 export function updatePricingCards() {
@@ -276,7 +277,14 @@ export function showDashboardView(viewName, settingsTab = null) {
   document.title = `FitFlow | ${label}`;
 
   if (viewName === "plan") loadPlanView();
-  if (viewName === "billing") renderBillingView();
+  if (viewName === "billing") {
+    renderBillingView();
+    if (state.currentUser) {
+      getDashboardContext(state.currentUser)
+        .then((ctx) => { state.dashboardContext = ctx; renderBillingView(); })
+        .catch(() => {});
+    }
+  }
   if (viewName === "settings") {
     updateSettingsPage();
     _showSettingsTabDirect(settingsTab || "profile");
