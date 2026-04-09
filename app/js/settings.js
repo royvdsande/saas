@@ -45,6 +45,30 @@ export async function sendPasswordReset(statusEl, button) {
   }
 }
 
+export async function setInitialPassword(password, statusEl, button) {
+  if (!state.currentUser) { setStatus(statusEl, "Not signed in.", "error"); return; }
+  if (!password || password.length < 6) {
+    setStatus(statusEl, "Password must be at least 6 characters.", "error");
+    return;
+  }
+  setLoadingState(button, true, "Setting...");
+  setStatus(statusEl, "", "info");
+  try {
+    await updatePassword(state.currentUser, password);
+    setStatus(statusEl, "Password set successfully.", "success");
+    const input = document.getElementById("settings-set-password");
+    if (input) input.value = "";
+    import("./dashboard.js").then(({ updateSecurityTab }) => updateSecurityTab());
+  } catch (error) {
+    const msg = error.code === "auth/requires-recent-login"
+      ? "Please sign out and sign in again to set a password."
+      : getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg, "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
 let _deleteStatusEl = null;
 
 export function deleteAccount(statusEl) {

@@ -23,6 +23,7 @@ import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./das
 import {
   updateUserName,
   sendPasswordReset,
+  setInitialPassword,
   deleteAccount,
   closeDeleteConfirmModal,
   performDeleteAccount,
@@ -180,10 +181,15 @@ export function bindEvents() {
   els.deleteConfirmBackdrop?.addEventListener("click", closeDeleteConfirmModal);
   els.deleteConfirmOkBtn?.addEventListener("click", performDeleteAccount);
 
-  // Security: set password (via reset email)
-  els.settingsResetPasswordBtn?.addEventListener("click", () =>
-    sendPasswordReset(els.settingsSecurityStatus, els.settingsResetPasswordBtn)
+  // Security: set password directly in UI
+  els.settingsSetPasswordBtn?.addEventListener("click", () =>
+    setInitialPassword(els.settingsSetPasswordInput?.value || "", els.settingsSecurityStatus, els.settingsSetPasswordBtn)
   );
+
+  // Password strength icon — set password (no existing password)
+  els.settingsSetPasswordInput?.addEventListener("input", () => {
+    updatePasswordHint(els.settingsSetPasswordInput, document.getElementById("settings-set-password-hint"));
+  });
 
   // Security: update password
   els.settingsUpdatePasswordBtn?.addEventListener("click", () =>
