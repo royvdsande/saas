@@ -126,9 +126,7 @@ async function init() {
         window.location.replace("/app/?checkout=success");
         return;
       }
-      // After regular signup → onboarding; after login → dashboard
-      const isSignup = window.location.pathname.includes("signup");
-      window.location.replace(isSignup ? "/onboarding" : "/app/");
+      window.location.replace("/app/");
     }
   });
 }

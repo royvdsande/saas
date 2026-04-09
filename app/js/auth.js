@@ -31,7 +31,7 @@ export async function sendMagicLink(email, statusEl, submitButton, mode = "signi
 
   try {
     await sendSignInLinkToEmail(state.auth, email, {
-      url: `${window.location.origin}/auth/login.html`,
+      url: `${window.location.origin}/auth/login`,
       handleCodeInApp: true,
     });
     localStorage.setItem(storedEmailKey, email);
@@ -231,7 +231,7 @@ export async function completeMagicLinkSignIn() {
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(els.signinStatus, msg || "Magic link sign in failed.", "error");
-    window.location.replace("/auth/login.html");
+    window.location.replace("/auth/login");
   }
 }
 
@@ -245,7 +245,7 @@ export async function refreshAccountState(user, options = {}) {
     state.currentPlanLabel = state.isPremiumUser ? "Premium" : "Free";
     updateAccountSurfaces();
     if (window.location.pathname.startsWith("/app")) {
-      window.location.replace("/auth/login.html");
+      window.location.replace("/auth/login");
     }
     return;
   }

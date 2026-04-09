@@ -20,7 +20,7 @@
 .auth-submit:hover { background: var(--gray-700); }
 .divider { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); margin-bottom: 14px; }
 .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--gray-200); }
-.social-btn { width: 100%; padding: 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); background: white; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color .15s; -webkit-tap-highlight-color: transparent; margin-bottom: 14px; }
+.social-btn { width: 100%; padding: 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); background: white; color: var(--black, #111); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color .15s; -webkit-tap-highlight-color: transparent; margin-bottom: 14px; }
 .social-btn:hover { border-color: var(--gray-400); background: var(--gray-50); }
 .auth-footer { text-align: center; margin-top: 18px; font-size: 14px; color: var(--gray-500); }
 .auth-footer a { color: var(--black); font-weight: 600; text-decoration: underline; cursor: pointer; }

@@ -246,7 +246,7 @@ export function bindEvents() {
 
   els.modalDashboardBtn?.addEventListener("click", () => {
     closeAccountModal();
-    navigate(state.currentUser ? "/app/" : "/auth/login.html");
+    navigate(state.currentUser ? "/app/" : "/auth/login");
   });
 
   els.modalLogoutBtn?.addEventListener("click", async () => {

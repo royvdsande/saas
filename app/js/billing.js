@@ -89,7 +89,7 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       cancelUrl = `${window.location.origin}/app/?checkout=cancel`;
     } else if (isOnboarding) {
       // Anonymous user from onboarding — send to signup to create/link account
-      successUrl = `${window.location.origin}/auth/signup.html?checkout=success&link_anonymous=true`;
+      successUrl = `${window.location.origin}/auth/signup?checkout=success&link_anonymous=true`;
       cancelUrl = `${window.location.origin}/onboarding/?checkout=cancel`;
     } else if (window.location.pathname.startsWith("/app")) {
       successUrl = `${window.location.origin}/app/?checkout=success`;
