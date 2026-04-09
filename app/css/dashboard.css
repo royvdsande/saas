@@ -233,7 +233,8 @@
 .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ===== CONFIRM MODAL (smaller variant) ===== */
-#delete-confirm-modal {
+#delete-confirm-modal,
+#reauth-modal {
   display: flex;
   align-items: center;
   justify-content: center;
