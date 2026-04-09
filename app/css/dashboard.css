@@ -21,8 +21,48 @@
 .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .user-email { font-size: 12px; color: var(--gray-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ===== SIDEBAR COLLAPSED ===== */
-.app-shell.sidebar-collapsed .sidebar { width: 0 !important; border-right: none; }
+/* ===== SIDEBAR COLLAPSED (icon-only) ===== */
+@media (min-width: 769px) {
+  .app-shell.sidebar-collapsed .sidebar { width: 56px !important; }
+  /* Hide text, keep icons */
+  .app-shell.sidebar-collapsed .sidebar-link-text { display: none; }
+  .app-shell.sidebar-collapsed .sidebar-workspace-name { display: none; }
+  .app-shell.sidebar-collapsed .sidebar-section-label { display: none; }
+  .app-shell.sidebar-collapsed .user-info { display: none; }
+  .app-shell.sidebar-collapsed .sidebar-user > svg { display: none; }
+  /* Center icons */
+  .app-shell.sidebar-collapsed .sidebar-link { justify-content: center; padding: 9px 0; }
+  .app-shell.sidebar-collapsed .sidebar-header { padding: 13px 0; justify-content: center; }
+  .app-shell.sidebar-collapsed .sidebar-workspace { flex: none; justify-content: center; }
+  .app-shell.sidebar-collapsed .sidebar-section { padding: 8px 4px 4px; }
+  .app-shell.sidebar-collapsed .sidebar-user { justify-content: center; }
+  /* Hide context menu (too narrow) */
+  .app-shell.sidebar-collapsed .ctx-menu { display: none !important; }
+}
+
+/* ===== SIDEBAR NO-TRANSITION (during drag) ===== */
+.sidebar--no-transition { transition: none !important; }
+
+/* ===== COLLAPSE BUTTON ICON ANIMATION ===== */
+.collapse-icon-wrap {
+  position: relative;
+  display: flex;
+  width: 16px; height: 16px;
+}
+.ci-normal { transition: opacity 0.18s ease; }
+.ci-hover {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.topbar-collapse-btn:hover .ci-normal { opacity: 0; }
+.topbar-collapse-btn:hover .ci-hover { opacity: 1; }
+/* When collapsed: flip arrow to point right (expand) */
+.app-shell.sidebar-collapsed .topbar-collapse-btn .ci-hover {
+  transform: scaleX(-1);
+  transform-origin: center;
+}
 
 /* ===== SIDEBAR RESIZE HANDLE ===== */
 .sidebar-resize-handle {
