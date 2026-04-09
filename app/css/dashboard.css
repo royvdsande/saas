@@ -24,18 +24,12 @@
 /* ===== SIDEBAR COLLAPSED (icon-only) ===== */
 @media (min-width: 769px) {
   .app-shell.sidebar-collapsed .sidebar { width: 56px !important; }
-  /* Hide text, keep icons */
+  /* Hide text only — icons stay at their exact same position so they don't move during animation */
   .app-shell.sidebar-collapsed .sidebar-link-text { display: none; }
   .app-shell.sidebar-collapsed .sidebar-workspace-name { display: none; }
   .app-shell.sidebar-collapsed .sidebar-section-label { display: none; }
   .app-shell.sidebar-collapsed .user-info { display: none; }
   .app-shell.sidebar-collapsed .sidebar-user > svg { display: none; }
-  /* Center icons */
-  .app-shell.sidebar-collapsed .sidebar-link { justify-content: center; padding: 9px 0; }
-  .app-shell.sidebar-collapsed .sidebar-header { padding: 13px 0; justify-content: center; }
-  .app-shell.sidebar-collapsed .sidebar-workspace { flex: none; justify-content: center; }
-  .app-shell.sidebar-collapsed .sidebar-section { padding: 8px 4px 4px; }
-  .app-shell.sidebar-collapsed .sidebar-user { justify-content: center; }
   /* Hide context menu (too narrow) */
   .app-shell.sidebar-collapsed .ctx-menu { display: none !important; }
 }
