@@ -271,15 +271,16 @@ export function bindEvents() {
 
   resizeHandle?.addEventListener("mousedown", (e) => {
     e.preventDefault();
-    // Disable CSS transition during drag so it follows the cursor instantly
-    sidebarEl.classList.add("sidebar--no-transition");
-    resizeHandle.classList.add("is-resizing");
-    appShell?.classList.add("is-resizing");
-    // If in icon-only collapsed mode, expand it so the user can resize freely
+    // When collapsed: just expand to saved width and stop — no drag follow
     if (appShell?.classList.contains("sidebar-collapsed")) {
       appShell.classList.remove("sidebar-collapsed");
       localStorage.setItem("sidebar-collapsed", "0");
+      return;
     }
+    // Normal resize: disable CSS transition so cursor is followed instantly
+    sidebarEl.classList.add("sidebar--no-transition");
+    resizeHandle.classList.add("is-resizing");
+    appShell?.classList.add("is-resizing");
     const onMove = (e) => {
       const w = Math.max(MIN_W, Math.min(MAX_W, e.clientX));
       sidebarEl.style.width = w + "px";
