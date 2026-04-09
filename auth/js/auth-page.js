@@ -118,18 +118,20 @@ async function init() {
   showPostCheckoutBanner();
   preserveCheckoutParams();
   await completeMagicLinkSignIn();
-  onAuthStateChanged(state.auth, async (user) => {
-    await refreshAccountState(user, {});
+  onAuthStateChanged(state.auth, (user) => {
     if (user && !user.isAnonymous) {
-      // After post-checkout signup/login or regular signup → go to app
+      // Redirect immediately — the dashboard's own onAuthStateChanged
+      // in main.js will handle loading account data after the page lands.
       if (isPostCheckout) {
         window.location.replace("/app/?checkout=success");
         return;
       }
-      // After regular signup → onboarding; after login → dashboard
-      const isSignup = window.location.pathname.includes("signup");
-      window.location.replace(isSignup ? "/onboarding" : "/app/");
+      window.location.replace("/app/");
+      return;
     }
+    // For non-logged-in state (anonymous user from onboarding checkout),
+    // update state in the background so the auth page UI works properly.
+    refreshAccountState(user, {});
   });
 }
 

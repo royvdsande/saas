@@ -30,40 +30,40 @@ export async function savePlusStatusToCloud(user) {
   }
 }
 
-export async function checkCloudPlusStatus(user) {
-  try {
-    const userDoc = await getDoc(doc(state.firestore, "users", user.uid));
-    if (userDoc.exists() && userDoc.data().hasBinasPlus) {
-      return true;
-    }
-
-    const paymentsSnap = await getDocs(collection(state.firestore, "customers", user.uid, "payments"));
-    if (!paymentsSnap.empty) {
-      for (const paymentDoc of paymentsSnap.docs) {
-        if (paymentDoc.data().status === "succeeded") {
-          return true;
-        }
-      }
-    }
-
-    const subSnap = await getDocs(
+export async function loadAccountData(user) {
+  const [userDocSnap, customerDocSnap, paymentsSnap, subscriptionsSnap] = await Promise.all([
+    getDoc(doc(state.firestore, "users", user.uid)),
+    getDoc(doc(state.firestore, "customers", user.uid)),
+    getDocs(collection(state.firestore, "customers", user.uid, "payments")),
+    getDocs(
       query(
         collection(state.firestore, "customers", user.uid, "subscriptions"),
         where("status", "in", ["active", "trialing"])
       )
-    );
-    return !subSnap.empty;
+    ),
+  ]);
+
+  // Derive premium status
+  let hasCloudPlus = false;
+  try {
+    if (userDocSnap.exists() && userDocSnap.data().hasBinasPlus) {
+      hasCloudPlus = true;
+    } else if (!paymentsSnap.empty) {
+      for (const paymentDoc of paymentsSnap.docs) {
+        if (paymentDoc.data().status === "succeeded") {
+          hasCloudPlus = true;
+          break;
+        }
+      }
+    }
+    if (!hasCloudPlus) {
+      hasCloudPlus = !subscriptionsSnap.empty;
+    }
   } catch {
-    return false;
+    // Same error handling as original
   }
-}
 
-export async function getDashboardContext(user) {
-  const userDocSnap = await getDoc(doc(state.firestore, "users", user.uid));
-  const customerDocSnap = await getDoc(doc(state.firestore, "customers", user.uid));
-  const paymentsSnap = await getDocs(collection(state.firestore, "customers", user.uid, "payments"));
-  const subscriptionsSnap = await getDocs(collection(state.firestore, "customers", user.uid, "subscriptions"));
-
+  // Derive dashboard context
   const activeSub = subscriptionsSnap.docs.find((d) =>
     ["active", "trialing"].includes(d.data().status)
   );
@@ -78,7 +78,7 @@ export async function getDashboardContext(user) {
     : typeof tsVal === "number" ? new Date(tsVal * 1000)
     : null;
 
-  return {
+  const dashboardContext = {
     userDoc: userDocSnap.exists() ? userDocSnap.data() : {},
     customerDoc: customerDocSnap.exists() ? customerDocSnap.data() : {},
     paymentsCount: paymentsSnap.size,
@@ -86,4 +86,6 @@ export async function getDashboardContext(user) {
     currentPriceId,
     renewalDate,
   };
+
+  return { hasCloudPlus, dashboardContext };
 }

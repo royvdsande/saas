@@ -89,7 +89,7 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
       cancelUrl = `${window.location.origin}/app/?checkout=cancel`;
     } else if (isOnboarding) {
       // Anonymous user from onboarding — send to signup to create/link account
-      successUrl = `${window.location.origin}/auth/signup.html?checkout=success&link_anonymous=true`;
+      successUrl = `${window.location.origin}/auth/signup?checkout=success&link_anonymous=true`;
       cancelUrl = `${window.location.origin}/onboarding/?checkout=cancel`;
     } else if (window.location.pathname.startsWith("/app")) {
       successUrl = `${window.location.origin}/app/?checkout=success`;
@@ -115,15 +115,17 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
     const sessionsRef = collection(state.firestore, "customers", state.auth.currentUser.uid, "checkout_sessions");
     const docRef = await addDoc(sessionsRef, sessionData);
 
-    onSnapshot(docRef, (snapshot) => {
+    const unsubscribe = onSnapshot(docRef, (snapshot) => {
       const data = snapshot.data();
       if (data?.url) {
+        unsubscribe();
         window.addEventListener("pageshow", (e) => {
           if (e.persisted) checkoutButtons.forEach((button) => setLoadingState(button, false));
         }, { once: true });
         window.location.href = data.url;
       }
       if (data?.error) {
+        unsubscribe();
         setStatus(statusTarget, data.error.message || "Checkout could not start.", "error");
         checkoutButtons.forEach((button) => setLoadingState(button, false));
       }

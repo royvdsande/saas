@@ -82,7 +82,7 @@ export function renderRoute() {
 
   import("./dashboard.js").then(({ showDashboardView }) => {
     if (!state.currentUser) {
-      window.location.replace("/auth/login.html");
+      window.location.replace("/auth/login");
       return;
     }
 
