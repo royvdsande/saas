@@ -190,7 +190,7 @@
 
 /* ===== SETTINGS VIEWS ===== */
 .settings-view { display: none; }
-.settings-view.active { display: flex; flex-direction: column; gap: 16px; }
+.settings-view.active { display: flex; flex-direction: column; gap: 16px; max-width: 680px; }
 
 /* ===== SETTINGS CARDS ===== */
 .sc-card {
