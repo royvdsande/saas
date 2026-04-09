@@ -30,6 +30,7 @@
   .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,.1); }
   .sidebar.open { transform: translateX(0); }
   .topbar-menu-btn { display: flex; align-items: center; justify-content: center; }
+  .topbar-collapse-btn, .topbar-divider { display: none; }
   .main-content { padding: 18px 14px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .stat-value { font-size: 22px; }

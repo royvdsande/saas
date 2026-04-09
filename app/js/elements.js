@@ -33,6 +33,7 @@ export const els = {
   mobileOpenAccount: document.getElementById("mobile-open-account"),
   pricingAccountButtons: document.querySelectorAll(".pricing-account-btn"),
   dashboardOpenSidebar: document.getElementById("dashboard-open-sidebar"),
+  dashboardCollapseSidebar: document.getElementById("dashboard-collapse-sidebar"),
   sidebarDash: document.getElementById("sidebar-dash"),
   overlayDash: document.getElementById("overlay-dash"),
   dashboardUserTrigger: document.getElementById("dashboard-user-trigger"),
