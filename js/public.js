@@ -68,6 +68,7 @@ function bindScrollActiveNav() {
     setActive(active.href);
   }
 
+  if (!sectionMap.length) return;
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 }
