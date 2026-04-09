@@ -166,17 +166,32 @@ export function renderBillingView() {
     (p) => p.monthlyPriceId === currentPriceId || p.yearlyPriceId === currentPriceId
   );
 
+  const subStatus         = state.dashboardContext?.subStatus ?? null;
+  const cancelAtPeriodEnd = state.dashboardContext?.cancelAtPeriodEnd ?? false;
+  const cancelAt          = state.dashboardContext?.cancelAt ?? null;
+  const trialEnd          = state.dashboardContext?.trialEnd ?? null;
+  const fmt = (d) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
   // Update header plan info
   if (els.billingPlanName) els.billingPlanName.textContent = currentPlan ? currentPlan.name : "Free";
   if (els.billingPlanSub) {
-    if (currentPlan && renewalDate) {
-      const formattedDate = renewalDate.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
-      els.billingPlanSub.textContent = `Your subscription will auto renew on ${formattedDate}`;
+    let subText;
+    if (currentPlan && subStatus === "trialing" && cancelAtPeriodEnd && trialEnd) {
+      subText = `Your trial ends on ${fmt(trialEnd)} and will not renew.`;
+    } else if (currentPlan && subStatus === "trialing" && trialEnd) {
+      subText = `Your trial ends on ${fmt(trialEnd)}. Your subscription will start automatically after the trial.`;
+    } else if (currentPlan && cancelAt) {
+      subText = `Your subscription will be cancelled on ${fmt(cancelAt)}.`;
+    } else if (currentPlan && cancelAtPeriodEnd && renewalDate) {
+      subText = `Your subscription ends on ${fmt(renewalDate)} and will not renew.`;
+    } else if (currentPlan && renewalDate) {
+      subText = `Your subscription will auto renew on ${fmt(renewalDate)}.`;
     } else if (currentPlan) {
-      els.billingPlanSub.textContent = `Your ${currentPlan.name} plan is active.`;
+      subText = `Your ${currentPlan.name} plan is active.`;
     } else {
-      els.billingPlanSub.textContent = "No active subscription.";
+      subText = "No active subscription.";
     }
+    els.billingPlanSub.textContent = subText;
   }
   if (els.billingPlanBadge) {
     els.billingPlanBadge.textContent = currentPlan ? currentPlan.name : "Free";

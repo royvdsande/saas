@@ -71,8 +71,12 @@ export async function getDashboardContext(user) {
     activeSub?.data()?.price?.id ||
     activeSub?.data()?.items?.[0]?.price?.id ||
     null;
-  const renewalTimestamp = activeSub?.data()?.current_period_end;
-  const renewalDate = renewalTimestamp?.toDate?.() ?? null;
+  const subData = activeSub?.data() ?? null;
+  const renewalDate = subData?.current_period_end?.toDate?.() ?? null;
+  const subStatus = subData?.status ?? null;
+  const cancelAtPeriodEnd = subData?.cancel_at_period_end ?? false;
+  const cancelAt = subData?.cancel_at?.toDate?.() ?? null;
+  const trialEnd = subData?.trial_end?.toDate?.() ?? null;
 
   return {
     userDoc: userDocSnap.exists() ? userDocSnap.data() : {},
@@ -81,5 +85,9 @@ export async function getDashboardContext(user) {
     subscriptionsCount: subscriptionsSnap.size,
     currentPriceId,
     renewalDate,
+    subStatus,
+    cancelAtPeriodEnd,
+    cancelAt,
+    trialEnd,
   };
 }
