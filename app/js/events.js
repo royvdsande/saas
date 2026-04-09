@@ -269,6 +269,7 @@ export function bindEvents() {
   const appShell = document.querySelector(".app-shell");
   const MIN_W = 180, MAX_W = 480;
 
+  const DEFAULT_W = 240;
   resizeHandle?.addEventListener("mousedown", (e) => {
     e.preventDefault();
     // When collapsed: just expand to saved width and stop — no drag follow
@@ -277,20 +278,29 @@ export function bindEvents() {
       localStorage.setItem("sidebar-collapsed", "0");
       return;
     }
-    // Normal resize: disable CSS transition so cursor is followed instantly
+    const startX = e.clientX;
+    let didDrag = false;
     sidebarEl.classList.add("sidebar--no-transition");
     resizeHandle.classList.add("is-resizing");
     appShell?.classList.add("is-resizing");
     const onMove = (e) => {
+      if (Math.abs(e.clientX - startX) > 4) didDrag = true;
       const w = Math.max(MIN_W, Math.min(MAX_W, e.clientX));
       sidebarEl.style.width = w + "px";
     };
     const onUp = () => {
-      sidebarEl.classList.remove("sidebar--no-transition");
       resizeHandle.classList.remove("is-resizing");
       appShell?.classList.remove("is-resizing");
-      const w = parseInt(sidebarEl.style.width);
-      if (w) localStorage.setItem("sidebar-width", w);
+      if (!didDrag) {
+        // Single click: snap back to default width with animation
+        sidebarEl.classList.remove("sidebar--no-transition");
+        sidebarEl.style.width = DEFAULT_W + "px";
+        localStorage.setItem("sidebar-width", DEFAULT_W);
+      } else {
+        sidebarEl.classList.remove("sidebar--no-transition");
+        const w = parseInt(sidebarEl.style.width);
+        if (w) localStorage.setItem("sidebar-width", w);
+      }
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseup", onUp);
     };
