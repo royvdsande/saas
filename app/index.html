@@ -318,10 +318,14 @@
     <div class="modal-card confirm-modal-card" role="dialog" aria-modal="true">
       <div class="modal-body" style="padding:32px">
         <h3 style="font-size:18px;font-weight:700;margin-bottom:12px">Delete account</h3>
-        <p style="font-size:14px;color:var(--gray-500);margin-bottom:28px">Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+        <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px">Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+        <div class="field" style="margin-bottom:24px">
+          <label style="font-size:13px">Type <strong>delete</strong> to confirm</label>
+          <input class="sc-input" id="delete-confirm-input" type="text" autocomplete="off" placeholder="delete">
+        </div>
         <div style="display:flex;justify-content:flex-end;gap:10px">
           <button class="btn btn-outline" id="delete-confirm-cancel">Cancel</button>
-          <button class="btn btn-primary" id="delete-confirm-ok" style="background:#dc2626;border-color:#dc2626">Delete</button>
+          <button class="btn btn-primary" id="delete-confirm-ok" style="background:#dc2626;border-color:#dc2626" disabled>Delete</button>
         </div>
       </div>
     </div>

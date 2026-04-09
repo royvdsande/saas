@@ -89,6 +89,7 @@ export const els = {
   settingsDeleteStatus: document.getElementById("settings-delete-status"),
   deleteConfirmModal: document.getElementById("delete-confirm-modal"),
   deleteConfirmBackdrop: document.getElementById("delete-confirm-backdrop"),
+  deleteConfirmInput: document.getElementById("delete-confirm-input"),
   deleteConfirmCancelBtn: document.getElementById("delete-confirm-cancel"),
   deleteConfirmOkBtn: document.getElementById("delete-confirm-ok"),
   settingsSetPasswordInput: document.getElementById("settings-set-password"),

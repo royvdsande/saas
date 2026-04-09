@@ -74,11 +74,20 @@ let _deleteStatusEl = null;
 export function deleteAccount(statusEl) {
   if (!state.currentUser) return;
   _deleteStatusEl = statusEl;
+  const input = document.getElementById("delete-confirm-input");
+  const okBtn = document.getElementById("delete-confirm-ok");
+  if (input) input.value = "";
+  if (okBtn) okBtn.disabled = true;
   document.getElementById("delete-confirm-modal")?.classList.remove("hidden");
+  input?.focus();
 }
 
 export function closeDeleteConfirmModal() {
   document.getElementById("delete-confirm-modal")?.classList.add("hidden");
+  const input = document.getElementById("delete-confirm-input");
+  const okBtn = document.getElementById("delete-confirm-ok");
+  if (input) input.value = "";
+  if (okBtn) okBtn.disabled = true;
 }
 
 export async function performDeleteAccount() {

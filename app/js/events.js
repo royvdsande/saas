@@ -180,6 +180,11 @@ export function bindEvents() {
   els.deleteConfirmCancelBtn?.addEventListener("click", closeDeleteConfirmModal);
   els.deleteConfirmBackdrop?.addEventListener("click", closeDeleteConfirmModal);
   els.deleteConfirmOkBtn?.addEventListener("click", performDeleteAccount);
+  els.deleteConfirmInput?.addEventListener("input", () => {
+    if (els.deleteConfirmOkBtn) {
+      els.deleteConfirmOkBtn.disabled = els.deleteConfirmInput.value.toLowerCase() !== "delete";
+    }
+  });
 
   // Security: set password directly in UI
   els.settingsSetPasswordBtn?.addEventListener("click", () =>
