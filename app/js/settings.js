@@ -7,6 +7,7 @@ import {
   unlink,
   updatePassword,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
   EmailAuthProvider,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { state } from "./state.js";
@@ -14,6 +15,38 @@ import { els } from "./elements.js";
 import { setStatus, setLoadingState, getFirebaseErrorMessage } from "./utils.js";
 import { navigate } from "./router.js";
 import { updateAccountSurfaces } from "./dashboard.js";
+
+let _reauthCallback = null;
+
+export function openReauthModal(callback) {
+  _reauthCallback = callback;
+  document.getElementById("reauth-modal")?.classList.remove("hidden");
+}
+
+export function closeReauthModal() {
+  document.getElementById("reauth-modal")?.classList.add("hidden");
+  const statusEl = document.getElementById("reauth-status");
+  if (statusEl) { statusEl.hidden = true; statusEl.textContent = ""; }
+  _reauthCallback = null;
+}
+
+export async function performReauthWithGoogle(statusEl, button) {
+  if (!state.currentUser) return;
+  const cb = _reauthCallback;
+  setLoadingState(button, true);
+  setStatus(statusEl, "", "info");
+  try {
+    const provider = new GoogleAuthProvider();
+    await reauthenticateWithPopup(state.currentUser, provider);
+    closeReauthModal();
+    if (cb) await cb();
+  } catch (error) {
+    const msg = getFirebaseErrorMessage(error.code);
+    if (msg) setStatus(statusEl, msg, "error");
+  } finally {
+    setLoadingState(button, false);
+  }
+}
 
 export async function updateUserName(name, statusEl, button) {
   if (!name) { setStatus(statusEl, "Please enter your name.", "error"); return; }
@@ -60,10 +93,11 @@ export async function setInitialPassword(password, statusEl, button) {
     if (input) input.value = "";
     import("./dashboard.js").then(({ updateSecurityTab }) => updateSecurityTab());
   } catch (error) {
-    const msg = error.code === "auth/requires-recent-login"
-      ? "Please sign out and sign in again to set a password."
-      : getFirebaseErrorMessage(error.code);
-    setStatus(statusEl, msg, "error");
+    if (error.code === "auth/requires-recent-login") {
+      openReauthModal(() => setInitialPassword(password, statusEl, button));
+    } else {
+      setStatus(statusEl, getFirebaseErrorMessage(error.code), "error");
+    }
   } finally {
     setLoadingState(button, false);
   }
@@ -99,12 +133,13 @@ export async function performDeleteAccount() {
     window.location.replace("/");
   } catch (error) {
     closeDeleteConfirmModal();
-    const msg =
-      error.code === "auth/requires-recent-login"
-        ? "Please sign in again to delete your account."
-        : getFirebaseErrorMessage(error.code);
-    if (_deleteStatusEl) setStatus(_deleteStatusEl, msg, "error");
-    if (btn) setLoadingState(btn, false);
+    if (error.code === "auth/requires-recent-login") {
+      openReauthModal(() => performDeleteAccount());
+    } else {
+      const msg = getFirebaseErrorMessage(error.code);
+      if (_deleteStatusEl) setStatus(_deleteStatusEl, msg, "error");
+      if (btn) setLoadingState(btn, false);
+    }
   }
 }
 

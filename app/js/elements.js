@@ -100,4 +100,9 @@ export const els = {
   settingsNewPassword: document.getElementById("settings-new-password"),
   settingsUpdatePasswordBtn: document.getElementById("settings-update-password-btn"),
   settingsPasswordUpdateStatus: document.getElementById("settings-password-update-status"),
+  reauthModal: document.getElementById("reauth-modal"),
+  reauthModalBackdrop: document.getElementById("reauth-modal-backdrop"),
+  reauthGoogleBtn: document.getElementById("reauth-google-btn"),
+  reauthCancelBtn: document.getElementById("reauth-cancel-btn"),
+  reauthStatus: document.getElementById("reauth-status"),
 };
