@@ -52,6 +52,7 @@ function bindScrollActiveNav() {
     { el: document.getElementById("how-it-works"), href: "#how-it-works" },
     { el: document.getElementById("features"),     href: "#features" },
   ].filter((s) => s.el);
+  if (!sectionMap.length) return;
 
   function setActive(href) {
     document.querySelectorAll(".nav-links .nav-link, .mobile-menu .mobile-menu-link").forEach((el) => {
