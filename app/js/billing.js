@@ -115,15 +115,17 @@ export async function startCheckout(statusTarget = els.pricingStatus, planId = n
     const sessionsRef = collection(state.firestore, "customers", state.auth.currentUser.uid, "checkout_sessions");
     const docRef = await addDoc(sessionsRef, sessionData);
 
-    onSnapshot(docRef, (snapshot) => {
+    const unsubscribe = onSnapshot(docRef, (snapshot) => {
       const data = snapshot.data();
       if (data?.url) {
+        unsubscribe();
         window.addEventListener("pageshow", (e) => {
           if (e.persisted) checkoutButtons.forEach((button) => setLoadingState(button, false));
         }, { once: true });
         window.location.href = data.url;
       }
       if (data?.error) {
+        unsubscribe();
         setStatus(statusTarget, data.error.message || "Checkout could not start.", "error");
         checkoutButtons.forEach((button) => setLoadingState(button, false));
       }

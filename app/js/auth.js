@@ -16,7 +16,7 @@ import { state, plusLocalKey, storedEmailKey, initFirebase } from "./state.js";
 import { els } from "./elements.js";
 import { setStatus, setLoadingState, getFirebaseErrorMessage } from "./utils.js";
 import { navigate } from "./router.js";
-import { hasLocalPlusStatus, savePlusStatusToCloud, checkCloudPlusStatus, getDashboardContext } from "./premium.js";
+import { hasLocalPlusStatus, savePlusStatusToCloud, loadAccountData } from "./premium.js";
 import { updateAccountSurfaces } from "./dashboard.js";
 
 export async function sendMagicLink(email, statusEl, submitButton, mode = "signin") {
@@ -250,14 +250,14 @@ export async function refreshAccountState(user, options = {}) {
     return;
   }
 
-  const hasCloudPlus = await checkCloudPlusStatus(state.currentUser);
+  const { hasCloudPlus, dashboardContext } = await loadAccountData(state.currentUser);
   if (!hasCloudPlus && hasLocalPlusStatus()) {
     await savePlusStatusToCloud(state.currentUser);
   }
 
   state.isPremiumUser = hasCloudPlus || hasLocalPlusStatus();
   state.currentPlanLabel = state.isPremiumUser ? "Premium" : "Free";
-  state.dashboardContext = await getDashboardContext(state.currentUser);
+  state.dashboardContext = dashboardContext;
   state.authReady = true;
   updateAccountSurfaces();
 

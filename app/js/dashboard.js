@@ -8,7 +8,6 @@ import {
   getAvatarMarkup,
 } from "./utils.js";
 import { renderBillingView } from "./billing.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 export function updatePricingCards() {
   const plans = BINAS_CONFIG?.plans || [];
@@ -317,8 +316,7 @@ async function loadPlanView() {
   container.innerHTML = `<div style="padding:4px 0"><div class="skeleton" style="height:22px;width:160px;margin-bottom:16px;"></div><div class="skeleton" style="height:96px;border-radius:var(--radius-lg);margin-bottom:12px;"></div><div class="skeleton" style="height:64px;border-radius:var(--radius-lg);margin-bottom:12px;"></div><div class="skeleton" style="height:64px;border-radius:var(--radius-lg);"></div></div>`;
 
   try {
-    const userDoc = await getDoc(doc(state.firestore, "users", state.currentUser.uid));
-    const data = userDoc.exists() ? userDoc.data() : null;
+    const data = state.dashboardContext?.userDoc || null;
     const plan = data?.plan;
     const profile = data?.planProfile;
 
