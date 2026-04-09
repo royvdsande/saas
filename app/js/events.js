@@ -23,6 +23,7 @@ import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./das
 import {
   updateUserName,
   sendPasswordReset,
+  setInitialPassword,
   deleteAccount,
   closeDeleteConfirmModal,
   performDeleteAccount,
@@ -179,11 +180,21 @@ export function bindEvents() {
   els.deleteConfirmCancelBtn?.addEventListener("click", closeDeleteConfirmModal);
   els.deleteConfirmBackdrop?.addEventListener("click", closeDeleteConfirmModal);
   els.deleteConfirmOkBtn?.addEventListener("click", performDeleteAccount);
+  els.deleteConfirmInput?.addEventListener("input", () => {
+    if (els.deleteConfirmOkBtn) {
+      els.deleteConfirmOkBtn.disabled = els.deleteConfirmInput.value.toLowerCase() !== "delete";
+    }
+  });
 
-  // Security: set password (via reset email)
-  els.settingsResetPasswordBtn?.addEventListener("click", () =>
-    sendPasswordReset(els.settingsSecurityStatus, els.settingsResetPasswordBtn)
+  // Security: set password directly in UI
+  els.settingsSetPasswordBtn?.addEventListener("click", () =>
+    setInitialPassword(els.settingsSetPasswordInput?.value || "", els.settingsSecurityStatus, els.settingsSetPasswordBtn)
   );
+
+  // Password strength icon — set password (no existing password)
+  els.settingsSetPasswordInput?.addEventListener("input", () => {
+    updatePasswordHint(els.settingsSetPasswordInput, document.getElementById("settings-set-password-hint"));
+  });
 
   // Security: update password
   els.settingsUpdatePasswordBtn?.addEventListener("click", () =>
@@ -205,12 +216,17 @@ export function bindEvents() {
     updatePasswordHint(els.signupPassword, document.getElementById("signup-password-hint"));
   });
 
+  const eyeIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const eyeOffIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
   // Password visibility toggles
   document.querySelectorAll(".toggle-password").forEach((btn) => {
     btn.addEventListener("click", () => {
       const input = btn.closest(".field-wrap")?.querySelector("input[type='password'], input[type='text']");
       if (!input) return;
-      input.type = input.type === "password" ? "text" : "password";
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.innerHTML = show ? eyeOffIcon : eyeIcon;
     });
   });
 

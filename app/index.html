@@ -261,8 +261,16 @@
                 <h3>Your password</h3>
               </div>
               <div class="sc-card-body">
-                <p style="font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:16px">You have not set a password yet. To set one, click the button below to receive a password reset email and follow the instructions.</p>
-                <button class="btn btn-primary" id="settings-reset-password-btn">Set password</button>
+                <p style="font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:16px">You have not set a password yet. Choose a password to enable email login.</p>
+                <div class="field" style="margin-bottom:8px">
+                  <label>New password</label>
+                  <div class="field-wrap sc-field-wrap">
+                    <input class="sc-input sc-input--password" id="settings-set-password" type="password" autocomplete="new-password" placeholder="">
+                    <button type="button" class="toggle-password sc-toggle-password" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                  </div>
+                </div>
+                <p class="password-hint" id="settings-set-password-hint" style="margin-bottom:16px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>6 or more characters</p>
+                <button class="btn btn-primary" id="settings-set-password-btn">Set password</button>
                 <div id="settings-security-status" class="auth-status" hidden></div>
               </div>
             </div>
@@ -310,10 +318,14 @@
     <div class="modal-card confirm-modal-card" role="dialog" aria-modal="true">
       <div class="modal-body" style="padding:32px">
         <h3 style="font-size:18px;font-weight:700;margin-bottom:12px">Delete account</h3>
-        <p style="font-size:14px;color:var(--gray-500);margin-bottom:28px">Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+        <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px">Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+        <div class="field" style="margin-bottom:24px">
+          <label style="font-size:13px">Type <strong>delete</strong> to confirm</label>
+          <input class="sc-input" id="delete-confirm-input" type="text" autocomplete="off" placeholder="delete">
+        </div>
         <div style="display:flex;justify-content:flex-end;gap:10px">
           <button class="btn btn-outline" id="delete-confirm-cancel">Cancel</button>
-          <button class="btn btn-primary" id="delete-confirm-ok" style="background:#dc2626;border-color:#dc2626">Delete</button>
+          <button class="btn btn-primary" id="delete-confirm-ok" style="background:#dc2626;border-color:#dc2626" disabled>Delete</button>
         </div>
       </div>
     </div>
