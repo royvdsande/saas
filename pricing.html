@@ -28,8 +28,12 @@
         <a class="nav-link button-reset nav-link-active" href="/pricing">Pricing</a>
       </div>
       <div class="nav-actions">
-        <a class="nav-link button-reset nav-auth-logged-out" href="/auth/login.html">Sign in</a>
-        <a class="btn btn-primary nav-auth-logged-out" href="/auth/signup.html">Get started</a>
+        <div class="nav-auth-skeleton">
+          <div class="skeleton-pill skeleton-pill--link"></div>
+          <div class="skeleton-pill"></div>
+        </div>
+        <a class="nav-link button-reset nav-auth-logged-out hidden" href="/auth/login.html">Sign in</a>
+        <a class="btn btn-primary nav-auth-logged-out hidden" href="/auth/signup.html">Get started</a>
         <a class="btn btn-primary nav-auth-logged-in hidden" href="/app/">Dashboard</a>
       </div>
       <button class="nav-burger" id="burger-pricing" data-menu-target="menu-pricing" aria-label="Menu">

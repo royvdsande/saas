@@ -7,6 +7,9 @@ function closeMobileMenus() {
 }
 
 function updateAuthNavigation() {
+  document.querySelectorAll(".nav-auth-skeleton").forEach((node) => {
+    node.classList.add("hidden");
+  });
   document.querySelectorAll(".nav-auth-logged-out").forEach((node) => {
     node.classList.toggle("hidden", Boolean(state.currentUser));
   });

@@ -2,6 +2,20 @@
 .page { display: none; }
 .page.active { display: block; }
 
+/* ===== NAV AUTH SKELETON ===== */
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.nav-auth-skeleton { display: flex; align-items: center; gap: 8px; }
+.skeleton-pill {
+  height: 34px; width: 100px; border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+}
+.skeleton-pill--link { width: 58px; background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.2s ease-in-out infinite; }
+
 /* ===== BUTTONS ===== */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
