@@ -29,6 +29,8 @@ import {
   closeDeleteConfirmModal,
   performDeleteAccount,
   updateUserPassword,
+  closeReauthModal,
+  performReauthWithGoogle,
 } from "./settings.js";
 
 function updatePasswordHint(input, hintEl) {
@@ -256,6 +258,12 @@ export function bindEvents() {
 
   els.accountModalBackdrop?.addEventListener("click", closeAccountModal);
   els.accountModalClose?.addEventListener("click", closeAccountModal);
+
+  els.reauthGoogleBtn?.addEventListener("click", () =>
+    performReauthWithGoogle(els.reauthStatus, els.reauthGoogleBtn)
+  );
+  els.reauthCancelBtn?.addEventListener("click", closeReauthModal);
+  els.reauthModalBackdrop?.addEventListener("click", closeReauthModal);
 
   els.dashboardOpenSidebar?.addEventListener("click", openSidebar);
   els.overlayDash?.addEventListener("click", closeSidebar);
