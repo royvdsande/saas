@@ -11,6 +11,7 @@ import {
   closeAccountModal,
   toggleAccountMenu,
   setSigninMode,
+  toggleSidebarCollapse,
 } from "./ui.js";
 import {
   sendMagicLink,
@@ -258,6 +259,37 @@ export function bindEvents() {
 
   els.dashboardOpenSidebar?.addEventListener("click", openSidebar);
   els.overlayDash?.addEventListener("click", closeSidebar);
+
+  // Sidebar collapse toggle (desktop)
+  document.getElementById("dashboard-collapse-sidebar")?.addEventListener("click", toggleSidebarCollapse);
+
+  // Sidebar resize drag
+  const resizeHandle = document.getElementById("sidebar-resize-handle");
+  const sidebarEl = document.getElementById("sidebar-dash");
+  const appShell = document.querySelector(".app-shell");
+  const MIN_W = 180, MAX_W = 480;
+
+  resizeHandle?.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    resizeHandle.classList.add("is-resizing");
+    appShell?.classList.add("is-resizing");
+    const onMove = (e) => {
+      if (appShell?.classList.contains("sidebar-collapsed")) return;
+      const w = Math.max(MIN_W, Math.min(MAX_W, e.clientX));
+      sidebarEl.style.width = w + "px";
+    };
+    const onUp = () => {
+      resizeHandle.classList.remove("is-resizing");
+      appShell?.classList.remove("is-resizing");
+      const w = parseInt(sidebarEl.style.width);
+      if (w) localStorage.setItem("sidebar-width", w);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+
   els.dashboardUserTrigger?.addEventListener("click", toggleAccountMenu);
   els.dashboardSignout?.addEventListener("click", async () => {
     if (!state.auth || !state.auth.currentUser) return;

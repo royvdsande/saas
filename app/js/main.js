@@ -6,6 +6,7 @@ import { navigate, renderRoute, preInitRoute } from "./router.js";
 import { refreshAccountState, completeMagicLinkSignIn } from "./auth.js";
 import { updatePricingCopy, updateAccountSurfaces } from "./dashboard.js";
 import { bindEvents } from "./events.js";
+import { initSidebarState } from "./ui.js";
 
 let _routeInitialized = false;
 
@@ -63,6 +64,7 @@ async function initAuth() {
 
 function init() {
   state.currentPageId = "page-dashboard";
+  initSidebarState();
   updatePricingCopy();
   bindEvents();
   updateAccountSurfaces();
