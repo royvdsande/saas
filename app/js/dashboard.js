@@ -8,39 +8,7 @@ import {
   getAvatarMarkup,
 } from "./utils.js";
 import { renderBillingView } from "./billing.js";
-import { getDashboardContext } from "./premium.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-async function fetchSubscriptionStatus(user) {
-  const token = await user.getIdToken();
-  const res = await fetch("/api/subscription-status", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) return null;
-  return res.json();
-}
-
-function mergeSubscriptionStatus(ctx, stripeData) {
-  if (!stripeData) return ctx;
-  const toDate = (val) =>
-    typeof val === "number" ? new Date(val * 1000) : null;
-  return {
-    ...ctx,
-    subStatus: stripeData.status ?? ctx.subStatus,
-    cancelAtPeriodEnd: stripeData.cancelAtPeriodEnd ?? ctx.cancelAtPeriodEnd,
-    cancelAt: toDate(stripeData.cancelAt) ?? ctx.cancelAt,
-    renewalDate: toDate(stripeData.currentPeriodEnd) ?? ctx.renewalDate,
-    trialEnd: toDate(stripeData.trialEnd) ?? ctx.trialEnd,
-  };
-}
-
-async function fetchBillingData(user) {
-  const [ctx, stripeData] = await Promise.all([
-    getDashboardContext(user),
-    fetchSubscriptionStatus(user).catch(() => null),
-  ]);
-  state.dashboardContext = mergeSubscriptionStatus(ctx, stripeData);
-}
 
 export function updatePricingCards() {
   const plans = BINAS_CONFIG?.plans || [];
@@ -308,14 +276,7 @@ export function showDashboardView(viewName, settingsTab = null) {
   document.title = `FitFlow | ${label}`;
 
   if (viewName === "plan") loadPlanView();
-  if (viewName === "billing") {
-    renderBillingView();
-    if (state.currentUser) {
-      fetchBillingData(state.currentUser)
-        .then(() => renderBillingView())
-        .catch(() => {});
-    }
-  }
+  if (viewName === "billing") renderBillingView();
   if (viewName === "settings") {
     updateSettingsPage();
     _showSettingsTabDirect(settingsTab || "profile");

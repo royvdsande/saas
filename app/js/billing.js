@@ -160,44 +160,42 @@ export async function openBillingPortal(statusEl, flow = null, triggerButton = n
 
 export function renderBillingView() {
   const currentPriceId = state.dashboardContext?.currentPriceId || null;
-  const renewalDate = state.dashboardContext?.renewalDate || null;
   const plans = BINAS_CONFIG?.plans || [];
   const currentPlan = plans.find(
     (p) => p.monthlyPriceId === currentPriceId || p.yearlyPriceId === currentPriceId
   );
 
-  const subStatus         = state.dashboardContext?.subStatus ?? null;
-  const cancelAtPeriodEnd = state.dashboardContext?.cancelAtPeriodEnd ?? false;
-  const cancelAt          = state.dashboardContext?.cancelAt ?? null;
-  const trialEnd          = state.dashboardContext?.trialEnd ?? null;
-  const fmt = (d) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-
   // Update header plan info
   if (els.billingPlanName) els.billingPlanName.textContent = currentPlan ? currentPlan.name : "Free";
   if (els.billingPlanSub) {
-    let subText;
-    if (currentPlan && subStatus === "trialing" && cancelAtPeriodEnd && trialEnd) {
-      subText = `Your trial ends on ${fmt(trialEnd)} and will not renew.`;
-    } else if (currentPlan && subStatus === "trialing" && trialEnd) {
-      subText = `Your trial ends on ${fmt(trialEnd)}. Your subscription will start automatically after the trial.`;
-    } else if (currentPlan && cancelAt) {
-      subText = `Your subscription will be cancelled on ${fmt(cancelAt)}.`;
-    } else if (currentPlan && cancelAtPeriodEnd) {
-      subText = renewalDate
-        ? `Your subscription ends on ${fmt(renewalDate)} and will not renew.`
-        : "Your subscription will not renew after the current period.";
-    } else if (currentPlan && renewalDate) {
-      subText = `Your subscription will auto renew on ${fmt(renewalDate)}.`;
-    } else if (currentPlan) {
-      subText = `Your ${currentPlan.name} plan is active.`;
-    } else {
-      subText = "No active subscription.";
-    }
-    els.billingPlanSub.textContent = subText;
+    els.billingPlanSub.textContent = currentPlan
+      ? `Your ${currentPlan.name} plan is active.`
+      : "No active subscription.";
   }
   if (els.billingPlanBadge) {
     els.billingPlanBadge.textContent = currentPlan ? currentPlan.name : "Free";
     els.billingPlanBadge.className = currentPlan ? "badge badge-blue" : "badge badge-gray";
+  }
+
+  // Fetch live subscription status from Stripe and update the subtitle
+  if (currentPlan && state.currentUser && els.billingPlanSub) {
+    const fmtDate = (ts) => new Date(ts * 1000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    state.currentUser.getIdToken()
+      .then((token) => fetch("/api/subscription-status", { headers: { Authorization: `Bearer ${token}` } }))
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (!data || !data.status) return;
+        if (data.status === "trialing" && data.trialEnd) {
+          els.billingPlanSub.textContent = data.cancelAtPeriodEnd
+            ? `Your trial ends on ${fmtDate(data.trialEnd)} and will not renew.`
+            : `Your trial ends on ${fmtDate(data.trialEnd)}. Your subscription starts after.`;
+        } else if (data.cancelAtPeriodEnd && data.currentPeriodEnd) {
+          els.billingPlanSub.textContent = `Your subscription ends on ${fmtDate(data.currentPeriodEnd)} and will not renew.`;
+        } else if (data.currentPeriodEnd) {
+          els.billingPlanSub.textContent = `Your subscription will auto renew on ${fmtDate(data.currentPeriodEnd)}.`;
+        }
+      })
+      .catch(() => {});
   }
 
   // Update each plan card CTA

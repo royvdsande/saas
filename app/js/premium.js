@@ -71,30 +71,11 @@ export async function getDashboardContext(user) {
     activeSub?.data()?.price?.id ||
     activeSub?.data()?.items?.[0]?.price?.id ||
     null;
-  const subData = activeSub?.data() ?? null;
-  const toDate = (val) => {
-    if (!val) return null;
-    if (typeof val.toDate === "function") return val.toDate(); // Firestore Timestamp
-    if (val instanceof Date) return val;
-    if (typeof val === "number") return new Date(val * 1000); // Unix seconds
-    return null;
-  };
-  const renewalDate = toDate(subData?.current_period_end);
-  const subStatus = subData?.status ?? null;
-  const cancelAtPeriodEnd = subData?.cancel_at_period_end ?? false;
-  const cancelAt = toDate(subData?.cancel_at);
-  const trialEnd = toDate(subData?.trial_end);
-
   return {
     userDoc: userDocSnap.exists() ? userDocSnap.data() : {},
     customerDoc: customerDocSnap.exists() ? customerDocSnap.data() : {},
     paymentsCount: paymentsSnap.size,
     subscriptionsCount: subscriptionsSnap.size,
     currentPriceId,
-    renewalDate,
-    subStatus,
-    cancelAtPeriodEnd,
-    cancelAt,
-    trialEnd,
   };
 }
