@@ -11,10 +11,11 @@
   /* Expanding: fade in AFTER width finishes (delay ≈ width transition duration) */
   transition: opacity 0.16s ease 0.20s; }
 .sidebar-link { width: 100%; text-align: left; display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm); font-size: 14px; color: var(--gray-600); cursor: pointer; transition: all .12s; margin-bottom: 1px; -webkit-tap-highlight-color: transparent; }
-.sidebar-link-text { white-space: nowrap; overflow: hidden;
+.sidebar-link > svg { flex-shrink: 0; }
+.sidebar-link-text { flex: 1; min-width: 0; white-space: nowrap;
   /* Expanding: fade in AFTER width finishes */
   transition: opacity 0.16s ease 0.20s; }
-.sidebar-workspace-name { white-space: nowrap; overflow: hidden;
+.sidebar-workspace-name { white-space: nowrap;
   transition: opacity 0.16s ease 0.20s; }
 .user-info { flex: 1; min-width: 0;
   transition: opacity 0.16s ease 0.20s; }
