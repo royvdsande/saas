@@ -100,7 +100,8 @@ onAuthStateChanged(state.auth, (user) => {
   // unless they explicitly navigated here via the "Homepage" button.
   if (isLandingPage && state.currentUser) {
     if (sessionStorage.getItem("bypass_homepage_redirect")) {
-      sessionStorage.removeItem("bypass_homepage_redirect");
+      // Keep the flag alive so refreshing the page also skips the redirect.
+      // It will be cleared when the user navigates back to the dashboard.
     } else {
       window.location.replace("/app/");
       return;
