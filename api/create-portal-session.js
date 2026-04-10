@@ -76,7 +76,7 @@ module.exports = async (req, res) => {
     }
 
     const origin = req.headers.origin || `https://${req.headers.host}`;
-    const returnUrl = `${origin}/app/settings?tab=billing`;
+    const returnUrl = `${origin}/app/billing`;
 
     const sessionParams = {
       customer: stripeCustomerId,
