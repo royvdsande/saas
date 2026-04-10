@@ -20,7 +20,7 @@ import {
   signInWithGoogle,
 } from "./auth.js";
 import { startCheckout, openBillingPortal } from "./billing.js";
-import { buyCredits, claimCredits } from "./credits.js";
+import { buyCredits } from "./credits.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
 import {
   updateUserName,
@@ -338,12 +338,6 @@ export function bindEvents() {
       els.creditsDropdown?.classList.add("hidden");
     }
   });
-
-  // Credits: claim after checkout success (session_id in URL)
-  const _urlParams = new URLSearchParams(window.location.search);
-  if (_urlParams.get("credits_claimed") === "1" && _urlParams.get("session_id")) {
-    claimCredits(_urlParams.get("session_id"), els.creditsStatus);
-  }
 
   els.dashboardUserTrigger?.addEventListener("click", toggleAccountMenu);
   els.dashboardSignout?.addEventListener("click", async () => {
