@@ -51,7 +51,7 @@ export function preInitRoute() {
   const tab  = new URLSearchParams(window.location.search).get("tab");
 
   const viewName =
-    path === "/app/billing"  ? "settings" :
+    path === "/app/billing"  ? "billing"  :
     path === "/app/settings" ? "settings" :
     path === "/app/plan"     ? "plan"     :
     path === "/app/ai"       ? "ai"       : "overview";
@@ -63,7 +63,7 @@ export function preInitRoute() {
   if (topbarLabel) topbarLabel.textContent = label;
   document.title = `FitFlow | ${label}`;
 
-  const settingsTab = path === "/app/billing" ? "billing" : (tab || "profile");
+  const settingsTab = tab || "profile";
   document.querySelectorAll("#sidebar-dash [data-dashboard-view]").forEach((btn) => {
     if (viewName === "settings" && btn.dataset.dashboardView === "settings") {
       btn.classList.toggle("active", btn.dataset.settingsTab === settingsTab);
@@ -102,7 +102,7 @@ export function renderRoute() {
       return;
     }
     if (path === "/app/billing") {
-      showDashboardView("settings", "billing");
+      showDashboardView("billing");
       return;
     }
     if (path === "/app/ai") {
