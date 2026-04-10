@@ -18,6 +18,40 @@ const BINAS_CONFIG = {
   // Fallback Stripe Price ID (Starter monthly)
   stripePriceId: "price_1TDM6gLzjWXxGtsSmBBGHvnY",
 
+  // Credit Packages (Stripe one-time payment price IDs — fill in when ready)
+  creditPackages: [
+    {
+      id: "credits_100",
+      name: "Starter",
+      desc: "Great for trying out AI features",
+      amount: 100,
+      bonus: 0,
+      price: "4,99",
+      popular: false,
+      priceId: "PLACEHOLDER_CREDITS_100",
+    },
+    {
+      id: "credits_500",
+      name: "Basic",
+      desc: "For regular AI usage",
+      amount: 500,
+      bonus: 50,
+      price: "19,99",
+      popular: true,
+      priceId: "PLACEHOLDER_CREDITS_500",
+    },
+    {
+      id: "credits_1000",
+      name: "Pro",
+      desc: "Best value for power users",
+      amount: 1000,
+      bonus: 150,
+      price: "34,99",
+      popular: false,
+      priceId: "PLACEHOLDER_CREDITS_1000",
+    },
+  ],
+
   // Subscription Plans
   plans: [
     {

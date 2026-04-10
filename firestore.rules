@@ -33,6 +33,11 @@ service cloud.firestore {
         allow create, read: if request.auth != null && request.auth.uid == uid;
         allow read, write: if isAdmin();
       }
+
+      match /credit_transactions/{txId} {
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow read, write: if isAdmin();
+      }
     }
 
     // Users (App Data)

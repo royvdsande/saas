@@ -21,6 +21,7 @@ import {
 } from "./auth.js";
 import { startCheckout, openBillingPortal } from "./billing.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
+// credits.js is loaded lazily to avoid breaking bindEvents() if module init fails
 import {
   updateUserName,
   sendPasswordReset,
@@ -167,6 +168,43 @@ export function bindEvents() {
   // Settings tabs
   document.querySelectorAll(".settings-tabs [data-settings-tab], #sidebar-settings [data-settings-tab]").forEach((btn) => {
     btn.addEventListener("click", () => showSettingsTab(btn.dataset.settingsTab));
+  });
+
+  // Credits: all interactions use event delegation + lazy import so a credits
+  // module error can never prevent bindEvents() from completing.
+  function getCredits() {
+    return import("./credits.js");
+  }
+
+  document.addEventListener("click", async (e) => {
+    // "Buy Credits" button → open modal
+    if (e.target.closest("#credits-buy-btn")) {
+      const { openBuyCreditsModal } = await getCredits();
+      openBuyCreditsModal();
+      return;
+    }
+    // Modal close button or backdrop → close modal
+    if (e.target.closest("#buy-credits-modal-close") || e.target.matches("#buy-credits-modal-backdrop")) {
+      const { closeBuyCreditsModal } = await getCredits();
+      closeBuyCreditsModal();
+      return;
+    }
+    // Package card "Buy Now" button → start checkout
+    const pkg = e.target.closest("[data-credits-package]");
+    if (pkg) {
+      const { startCreditsCheckout } = await getCredits();
+      startCreditsCheckout(pkg.dataset.creditsPackage, pkg.querySelector(".bcp-buy-btn") || pkg);
+    }
+  });
+
+  document.addEventListener("keydown", async (e) => {
+    if (e.key === "Escape") {
+      const modal = document.getElementById("buy-credits-modal");
+      if (modal && !modal.classList.contains("hidden")) {
+        const { closeBuyCreditsModal } = await getCredits();
+        closeBuyCreditsModal();
+      }
+    }
   });
 
   // Profile: name
