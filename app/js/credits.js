@@ -20,14 +20,18 @@ function formatDate(ts) {
 export async function renderCreditsView() {
   if (!state.currentUser || !state.firestore) return;
 
-  // Show loading state
-  if (els.creditsAvailable) els.creditsAvailable.textContent = "—";
-  if (els.creditsPurchased) els.creditsPurchased.textContent = "—";
-  if (els.creditsBonus) els.creditsBonus.textContent = "—";
-  if (els.creditsUsed) els.creditsUsed.textContent = "—";
+  // Show skeleton loading state
+  const statEls = [els.creditsAvailable, els.creditsPurchased, els.creditsBonus, els.creditsUsed];
+  statEls.forEach((el) => { if (el) { el.textContent = "0"; el.classList.add("skeleton"); } });
   if (els.creditsTransactions) {
-    els.creditsTransactions.innerHTML =
-      '<p style="text-align:center;color:var(--gray-400);padding:20px 0;font-size:14px">Loading...</p>';
+    els.creditsTransactions.innerHTML = [1, 2, 3].map(() => `
+      <div class="credits-tx-row">
+        <div style="flex:1">
+          <div class="skeleton" style="height:14px;width:180px;border-radius:4px;margin-bottom:6px"></div>
+          <div class="skeleton" style="height:11px;width:80px;border-radius:4px"></div>
+        </div>
+        <div class="skeleton" style="height:16px;width:36px;border-radius:4px"></div>
+      </div>`).join("");
   }
 
   try {
@@ -41,6 +45,7 @@ export async function renderCreditsView() {
     const used = credits.used || 0;
     const available = Math.max(0, purchased + bonus - used);
 
+    statEls.forEach((el) => el?.classList.remove("skeleton"));
     if (els.creditsAvailable) els.creditsAvailable.textContent = available;
     if (els.creditsPurchased) els.creditsPurchased.textContent = purchased;
     if (els.creditsBonus) els.creditsBonus.textContent = bonus;
@@ -74,10 +79,7 @@ export async function renderCreditsView() {
       }
     }
   } catch (err) {
-    if (els.creditsAvailable) els.creditsAvailable.textContent = "0";
-    if (els.creditsPurchased) els.creditsPurchased.textContent = "0";
-    if (els.creditsBonus) els.creditsBonus.textContent = "0";
-    if (els.creditsUsed) els.creditsUsed.textContent = "0";
+    statEls.forEach((el) => { if (el) { el.classList.remove("skeleton"); el.textContent = "0"; } });
     if (els.creditsTransactions) {
       els.creditsTransactions.innerHTML =
         '<p style="text-align:center;color:var(--gray-400);padding:20px 0;font-size:14px">No activity yet.</p>';
