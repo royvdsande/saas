@@ -106,11 +106,15 @@ export const els = {
   reauthCancelBtn: document.getElementById("reauth-cancel-btn"),
   reauthStatus: document.getElementById("reauth-status"),
   creditsBuyBtn: document.getElementById("credits-buy-btn"),
-  creditsDropdown: document.getElementById("credits-dropdown"),
+  creditsModal: document.getElementById("credits-modal"),
+  creditsModalBackdrop: document.getElementById("credits-modal-backdrop"),
+  creditsModalClose: document.getElementById("credits-modal-close"),
+  creditsModalPackages: document.getElementById("credits-modal-packages"),
   creditsAvailable: document.getElementById("credits-available"),
   creditsPurchased: document.getElementById("credits-purchased"),
   creditsBonus: document.getElementById("credits-bonus"),
   creditsUsed: document.getElementById("credits-used"),
   creditsTransactions: document.getElementById("credits-transactions"),
   creditsStatus: document.getElementById("credits-status"),
+
 };

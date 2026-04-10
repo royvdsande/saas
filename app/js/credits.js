@@ -11,6 +11,48 @@ import { state, BINAS_CONFIG } from "./state.js";
 import { els } from "./elements.js";
 import { setStatus, setLoadingState } from "./utils.js";
 
+function fmtCredits(n) {
+  return n.toLocaleString("nl-NL");
+}
+
+export function openCreditsModal() {
+  if (!els.creditsModal) return;
+  // Render packages from config
+  const packages = BINAS_CONFIG?.creditPackages || [];
+  if (els.creditsModalPackages) {
+    els.creditsModalPackages.innerHTML = packages.map((pkg) => {
+      const total = pkg.credits + (pkg.bonus || 0);
+      const popularMarkup = pkg.popular
+        ? `<span class="credits-pkg-popular-badge">Popular</span>`
+        : "";
+      const bonusMarkup = pkg.bonus
+        ? `<span class="credits-pkg-bonus">(+${fmtCredits(pkg.bonus)} bonus)</span>`
+        : "";
+      return `
+        <div class="credits-pkg-row${pkg.popular ? " credits-pkg-row--popular" : ""}">
+          ${popularMarkup}
+          <div class="credits-pkg-info">
+            <p class="credits-pkg-name">${pkg.label}</p>
+            <p class="credits-pkg-desc">${pkg.desc}</p>
+            <div class="credits-pkg-amount-row">
+              <span class="credits-pkg-amount">${fmtCredits(total)} credits</span>
+              ${bonusMarkup}
+            </div>
+          </div>
+          <div class="credits-pkg-right">
+            <span class="credits-pkg-price">€ ${pkg.price}</span>
+            <button class="btn btn-primary" style="white-space:nowrap" data-credits-package="${pkg.id}">Buy Now</button>
+          </div>
+        </div>`;
+    }).join("");
+  }
+  els.creditsModal.classList.remove("hidden");
+}
+
+export function closeCreditsModal() {
+  els.creditsModal?.classList.add("hidden");
+}
+
 function formatDate(ts) {
   if (!ts) return "";
   const d = ts.toDate ? ts.toDate() : new Date(ts);

@@ -253,27 +253,10 @@
                       <span style="font-size:14px;color:var(--gray-500)">credits available</span>
                     </div>
                   </div>
-                  <div style="position:relative">
-                    <button class="btn btn-primary" id="credits-buy-btn" style="gap:8px">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                      Buy Credits
-                    </button>
-                    <div class="credits-dropdown hidden" id="credits-dropdown">
-                      <p class="credits-dropdown-title">Choose a package</p>
-                      <button class="credits-package" data-credits-package="credits_50">
-                        <span class="credits-package-amount">50 credits</span>
-                        <span class="credits-package-price">€ 4,99</span>
-                      </button>
-                      <button class="credits-package" data-credits-package="credits_100">
-                        <span class="credits-package-amount">100 credits</span>
-                        <span class="credits-package-price">€ 8,99</span>
-                      </button>
-                      <button class="credits-package" data-credits-package="credits_250">
-                        <span class="credits-package-amount">250 credits <span class="credits-package-tag">Best value</span></span>
-                        <span class="credits-package-price">€ 19,99</span>
-                      </button>
-                    </div>
-                  </div>
+                  <button class="btn btn-primary" id="credits-buy-btn" style="gap:8px">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Buy Credits
+                  </button>
                 </div>
                 <div id="credits-status" class="auth-status" hidden></div>
                 <hr style="border:none;border-top:1px solid var(--gray-100);margin:0 0 16px">
@@ -420,6 +403,23 @@
         <div style="display:flex;justify-content:flex-end;margin-top:16px">
           <button class="btn btn-outline" id="reauth-cancel-btn">Cancel</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buy Credits modal -->
+  <div class="modal-shell hidden" id="credits-modal">
+    <div class="modal-backdrop" id="credits-modal-backdrop"></div>
+    <div class="modal-card credits-modal-card" role="dialog" aria-modal="true" aria-labelledby="credits-modal-title">
+      <div class="credits-modal-header">
+        <div>
+          <h3 id="credits-modal-title">Buy Credits</h3>
+          <p>Choose a credit package that fits your needs</p>
+        </div>
+        <button class="button-reset modal-close" id="credits-modal-close" aria-label="Close">×</button>
+      </div>
+      <div class="credits-modal-body" id="credits-modal-packages">
+        <!-- rendered by credits.js from config -->
       </div>
     </div>
   </div>

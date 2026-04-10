@@ -3,11 +3,11 @@ const admin = require('firebase-admin');
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
-// Credit packages — must match config.js creditPackages
+// Credit packages — must match config.js creditPackages (credits = base + bonus total)
 const CREDIT_PACKAGES = {
-  credits_50:  { credits: 50,  priceId: 'price_PLACEHOLDER_50'  },
-  credits_100: { credits: 100, priceId: 'price_PLACEHOLDER_100' },
-  credits_250: { credits: 250, priceId: 'price_PLACEHOLDER_250' },
+  credits_starter: { credits: 10000, priceId: 'price_PLACEHOLDER_STARTER' },
+  credits_basic:   { credits: 55000, priceId: 'price_PLACEHOLDER_BASIC'   },
+  credits_pro:     { credits: 240000, priceId: 'price_PLACEHOLDER_PRO'    },
 };
 
 function getFirebase() {

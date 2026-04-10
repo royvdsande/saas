@@ -20,9 +20,36 @@ const BINAS_CONFIG = {
 
   // Credit Packages (one-time purchases — replace placeholder priceIds when ready)
   creditPackages: [
-    { id: "credits_50",  credits: 50,  price: "4,99",  priceId: "price_PLACEHOLDER_50"  },
-    { id: "credits_100", credits: 100, price: "8,99",  priceId: "price_PLACEHOLDER_100" },
-    { id: "credits_250", credits: 250, price: "19,99", priceId: "price_PLACEHOLDER_250" },
+    {
+      id: "credits_starter",
+      label: "Starter",
+      desc: "Great for trying out AI features",
+      credits: 10000,
+      bonus: 0,
+      price: "9,99",
+      priceId: "price_PLACEHOLDER_STARTER",
+      popular: false,
+    },
+    {
+      id: "credits_basic",
+      label: "Basic",
+      desc: "For regular AI usage",
+      credits: 50000,
+      bonus: 5000,
+      price: "39,99",
+      priceId: "price_PLACEHOLDER_BASIC",
+      popular: true,
+    },
+    {
+      id: "credits_pro",
+      label: "Pro",
+      desc: "Best value for power users",
+      credits: 200000,
+      bonus: 40000,
+      price: "149,99",
+      priceId: "price_PLACEHOLDER_PRO",
+      popular: false,
+    },
   ],
 
   // Subscription Plans

@@ -20,7 +20,7 @@ import {
   signInWithGoogle,
 } from "./auth.js";
 import { startCheckout, openBillingPortal } from "./billing.js";
-import { buyCredits } from "./credits.js";
+import { buyCredits, openCreditsModal, closeCreditsModal } from "./credits.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
 import {
   updateUserName,
@@ -317,25 +317,19 @@ export function bindEvents() {
     document.addEventListener("mouseup", onUp);
   });
 
-  // Credits: buy button toggles dropdown
-  els.creditsBuyBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    els.creditsDropdown?.classList.toggle("hidden");
-  });
+  // Credits: buy button opens modal
+  els.creditsBuyBtn?.addEventListener("click", openCreditsModal);
 
-  // Credits: package selection (delegated)
+  // Credits: close modal via backdrop or X button
+  els.creditsModalBackdrop?.addEventListener("click", closeCreditsModal);
+  els.creditsModalClose?.addEventListener("click", closeCreditsModal);
+
+  // Credits: package selection (delegated from modal)
   document.addEventListener("click", (e) => {
     const pkgBtn = e.target.closest("[data-credits-package]");
     if (pkgBtn) {
-      els.creditsDropdown?.classList.add("hidden");
+      closeCreditsModal();
       buyCredits(pkgBtn.dataset.creditsPackage, els.creditsStatus);
-    }
-  });
-
-  // Credits: close dropdown on outside click
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest("#credits-buy-btn") && !e.target.closest("#credits-dropdown")) {
-      els.creditsDropdown?.classList.add("hidden");
     }
   });
 
