@@ -256,11 +256,6 @@ async function _sendMessage(text) {
   const typingId = _appendTypingIndicator();
 
   try {
-    // Create conversation doc on first message
-    if (!_currentConvId) {
-      _currentConvId = await _createConversation(userText);
-    }
-
     const token = await state.currentUser.getIdToken();
     const planContext = _getPlanContext();
 
@@ -283,19 +278,29 @@ async function _sendMessage(text) {
       const errMsg = data.message || "Could not reach the AI service.";
       const isCredits = /credit|quota|billing/i.test(errMsg);
       _appendMessageBubble("error", isCredits ? "Not enough credits" : errMsg);
-      _messages.pop(); // remove optimistic user message from memory on failure
+      _messages.pop(); // remove optimistic user message on failure
     } else {
       const data = await res.json();
       const reply = data.message || "Sorry, I could not generate a response.";
       _messages.push({ role: "assistant", content: reply });
       _appendMessageBubble("ai", reply);
-      await _persistMessages();
-      // Refresh sidebar to show updated timestamp order
-      await _loadConversations();
+
+      // Persist to Firestore — non-fatal, conversation works in memory if this fails
+      try {
+        if (!_currentConvId) {
+          _currentConvId = await _createConversation(userText);
+        }
+        await _persistMessages();
+        await _loadConversations();
+      } catch {
+        // Firestore unavailable — chat still works, just not persisted
+      }
     }
-  } catch {
+  } catch (err) {
     _removeTypingIndicator(typingId);
-    _appendMessageBubble("error", "Something went wrong. Please try again.");
+    const msg = err?.message || "";
+    const isNetwork = /fetch|network|failed/i.test(msg);
+    _appendMessageBubble("error", isNetwork ? "Could not reach the AI service. Please check your connection." : "Something went wrong. Please try again.");
     _messages.pop();
   } finally {
     _isLoading = false;
