@@ -13,7 +13,7 @@ function getNormalizedAppPath() {
 export const PAGE_PATHS = {
   overview: "/app/",
   plan: "/app/plan",
-  billing: "/app/billing",
+  billing: "/app/settings?tab=billing",
   settings: "/app/settings",
   ai: "/app/ai",
 };
@@ -50,20 +50,24 @@ export function preInitRoute() {
   const path = getNormalizedAppPath();
   const tab  = new URLSearchParams(window.location.search).get("tab");
 
+  // /app/billing redirects to settings billing tab
   const viewName =
-    path === "/app/billing"  ? "billing"  :
+    path === "/app/billing"  ? "settings" :
     path === "/app/settings" ? "settings" :
     path === "/app/plan"     ? "plan"     :
     path === "/app/ai"       ? "ai"       : "overview";
 
-  const labels = { billing: "Billing", settings: "Settings", plan: "My Plan", ai: "AI Test" };
+  const settingsTab = path === "/app/billing" ? "billing" : (tab || "profile");
+
+  const tabLabels = { profile: "Profile", security: "Security", billing: "Billing", credits: "Credits" };
+  const settingsLabel = tabLabels[settingsTab] || "Settings";
+  const labels = { settings: settingsLabel, plan: "My Plan", ai: "AI Test" };
   const label  = labels[viewName] || "Home";
 
   const topbarLabel = document.getElementById("dashboard-topbar-label");
   if (topbarLabel) topbarLabel.textContent = label;
   document.title = `FitFlow | ${label}`;
 
-  const settingsTab = tab || "profile";
   document.querySelectorAll("#sidebar-dash [data-dashboard-view]").forEach((btn) => {
     if (viewName === "settings" && btn.dataset.dashboardView === "settings") {
       btn.classList.toggle("active", btn.dataset.settingsTab === settingsTab);
@@ -102,7 +106,8 @@ export function renderRoute() {
       return;
     }
     if (path === "/app/billing") {
-      showDashboardView("billing");
+      // Billing is now inside settings
+      showDashboardView("settings", "billing");
       return;
     }
     if (path === "/app/ai") {

@@ -21,6 +21,7 @@ import {
 } from "./auth.js";
 import { startCheckout, openBillingPortal } from "./billing.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
+import { toggleCreditsDropdown, closeCreditsDropdown, startCreditsCheckout } from "./credits.js";
 import {
   updateUserName,
   sendPasswordReset,
@@ -167,6 +168,25 @@ export function bindEvents() {
   // Settings tabs
   document.querySelectorAll(".settings-tabs [data-settings-tab], #sidebar-settings [data-settings-tab]").forEach((btn) => {
     btn.addEventListener("click", () => showSettingsTab(btn.dataset.settingsTab));
+  });
+
+  // Credits: buy button toggles dropdown
+  els.creditsBuyBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleCreditsDropdown();
+  });
+
+  // Credits: clicking a package starts checkout
+  document.addEventListener("click", (e) => {
+    const item = e.target.closest("[data-credits-package]");
+    if (item) {
+      startCreditsCheckout(item.dataset.creditsPackage);
+      return;
+    }
+    // Close dropdown when clicking outside
+    if (!e.target.closest("#credits-buy-wrap")) {
+      closeCreditsDropdown();
+    }
   });
 
   // Profile: name

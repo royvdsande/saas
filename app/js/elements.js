@@ -105,4 +105,14 @@ export const els = {
   reauthGoogleBtn: document.getElementById("reauth-google-btn"),
   reauthCancelBtn: document.getElementById("reauth-cancel-btn"),
   reauthStatus: document.getElementById("reauth-status"),
+  // Credits
+  creditsStatus: document.getElementById("credits-status"),
+  creditsBuyBtn: document.getElementById("credits-buy-btn"),
+  creditsBuyDropdown: document.getElementById("credits-buy-dropdown"),
+  creditsBuyWrap: document.getElementById("credits-buy-wrap"),
+  creditsBalanceNumber: document.getElementById("credits-balance-number"),
+  creditsStatPurchased: document.getElementById("credits-stat-purchased"),
+  creditsStatBonus: document.getElementById("credits-stat-bonus"),
+  creditsStatUsed: document.getElementById("credits-stat-used"),
+  creditsActivityBody: document.getElementById("credits-activity-body"),
 };

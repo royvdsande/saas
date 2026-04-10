@@ -433,6 +433,171 @@
   .plan-tips-row { flex-direction: column; }
 }
 
+/* ===== CREDITS VIEW ===== */
+
+/* Buy Credits button + dropdown wrapper */
+.credits-buy-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Dropdown panel */
+.credits-buy-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 260px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  z-index: 100;
+  overflow: hidden;
+  animation: fadeUp .14s ease both;
+}
+.credits-buy-dropdown.open {
+  display: block;
+}
+
+/* Individual option inside dropdown */
+.credits-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  cursor: pointer;
+  transition: background .1s;
+  border-bottom: 1px solid var(--gray-100);
+  -webkit-tap-highlight-color: transparent;
+}
+.credits-dropdown-item:last-child { border-bottom: none; }
+.credits-dropdown-item:hover { background: var(--gray-50); }
+.credits-dropdown-item:active { background: var(--gray-100); }
+
+.credits-dropdown-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.credits-dropdown-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+}
+.credits-dropdown-desc {
+  font-size: 12px;
+  color: var(--gray-400);
+}
+.credits-dropdown-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  white-space: nowrap;
+}
+
+/* Balance display */
+.credits-balance-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0 20px;
+}
+.credits-balance-number {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: var(--black);
+}
+.credits-balance-label {
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
+.credits-divider {
+  height: 1px;
+  background: var(--gray-100);
+  margin-bottom: 16px;
+}
+
+/* Stats row: purchased / bonus / used */
+.credits-stats-row {
+  display: flex;
+  gap: 28px;
+}
+.credits-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.credits-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-400);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.credits-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--black);
+}
+
+/* Empty state */
+.credits-empty-state {
+  text-align: center;
+  padding: 28px 0;
+  color: var(--gray-400);
+  font-size: 14px;
+}
+
+/* Loading row skeleton */
+.credits-loading-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+/* Transaction rows */
+.credits-tx-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.credits-tx-row:last-child { border-bottom: none; }
+.credits-tx-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.credits-tx-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.credits-tx-date {
+  font-size: 12px;
+  color: var(--gray-400);
+}
+.credits-tx-amount {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.credits-tx-positive { color: #16a34a; }
+.credits-tx-negative { color: #dc2626; }
+
 /* ===== CONTENT LOADING STATE ===== */
 .dash-loading-state { display: block; }
 .dash-loading-state[hidden] { display: none; }

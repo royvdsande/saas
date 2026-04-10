@@ -18,6 +18,31 @@ const BINAS_CONFIG = {
   // Fallback Stripe Price ID (Starter monthly)
   stripePriceId: "price_1TDM6gLzjWXxGtsSmBBGHvnY",
 
+  // Credit Packages (Stripe one-time payment price IDs — fill in when ready)
+  creditPackages: [
+    {
+      id: "credits_100",
+      label: "100 Credits",
+      amount: 100,
+      price: "4,99",
+      priceId: "PLACEHOLDER_CREDITS_100",
+    },
+    {
+      id: "credits_500",
+      label: "500 Credits",
+      amount: 500,
+      price: "19,99",
+      priceId: "PLACEHOLDER_CREDITS_500",
+    },
+    {
+      id: "credits_1000",
+      label: "1.000 Credits",
+      amount: 1000,
+      price: "34,99",
+      priceId: "PLACEHOLDER_CREDITS_1000",
+    },
+  ],
+
   // Subscription Plans
   plans: [
     {
