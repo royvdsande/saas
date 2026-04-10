@@ -107,7 +107,6 @@ export const els = {
   reauthStatus: document.getElementById("reauth-status"),
   // Credits
   creditsStatus: document.getElementById("credits-status"),
-  creditsBuyBtn: document.getElementById("credits-buy-btn"),
   creditsBalanceNumber: document.getElementById("credits-balance-number"),
   creditsStatPurchased: document.getElementById("credits-stat-purchased"),
   creditsStatBonus: document.getElementById("credits-stat-bonus"),
