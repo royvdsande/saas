@@ -187,14 +187,11 @@ export function renderBillingView() {
 
   // Override with live Stripe data when available (adds cancellation status, trial info)
   if (currentPlan && state.currentUser && els.billingPlanSub) {
-    els.billingPlanSub.classList.add("skeleton");
     state.currentUser.getIdToken()
       .then((token) => fetch("/api/subscription-status", { headers: { Authorization: `Bearer ${token}` } }))
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
-        if (!els.billingPlanSub) return;
-        els.billingPlanSub.classList.remove("skeleton");
-        if (!data || !data.status) return;
+        if (!data || !data.status || !els.billingPlanSub) return;
         if (data.status === "trialing" && data.trialEnd) {
           els.billingPlanSub.textContent = data.cancelAtPeriodEnd
             ? `Your trial ends on ${fmtTs(data.trialEnd)} and will not renew.`
@@ -205,7 +202,7 @@ export function renderBillingView() {
           els.billingPlanSub.textContent = `Your subscription will auto renew on ${fmtTs(data.currentPeriodEnd)}.`;
         }
       })
-      .catch(() => { els.billingPlanSub?.classList.remove("skeleton"); });
+      .catch(() => {});
   }
 
   // Update each plan card CTA
