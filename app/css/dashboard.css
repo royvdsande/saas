@@ -330,6 +330,87 @@
 .billing-upgrade-card--current { border-color: var(--black); background: var(--gray-50); }
 .billing-portal-link { display: flex; align-items: center; gap: 8px; justify-content: flex-start; }
 
+/* ===== CREDITS ===== */
+.credits-stat-row {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.credits-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  z-index: 100;
+  padding: 8px;
+  animation: fadeUp .15s ease both;
+}
+.credits-dropdown-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-400);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 4px 8px 8px;
+}
+.credits-package {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--radius);
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  color: var(--black);
+  text-align: left;
+  transition: background .1s;
+  gap: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.credits-package:hover { background: var(--gray-50); }
+.credits-package-amount {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.credits-package-price {
+  font-size: 13px;
+  color: var(--gray-500);
+  flex-shrink: 0;
+}
+.credits-package-tag {
+  font-size: 10px;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #16a34a;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.credits-tx-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 14px;
+  gap: 12px;
+}
+.credits-tx-row:last-child { border-bottom: none; }
+.credits-tx-desc { color: var(--gray-700); }
+.credits-tx-date { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.credits-tx-amount { font-weight: 700; flex-shrink: 0; }
+.credits-tx-amount.positive { color: #16a34a; }
+.credits-tx-amount.negative { color: #dc2626; }
+
 /* ===== MY PLAN VIEW ===== */
 
 /* Summary card */

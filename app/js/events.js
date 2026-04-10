@@ -20,6 +20,7 @@ import {
   signInWithGoogle,
 } from "./auth.js";
 import { startCheckout, openBillingPortal } from "./billing.js";
+import { buyCredits, claimCredits } from "./credits.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
 import {
   updateUserName,
@@ -315,6 +316,34 @@ export function bindEvents() {
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   });
+
+  // Credits: buy button toggles dropdown
+  els.creditsBuyBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    els.creditsDropdown?.classList.toggle("hidden");
+  });
+
+  // Credits: package selection (delegated)
+  document.addEventListener("click", (e) => {
+    const pkgBtn = e.target.closest("[data-credits-package]");
+    if (pkgBtn) {
+      els.creditsDropdown?.classList.add("hidden");
+      buyCredits(pkgBtn.dataset.creditsPackage, els.creditsStatus);
+    }
+  });
+
+  // Credits: close dropdown on outside click
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#credits-buy-btn") && !e.target.closest("#credits-dropdown")) {
+      els.creditsDropdown?.classList.add("hidden");
+    }
+  });
+
+  // Credits: claim after checkout success (session_id in URL)
+  const _urlParams = new URLSearchParams(window.location.search);
+  if (_urlParams.get("credits_claimed") === "1" && _urlParams.get("session_id")) {
+    claimCredits(_urlParams.get("session_id"), els.creditsStatus);
+  }
 
   els.dashboardUserTrigger?.addEventListener("click", toggleAccountMenu);
   els.dashboardSignout?.addEventListener("click", async () => {
