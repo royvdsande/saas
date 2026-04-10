@@ -20,6 +20,7 @@ import {
   signInWithGoogle,
 } from "./auth.js";
 import { startCheckout, openBillingPortal } from "./billing.js";
+import { buyCredits, openCreditsModal, closeCreditsModal } from "./credits.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
 import {
   updateUserName,
@@ -314,6 +315,24 @@ export function bindEvents() {
     };
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
+  });
+
+  // Credits: buy button opens modal (delegated so it works regardless of tab visibility at bind time)
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#credits-buy-btn")) openCreditsModal();
+  });
+
+  // Credits: close modal via backdrop or X button
+  els.creditsModalBackdrop?.addEventListener("click", closeCreditsModal);
+  els.creditsModalClose?.addEventListener("click", closeCreditsModal);
+
+  // Credits: package selection (delegated from modal)
+  document.addEventListener("click", (e) => {
+    const pkgBtn = e.target.closest("[data-credits-package]");
+    if (pkgBtn) {
+      closeCreditsModal();
+      buyCredits(pkgBtn.dataset.creditsPackage, els.creditsStatus);
+    }
   });
 
   els.dashboardUserTrigger?.addEventListener("click", toggleAccountMenu);

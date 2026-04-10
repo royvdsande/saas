@@ -18,6 +18,40 @@ const BINAS_CONFIG = {
   // Fallback Stripe Price ID (Starter monthly)
   stripePriceId: "price_1TDM6gLzjWXxGtsSmBBGHvnY",
 
+  // Credit Packages (one-time purchases — replace placeholder priceIds when ready)
+  creditPackages: [
+    {
+      id: "credits_starter",
+      label: "Starter",
+      desc: "Great for trying out AI features",
+      credits: 10000,
+      bonus: 0,
+      price: "9,99",
+      priceId: "price_PLACEHOLDER_STARTER",
+      popular: false,
+    },
+    {
+      id: "credits_basic",
+      label: "Basic",
+      desc: "For regular AI usage",
+      credits: 50000,
+      bonus: 5000,
+      price: "39,99",
+      priceId: "price_PLACEHOLDER_BASIC",
+      popular: true,
+    },
+    {
+      id: "credits_pro",
+      label: "Pro",
+      desc: "Best value for power users",
+      credits: 200000,
+      bonus: 40000,
+      price: "149,99",
+      priceId: "price_PLACEHOLDER_PRO",
+      popular: false,
+    },
+  ],
+
   // Subscription Plans
   plans: [
     {
@@ -30,6 +64,7 @@ const BINAS_CONFIG = {
       monthlyPriceId: "price_1TDM6gLzjWXxGtsSmBBGHvnY",
       yearlyPriceId: "price_1TDMJ5LzjWXxGtsSYaGkzu7c",
       popular: false,
+      monthlyCredits: 5000,
       features: [
         "1 AI-generated plan per month",
         "7-day training schedule",
@@ -47,6 +82,7 @@ const BINAS_CONFIG = {
       monthlyPriceId: "price_1TDM7zLzjWXxGtsSSjb4tnbS",
       yearlyPriceId: "price_1TDMLbLzjWXxGtsS87kmPljA",
       popular: true,
+      monthlyCredits: 15000,
       features: [
         "Unlimited AI plans",
         "Weekly plan updates",
@@ -64,6 +100,7 @@ const BINAS_CONFIG = {
       monthlyPriceId: "price_1TDM8YLzjWXxGtsSOlI0joem",
       yearlyPriceId: "price_1TDMMiLzjWXxGtsSOjYwRXfP",
       popular: false,
+      monthlyCredits: 50000,
       features: [
         "Everything in Pro",
         "AI coaching chat",

@@ -63,6 +63,15 @@ async function initAuth() {
     if (params.get("checkout") === "cancel") {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+
+    // Credits: claim after successful one-time payment
+    if (user && params.get("credits_claimed") === "1") {
+      const sessionId = params.get("session_id");
+      if (sessionId) {
+        window.history.replaceState({}, document.title, "/app/settings?tab=credits");
+        import("./credits.js").then(({ claimCredits }) => claimCredits(sessionId, els.creditsStatus));
+      }
+    }
   });
 }
 

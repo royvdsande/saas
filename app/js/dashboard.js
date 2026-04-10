@@ -8,6 +8,7 @@ import {
   getAvatarMarkup,
 } from "./utils.js";
 import { renderBillingView } from "./billing.js";
+import { renderCreditsView } from "./credits.js";
 
 export function updatePricingCards() {
   const plans = BINAS_CONFIG?.plans || [];
@@ -230,12 +231,14 @@ export function _showSettingsTabDirect(tabName) {
     v.classList.toggle("active", v.id === `settings-view-${tabName}`)
   );
   if (tabName === "security") updateSecurityTab();
-  const tabLabels = { profile: "Profile", security: "Security" };
+  if (tabName === "billing") renderBillingView();
+  if (tabName === "credits") renderCreditsView();
+  const tabLabels = { profile: "Profile", security: "Security", billing: "Billing", credits: "Credits" };
   document.title = `FitFlow | ${tabLabels[tabName] || "Settings"}`;
 }
 
 export function showSettingsTab(tabName) {
-  const url = `/app/settings${tabName !== "profile" ? `?tab=${tabName}` : ""}`;
+  const url = `/app/settings${tabName && tabName !== "profile" ? `?tab=${tabName}` : ""}`;
   window.history.replaceState({}, "", url);
   document.querySelectorAll("#sidebar-dash [data-dashboard-view='settings']").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.settingsTab === tabName);
@@ -244,13 +247,18 @@ export function showSettingsTab(tabName) {
 }
 
 export function showDashboardView(viewName, settingsTab = null) {
+  // Billing is now part of Settings — redirect seamlessly
+  if (viewName === "billing") {
+    showDashboardView("settings", "billing");
+    return;
+  }
+
   const loadingEl = document.getElementById("dash-loading-state");
   if (loadingEl) loadingEl.hidden = true;
   finishProgress();
 
   let path;
-  if (viewName === "billing") path = "/app/billing";
-  else if (viewName === "ai") path = "/app/ai";
+  if (viewName === "ai") path = "/app/ai";
   else if (viewName === "plan") path = "/app/plan";
   else if (viewName === "settings")
     path = `/app/settings${
@@ -272,13 +280,12 @@ export function showDashboardView(viewName, settingsTab = null) {
     }
   });
 
-  const labels = { billing: "Billing", settings: "Settings", ai: "AI Test", plan: "My Plan" };
+  const labels = { settings: "Settings", ai: "AI Test", plan: "My Plan" };
   const label = labels[viewName] || "Home";
   if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = label;
   document.title = `FitFlow | ${label}`;
 
   if (viewName === "plan") loadPlanView();
-  if (viewName === "billing") renderBillingView();
   if (viewName === "settings") {
     updateSettingsPage();
     _showSettingsTabDirect(settingsTab || "profile");
