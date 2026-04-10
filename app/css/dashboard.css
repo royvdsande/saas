@@ -234,7 +234,8 @@
 
 /* ===== CONFIRM MODAL (smaller variant) ===== */
 #delete-confirm-modal,
-#reauth-modal {
+#reauth-modal,
+#credits-modal {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -340,7 +341,7 @@
 /* Buy Credits modal */
 .credits-modal-card {
   width: min(540px, calc(100% - 32px));
-  margin: 60px auto 0;
+  margin: 0;
 }
 .credits-modal-header {
   display: flex;

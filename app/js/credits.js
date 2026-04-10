@@ -53,16 +53,56 @@ export function openCreditsModal() {
     }
   }
   modal.classList.remove("hidden");
+  modal.style.display = "flex"; // belt-and-suspenders: ensure flex display regardless of cascade
 }
 
 export function closeCreditsModal() {
-  document.getElementById("credits-modal")?.classList.add("hidden");
+  const modal = document.getElementById("credits-modal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.style.display = ""; // reset inline style so hidden class works next time
 }
 
 function formatDate(ts) {
   if (!ts) return "";
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function renderTransactions(txSnap) {
+  if (!els.creditsTransactions) return;
+  if (txSnap.empty) {
+    els.creditsTransactions.innerHTML =
+      '<p style="text-align:center;color:var(--gray-400);padding:20px 0;font-size:14px">No activity yet.</p>';
+    return;
+  }
+  els.creditsTransactions.innerHTML = txSnap.docs
+    .map((d) => {
+      const tx = d.data();
+      const isPositive = tx.type !== "used";
+      const sign = isPositive ? "+" : "-";
+      const amountClass = isPositive ? "positive" : "negative";
+      return `<div class="credits-tx-row">
+        <div>
+          <div class="credits-tx-desc">${tx.description || (tx.type === "purchase" ? "Credit purchase" : tx.type)}</div>
+          <div class="credits-tx-date">${formatDate(tx.createdAt)}</div>
+        </div>
+        <span class="credits-tx-amount ${amountClass}">${sign}${fmtCredits(tx.amount)}</span>
+      </div>`;
+    })
+    .join("");
+}
+
+function updateBalanceDisplay(statEls, credits) {
+  const purchased = credits.purchased || 0;
+  const bonus = credits.bonus || 0;
+  const used = credits.used || 0;
+  const available = Math.max(0, purchased + bonus - used);
+  statEls.forEach((el) => el?.classList.remove("skeleton"));
+  if (els.creditsAvailable) els.creditsAvailable.textContent = fmtCredits(available);
+  if (els.creditsPurchased) els.creditsPurchased.textContent = fmtCredits(purchased);
+  if (els.creditsBonus) els.creditsBonus.textContent = fmtCredits(bonus);
+  if (els.creditsUsed) els.creditsUsed.textContent = fmtCredits(used);
 }
 
 export async function renderCreditsView() {
@@ -82,50 +122,53 @@ export async function renderCreditsView() {
       </div>`).join("");
   }
 
+  // Show subscription monthly credit allowance info if user has active plan
+  const infoEl = document.getElementById("credits-subscription-info");
+  const subAmountEl = document.getElementById("credits-sub-amount");
+  if (state.isPremiumUser && state.dashboardContext?.currentPriceId && infoEl && subAmountEl) {
+    const priceId = state.dashboardContext.currentPriceId;
+    const plan = (BINAS_CONFIG.plans || []).find(
+      (p) => p.monthlyPriceId === priceId || p.yearlyPriceId === priceId
+    );
+    if (plan?.monthlyCredits) {
+      subAmountEl.textContent = fmtCredits(plan.monthlyCredits);
+      infoEl.style.display = "block";
+    }
+  }
+
   try {
-    // Fetch credit balance from customers/{uid}
     const customerRef = doc(state.firestore, "customers", state.currentUser.uid);
+
+    // Auto-grant subscription credits if eligible (runs silently, does not block UI)
+    if (state.isPremiumUser) {
+      try {
+        const token = await state.currentUser.getIdToken();
+        const grantRes = await fetch("/api/grant-subscription-credits", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // If credits were just granted, re-fetch balance after commit (handled below)
+        if (grantRes.ok) {
+          const grantData = await grantRes.json();
+          if (grantData.granted) {
+            // Small delay to allow Firestore write to propagate
+            await new Promise((r) => setTimeout(r, 600));
+          }
+        }
+      } catch {
+        // Silent — subscription grant failure should never block the credits view
+      }
+    }
+
+    // Fetch credit balance from customers/{uid}
     const customerSnap = await getDoc(customerRef);
     const credits = customerSnap.exists() ? (customerSnap.data().credits || {}) : {};
-
-    const purchased = credits.purchased || 0;
-    const bonus = credits.bonus || 0;
-    const used = credits.used || 0;
-    const available = Math.max(0, purchased + bonus - used);
-
-    statEls.forEach((el) => el?.classList.remove("skeleton"));
-    if (els.creditsAvailable) els.creditsAvailable.textContent = available;
-    if (els.creditsPurchased) els.creditsPurchased.textContent = purchased;
-    if (els.creditsBonus) els.creditsBonus.textContent = bonus;
-    if (els.creditsUsed) els.creditsUsed.textContent = used;
+    updateBalanceDisplay(statEls, credits);
 
     // Fetch transaction history
     const txRef = collection(state.firestore, "customers", state.currentUser.uid, "credit_transactions");
     const txQuery = query(txRef, orderBy("createdAt", "desc"), limit(20));
     const txSnap = await getDocs(txQuery);
-
-    if (els.creditsTransactions) {
-      if (txSnap.empty) {
-        els.creditsTransactions.innerHTML =
-          '<p style="text-align:center;color:var(--gray-400);padding:20px 0;font-size:14px">No activity yet.</p>';
-      } else {
-        els.creditsTransactions.innerHTML = txSnap.docs
-          .map((d) => {
-            const tx = d.data();
-            const isPositive = tx.type !== "used";
-            const sign = isPositive ? "+" : "-";
-            const amountClass = isPositive ? "positive" : "negative";
-            return `<div class="credits-tx-row">
-              <div>
-                <div class="credits-tx-desc">${tx.description || (tx.type === "purchase" ? "Credit purchase" : tx.type)}</div>
-                <div class="credits-tx-date">${formatDate(tx.createdAt)}</div>
-              </div>
-              <span class="credits-tx-amount ${amountClass}">${sign}${tx.amount}</span>
-            </div>`;
-          })
-          .join("");
-      }
-    }
+    renderTransactions(txSnap);
   } catch (err) {
     statEls.forEach((el) => { if (el) { el.classList.remove("skeleton"); el.textContent = "0"; } });
     if (els.creditsTransactions) {

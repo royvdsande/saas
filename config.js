@@ -64,6 +64,7 @@ const BINAS_CONFIG = {
       monthlyPriceId: "price_1TDM6gLzjWXxGtsSmBBGHvnY",
       yearlyPriceId: "price_1TDMJ5LzjWXxGtsSYaGkzu7c",
       popular: false,
+      monthlyCredits: 5000,
       features: [
         "1 AI-generated plan per month",
         "7-day training schedule",
@@ -81,6 +82,7 @@ const BINAS_CONFIG = {
       monthlyPriceId: "price_1TDM7zLzjWXxGtsSSjb4tnbS",
       yearlyPriceId: "price_1TDMLbLzjWXxGtsS87kmPljA",
       popular: true,
+      monthlyCredits: 15000,
       features: [
         "Unlimited AI plans",
         "Weekly plan updates",
@@ -98,6 +100,7 @@ const BINAS_CONFIG = {
       monthlyPriceId: "price_1TDM8YLzjWXxGtsSOlI0joem",
       yearlyPriceId: "price_1TDMMiLzjWXxGtsSOjYwRXfP",
       popular: false,
+      monthlyCredits: 50000,
       features: [
         "Everything in Pro",
         "AI coaching chat",
