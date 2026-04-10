@@ -286,12 +286,15 @@ export function showDashboardView(viewName, settingsTab = null) {
 
   const tabLabels = { profile: "Profile", security: "Security", billing: "Billing", credits: "Credits" };
   const settingsLabel = settingsTab ? (tabLabels[settingsTab] || "Settings") : "Settings";
-  const labels = { settings: settingsLabel, ai: "AI Test", plan: "My Plan" };
+  const labels = { settings: settingsLabel, ai: "AI Chatbot", plan: "My Plan" };
   const label = labels[viewName] || "Home";
   if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = label;
   document.title = `FitFlow | ${label}`;
 
   if (viewName === "plan") loadPlanView();
+  if (viewName === "ai") {
+    import("./chatbot.js").then(({ initChatbot }) => initChatbot());
+  }
   if (viewName === "settings") {
     updateSettingsPage();
     _showSettingsTabDirect(settingsTab || "profile");

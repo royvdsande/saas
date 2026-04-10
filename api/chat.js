@@ -1,8 +1,19 @@
 const OpenAI = require('openai');
-const Stripe = require('stripe');
+const admin = require('firebase-admin');
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const openaiApiKey = process.env.OPENAI_API_KEY;
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
+
+// Initialize Firebase Admin (shared across invocations)
+if (!admin.apps.length && serviceAccount) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(JSON.parse(serviceAccount)),
+    });
+  } catch {
+    // Firebase init failed — will proceed without Firestore
+  }
+}
 
 function decodeJwtPayload(token) {
   try {
@@ -30,10 +41,15 @@ module.exports = async (req, res) => {
     return respond(res, 500, { message: 'OpenAI API key missing from configuration.' });
   }
 
-  // Decode JWT to get user email (no Admin SDK needed)
+  // Decode JWT to get user uid and email
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  if (!token) {
+    return respond(res, 401, { message: 'Authentication required.' });
+  }
+
   const jwtPayload = token ? decodeJwtPayload(token) : null;
+  const uid = jwtPayload?.user_id || jwtPayload?.sub || null;
   const userEmail = jwtPayload?.email || null;
 
   let body = {};
@@ -51,48 +67,78 @@ module.exports = async (req, res) => {
     return respond(res, 400, { message: 'No messages provided.' });
   }
 
-  // Gather billing context from Stripe using the user's email
-  let billingContext = 'No billing information available.';
-  if (stripeSecretKey && userEmail) {
+  // Fetch user's fitness plan from Firestore
+  let fitnessContext = 'No fitness plan available yet.';
+  if (admin.apps.length && uid) {
     try {
-      const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' });
+      const db = admin.firestore();
+      const userDoc = await db.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        const data = userDoc.data();
+        const plan = data?.plan;
+        const profile = data?.planProfile;
 
-      const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
-      const customer = customers.data[0];
+        if (plan && profile) {
+          const goal = profile.goal || 'general fitness';
+          const activityLevel = profile.activityLevel || 'moderately-active';
+          const dailyCalories = plan.dailyCalories || profile.targetCalories || 'unknown';
+          const macros = plan.dailyMacros || {};
+          const protein = macros.protein || profile.proteinTarget || 'unknown';
+          const carbs = macros.carbs || profile.carbTarget || 'unknown';
+          const fat = macros.fat || profile.fatTarget || 'unknown';
+          const workoutSplit = profile.workoutSplit || 'balanced';
+          const workoutFrequency = profile.workoutFrequency || 4;
+          const dietaryPreference = profile.dietaryPreference || 'no preference';
 
-      if (customer) {
-        const [subscriptions, invoices] = await Promise.all([
-          stripe.subscriptions.list({ customer: customer.id, limit: 3 }),
-          stripe.invoices.list({ customer: customer.id, limit: 3 }),
-        ]);
+          // Build training schedule summary
+          const trainingSummary = Array.isArray(plan.training)
+            ? plan.training.map(d => `  - ${d.day}: ${d.label}`).join('\n')
+            : 'Not available';
 
-        const activeSub = subscriptions.data.find((s) =>
-          ['active', 'trialing'].includes(s.status)
-        );
+          // Build tips
+          const tips = Array.isArray(plan.tips) ? plan.tips.join(', ') : '';
 
-        const subInfo = activeSub
-          ? `Active subscription: ${activeSub.id}, status: ${activeSub.status}, plan: ${activeSub.items.data[0]?.price?.nickname || activeSub.items.data[0]?.price?.id || 'unknown'}`
-          : 'No active subscription.';
+          fitnessContext = `
+USER FITNESS PROFILE:
+- Goal: ${goal}
+- Activity level: ${activityLevel}
+- Workout frequency: ${workoutFrequency} days/week
+- Workout split: ${workoutSplit}
+- Dietary preference: ${dietaryPreference}
 
-        const invoiceInfo = invoices.data.length
-          ? invoices.data
-              .map((inv) => `Invoice ${inv.id}: ${inv.status}, amount: ${(inv.amount_due / 100).toFixed(2)} ${inv.currency.toUpperCase()}, date: ${new Date(inv.created * 1000).toISOString().split('T')[0]}`)
-              .join('\n')
-          : 'No invoices found.';
+DAILY NUTRITION TARGETS:
+- Calories: ${dailyCalories} kcal
+- Protein: ${protein}g
+- Carbohydrates: ${carbs}g
+- Fat: ${fat}g
 
-        billingContext = `Customer ID: ${customer.id}\n${subInfo}\nRecent invoices:\n${invoiceInfo}`;
+WEEKLY TRAINING SCHEDULE:
+${trainingSummary}
+
+PLAN SUMMARY:
+${plan.summary || 'No summary available.'}
+
+${plan.personalNote ? `PERSONAL NOTE:\n${plan.personalNote}` : ''}
+
+${tips ? `KEY TIPS:\n${tips}` : ''}`.trim();
+        } else if (plan) {
+          fitnessContext = 'User has a fitness plan but no profile details available.';
+        }
       }
     } catch {
-      // Non-fatal — proceed without billing context
+      // Non-fatal — proceed without fitness context
     }
   }
 
-  const systemPrompt = `You are a helpful AI assistant for FitFlow, a SaaS platform. You help users with questions about their account, billing, and the product.
+  const greeting = userEmail ? `The user's email is ${userEmail}.` : '';
 
-Current user billing context:
-${billingContext}
+  const systemPrompt = `You are a personal AI fitness coach for FitFlow. You help users with their training, nutrition, and general fitness questions. You have access to the user's personalized fitness plan and profile.
 
-Be concise, friendly, and helpful. If you don't know something specific, say so honestly. Don't make up subscription details that aren't in the billing context above.`;
+${greeting}
+
+${fitnessContext}
+
+Be concise, motivating, and practical. When answering questions about the user's plan, refer to the specific details above. If the user asks about a specific day's workout or meal, give detailed guidance based on their plan. If they ask something outside your knowledge, say so honestly. Always keep your tone supportive and energetic.`;
 
   try {
     const openai = new OpenAI({ apiKey: openaiApiKey });
@@ -103,7 +149,7 @@ Be concise, friendly, and helpful. If you don't know something specific, say so 
         { role: 'system', content: systemPrompt },
         ...messages.slice(-20),
       ],
-      max_tokens: 500,
+      max_tokens: 800,
       temperature: 0.7,
     });
 

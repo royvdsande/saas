@@ -61,7 +61,7 @@ export function preInitRoute() {
 
   const tabLabels = { profile: "Profile", security: "Security", billing: "Billing", credits: "Credits" };
   const settingsLabel = tabLabels[settingsTab] || "Settings";
-  const labels = { settings: settingsLabel, plan: "My Plan", ai: "AI Test" };
+  const labels = { settings: settingsLabel, plan: "My Plan", ai: "AI Chatbot" };
   const label  = labels[viewName] || "Home";
 
   const topbarLabel = document.getElementById("dashboard-topbar-label");
