@@ -435,66 +435,143 @@
 
 /* ===== CREDITS VIEW ===== */
 
-/* Buy Credits button + dropdown wrapper */
-.credits-buy-wrap {
-  position: relative;
+/* Buy Credits modal card */
+.buy-credits-modal-card {
+  width: min(520px, calc(100% - 32px));
+  margin: 60px auto 0;
+}
+.buy-credits-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.buy-credits-modal-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.buy-credits-modal-header p {
+  font-size: 14px;
+  color: var(--gray-500);
+}
+.buy-credits-modal-header .modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--gray-400);
   flex-shrink: 0;
+  margin-top: -2px;
+  transition: background .12s, color .12s;
+}
+.buy-credits-modal-header .modal-close:hover {
+  background: var(--gray-100);
+  color: var(--black);
 }
 
-/* Dropdown panel */
-.credits-buy-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  min-width: 260px;
-  background: var(--white);
+.buy-credits-modal-body {
+  padding: 20px 24px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual package card */
+.bcp-card {
+  position: relative;
   border: 1.5px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 24px rgba(0,0,0,.12);
-  z-index: 100;
-  overflow: hidden;
-  animation: fadeUp .14s ease both;
+  overflow: visible;
+  transition: border-color .15s, box-shadow .15s;
 }
-.credits-buy-dropdown.open {
-  display: block;
+.bcp-card:hover { border-color: var(--gray-300); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.bcp-card--popular {
+  border-color: var(--black);
+  margin-top: 8px;
 }
 
-/* Individual option inside dropdown */
-.credits-dropdown-item {
+/* Popular badge centered on top border */
+.bcp-popular-wrap {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+.bcp-popular-badge {
+  display: inline-block;
+  padding: 3px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #f97316, #a855f7);
+  color: white;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(168,85,247,.25);
+}
+
+.bcp-card-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 13px 16px;
-  cursor: pointer;
-  transition: background .1s;
-  border-bottom: 1px solid var(--gray-100);
-  -webkit-tap-highlight-color: transparent;
+  gap: 16px;
+  padding: 18px 20px;
 }
-.credits-dropdown-item:last-child { border-bottom: none; }
-.credits-dropdown-item:hover { background: var(--gray-50); }
-.credits-dropdown-item:active { background: var(--gray-100); }
 
-.credits-dropdown-info {
+.bcp-card-left { flex: 1; min-width: 0; }
+.bcp-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.bcp-desc {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+.bcp-credits {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.bcp-amount {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.bcp-credits-label {
+  font-size: 14px;
+  color: var(--gray-600);
+}
+.bcp-bonus {
+  font-size: 13px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.bcp-card-right {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
 }
-.credits-dropdown-amount {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--black);
-}
-.credits-dropdown-desc {
-  font-size: 12px;
-  color: var(--gray-400);
-}
-.credits-dropdown-price {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--black);
+.bcp-price {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   white-space: nowrap;
+}
+.bcp-buy-btn {
+  white-space: nowrap;
+  min-width: 96px;
 }
 
 /* Balance display */

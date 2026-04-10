@@ -108,11 +108,15 @@ export const els = {
   // Credits
   creditsStatus: document.getElementById("credits-status"),
   creditsBuyBtn: document.getElementById("credits-buy-btn"),
-  creditsBuyDropdown: document.getElementById("credits-buy-dropdown"),
-  creditsBuyWrap: document.getElementById("credits-buy-wrap"),
   creditsBalanceNumber: document.getElementById("credits-balance-number"),
   creditsStatPurchased: document.getElementById("credits-stat-purchased"),
   creditsStatBonus: document.getElementById("credits-stat-bonus"),
   creditsStatUsed: document.getElementById("credits-stat-used"),
   creditsActivityBody: document.getElementById("credits-activity-body"),
+  // Buy Credits modal
+  buyCreditsModal: document.getElementById("buy-credits-modal"),
+  buyCreditsModalClose: document.getElementById("buy-credits-modal-close"),
+  buyCreditsModalBackdrop: document.getElementById("buy-credits-modal-backdrop"),
+  buyCreditsModalBody: document.getElementById("buy-credits-modal-body"),
+  buyCreditsModalStatus: document.getElementById("buy-credits-modal-status"),
 };

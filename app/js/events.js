@@ -21,7 +21,7 @@ import {
 } from "./auth.js";
 import { startCheckout, openBillingPortal } from "./billing.js";
 import { showDashboardView, showSettingsTab, updateAccountSurfaces } from "./dashboard.js";
-import { toggleCreditsDropdown, closeCreditsDropdown, startCreditsCheckout } from "./credits.js";
+import { openBuyCreditsModal, closeBuyCreditsModal, startCreditsCheckout } from "./credits.js";
 import {
   updateUserName,
   sendPasswordReset,
@@ -170,23 +170,22 @@ export function bindEvents() {
     btn.addEventListener("click", () => showSettingsTab(btn.dataset.settingsTab));
   });
 
-  // Credits: buy button toggles dropdown
-  els.creditsBuyBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleCreditsDropdown();
-  });
+  // Credits: buy button opens modal
+  els.creditsBuyBtn?.addEventListener("click", () => openBuyCreditsModal());
 
-  // Credits: clicking a package starts checkout
+  // Credits modal: close button and backdrop
+  document.getElementById("buy-credits-modal-close")?.addEventListener("click", closeBuyCreditsModal);
+  document.getElementById("buy-credits-modal-backdrop")?.addEventListener("click", closeBuyCreditsModal);
+
+  // Credits modal: clicking a package card starts checkout (delegated)
   document.addEventListener("click", (e) => {
     const item = e.target.closest("[data-credits-package]");
-    if (item) {
-      startCreditsCheckout(item.dataset.creditsPackage);
-      return;
-    }
-    // Close dropdown when clicking outside
-    if (!e.target.closest("#credits-buy-wrap")) {
-      closeCreditsDropdown();
-    }
+    if (item) startCreditsCheckout(item.dataset.creditsPackage, item);
+  });
+
+  // Credits modal: close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeBuyCreditsModal();
   });
 
   // Profile: name
