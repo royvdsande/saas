@@ -56,7 +56,7 @@ export function preInitRoute() {
     path === "/app/plan"     ? "plan"     :
     path === "/app/ai"       ? "ai"       : "overview";
 
-  const labels = { billing: "Billing", settings: "Settings", plan: "My Plan", ai: "AI Chatbot" };
+  const labels = { billing: "Billing", settings: "Settings", plan: "My Plan", ai: "AI Test" };
   const label  = labels[viewName] || "Home";
 
   const topbarLabel = document.getElementById("dashboard-topbar-label");

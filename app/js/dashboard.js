@@ -272,16 +272,13 @@ export function showDashboardView(viewName, settingsTab = null) {
     }
   });
 
-  const labels = { billing: "Billing", settings: "Settings", ai: "AI Chatbot", plan: "My Plan" };
+  const labels = { billing: "Billing", settings: "Settings", ai: "AI Test", plan: "My Plan" };
   const label = labels[viewName] || "Home";
   if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = label;
   document.title = `FitFlow | ${label}`;
 
   if (viewName === "plan") loadPlanView();
   if (viewName === "billing") renderBillingView();
-  if (viewName === "ai") {
-    import("./chatbot.js").then(({ initChatView }) => initChatView());
-  }
   if (viewName === "settings") {
     updateSettingsPage();
     _showSettingsTabDirect(settingsTab || "profile");

@@ -46,27 +46,9 @@ module.exports = async (req, res) => {
     return respond(res, 400, { message: 'Invalid request body.' });
   }
 
-  const { messages, planContext } = body;
+  const { messages } = body;
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return respond(res, 400, { message: 'No messages provided.' });
-  }
-
-  // Build fitness context block from plan data passed by the client
-  let fitnessContext = '';
-  if (planContext) {
-    const parts = [];
-    if (planContext.summary)          parts.push(`Plan summary: ${planContext.summary}`);
-    if (planContext.dailyCalories)    parts.push(`Daily calorie target: ${planContext.dailyCalories} kcal`);
-    if (planContext.dailyMacros) {
-      const m = planContext.dailyMacros;
-      parts.push(`Macros: protein ${m.protein ?? '?'}g, carbs ${m.carbs ?? '?'}g, fat ${m.fat ?? '?'}g`);
-    }
-    if (planContext.workoutSplit)     parts.push(`Workout split: ${planContext.workoutSplit}`);
-    if (planContext.workoutFrequency) parts.push(`Training frequency: ${planContext.workoutFrequency}x per week`);
-    if (planContext.workoutDuration)  parts.push(`Session duration: ~${planContext.workoutDuration} min`);
-    if (planContext.dietaryPreference && planContext.dietaryPreference !== 'no-preference')
-      parts.push(`Dietary preference: ${planContext.dietaryPreference}`);
-    if (parts.length) fitnessContext = `\n\nUser's fitness plan:\n${parts.join('\n')}`;
   }
 
   // Gather billing context from Stripe using the user's email
@@ -105,12 +87,12 @@ module.exports = async (req, res) => {
     }
   }
 
-  const systemPrompt = `You are FitFlow AI, a personal fitness and nutrition assistant. You help users understand their training plan, nutrition targets, workout techniques, and healthy habits.${fitnessContext}
+  const systemPrompt = `You are a helpful AI assistant for FitFlow, a SaaS platform. You help users with questions about their account, billing, and the product.
 
 Current user billing context:
 ${billingContext}
 
-Be concise, encouraging, and specific to the user's plan when relevant. If a question is outside fitness or health, gently redirect. Do not invent plan details that are not provided above.`;
+Be concise, friendly, and helpful. If you don't know something specific, say so honestly. Don't make up subscription details that aren't in the billing context above.`;
 
   try {
     const openai = new OpenAI({ apiKey: openaiApiKey });
