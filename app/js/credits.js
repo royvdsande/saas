@@ -16,41 +16,47 @@ function fmtCredits(n) {
 }
 
 export function openCreditsModal() {
-  if (!els.creditsModal) return;
+  const modal = document.getElementById("credits-modal");
+  if (!modal) return;
   // Render packages from config
   const packages = BINAS_CONFIG?.creditPackages || [];
-  if (els.creditsModalPackages) {
-    els.creditsModalPackages.innerHTML = packages.map((pkg) => {
-      const total = pkg.credits + (pkg.bonus || 0);
-      const popularMarkup = pkg.popular
-        ? `<span class="credits-pkg-popular-badge">Popular</span>`
-        : "";
-      const bonusMarkup = pkg.bonus
-        ? `<span class="credits-pkg-bonus">(+${fmtCredits(pkg.bonus)} bonus)</span>`
-        : "";
-      return `
-        <div class="credits-pkg-row${pkg.popular ? " credits-pkg-row--popular" : ""}">
-          ${popularMarkup}
-          <div class="credits-pkg-info">
-            <p class="credits-pkg-name">${pkg.label}</p>
-            <p class="credits-pkg-desc">${pkg.desc}</p>
-            <div class="credits-pkg-amount-row">
-              <span class="credits-pkg-amount">${fmtCredits(total)} credits</span>
-              ${bonusMarkup}
+  const pkgContainer = document.getElementById("credits-modal-packages");
+  if (pkgContainer) {
+    try {
+      pkgContainer.innerHTML = packages.map((pkg) => {
+        const total = pkg.credits + (pkg.bonus || 0);
+        const popularMarkup = pkg.popular
+          ? `<span class="credits-pkg-popular-badge">Popular</span>`
+          : "";
+        const bonusMarkup = pkg.bonus
+          ? `<span class="credits-pkg-bonus">(+${fmtCredits(pkg.bonus)} bonus)</span>`
+          : "";
+        return `
+          <div class="credits-pkg-row${pkg.popular ? " credits-pkg-row--popular" : ""}">
+            ${popularMarkup}
+            <div class="credits-pkg-info">
+              <p class="credits-pkg-name">${pkg.label}</p>
+              <p class="credits-pkg-desc">${pkg.desc}</p>
+              <div class="credits-pkg-amount-row">
+                <span class="credits-pkg-amount">${fmtCredits(total)} credits</span>
+                ${bonusMarkup}
+              </div>
             </div>
-          </div>
-          <div class="credits-pkg-right">
-            <span class="credits-pkg-price">€ ${pkg.price}</span>
-            <button class="btn btn-primary" style="white-space:nowrap" data-credits-package="${pkg.id}">Buy Now</button>
-          </div>
-        </div>`;
-    }).join("");
+            <div class="credits-pkg-right">
+              <span class="credits-pkg-price">€ ${pkg.price}</span>
+              <button class="btn btn-primary" style="white-space:nowrap" data-credits-package="${pkg.id}">Buy Now</button>
+            </div>
+          </div>`;
+      }).join("");
+    } catch (e) {
+      console.error("Credits modal render error:", e);
+    }
   }
-  els.creditsModal.classList.remove("hidden");
+  modal.classList.remove("hidden");
 }
 
 export function closeCreditsModal() {
-  els.creditsModal?.classList.add("hidden");
+  document.getElementById("credits-modal")?.classList.add("hidden");
 }
 
 function formatDate(ts) {

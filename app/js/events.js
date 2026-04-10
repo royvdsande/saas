@@ -317,8 +317,10 @@ export function bindEvents() {
     document.addEventListener("mouseup", onUp);
   });
 
-  // Credits: buy button opens modal
-  els.creditsBuyBtn?.addEventListener("click", openCreditsModal);
+  // Credits: buy button opens modal (delegated so it works regardless of tab visibility at bind time)
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#credits-buy-btn")) openCreditsModal();
+  });
 
   // Credits: close modal via backdrop or X button
   els.creditsModalBackdrop?.addEventListener("click", closeCreditsModal);
