@@ -65,6 +65,8 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
   initFirebase();
   setLoadingState(button, true, "Creating account...");
   setStatus(statusEl, "", "info");
+  // Prevent onAuthStateChanged from redirecting away before updateProfile completes
+  state.isSigningUp = true;
 
   try {
     const currentUser = state.auth.currentUser;
@@ -90,7 +92,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
       "Welcome! We've sent a verification email. Please check your inbox.",
       "info"
     );
-    navigate("/app/");
+    window.location.replace("/app/");
   } catch (error) {
     // If linking fails because email already in use, fall back to regular signup
     if (error.code === "auth/email-already-in-use" && state.auth.currentUser?.isAnonymous) {
@@ -102,7 +104,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
         await updateProfile(result.user, { displayName: name });
         await sendEmailVerification(result.user);
         state.currentUser = result.user;
-        navigate("/app/");
+        window.location.replace("/app/");
         return;
       } catch (innerError) {
         const msg = getFirebaseErrorMessage(innerError.code);
@@ -114,6 +116,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
   } finally {
+    state.isSigningUp = false;
     setLoadingState(button, false);
   }
 }

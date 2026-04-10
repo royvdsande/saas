@@ -120,6 +120,9 @@ async function init() {
   await completeMagicLinkSignIn();
   onAuthStateChanged(state.auth, (user) => {
     if (user && !user.isAnonymous) {
+      // Skip redirect while signUpWithEmailPassword is in progress — it will
+      // call window.location.replace itself after updateProfile completes.
+      if (state.isSigningUp) return;
       // Redirect immediately — the dashboard's own onAuthStateChanged
       // in main.js will handle loading account data after the page lands.
       if (isPostCheckout) {
