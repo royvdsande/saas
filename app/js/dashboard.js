@@ -250,6 +250,7 @@ export function showDashboardView(viewName, settingsTab = null) {
 
   let path;
   if (viewName === "billing") path = "/app/billing";
+  else if (viewName === "chatbot") path = "/app/chatbot";
   else if (viewName === "ai") path = "/app/ai";
   else if (viewName === "plan") path = "/app/plan";
   else if (viewName === "settings")
@@ -272,7 +273,7 @@ export function showDashboardView(viewName, settingsTab = null) {
     }
   });
 
-  const labels = { billing: "Billing", settings: "Settings", ai: "AI Test", plan: "My Plan" };
+  const labels = { billing: "Billing", settings: "Settings", chatbot: "AI Chatbot", ai: "AI Test", plan: "My Plan" };
   const label = labels[viewName] || "Home";
   if (els.dashboardTopbarLabel) els.dashboardTopbarLabel.textContent = label;
   document.title = `FitFlow | ${label}`;

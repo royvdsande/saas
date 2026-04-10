@@ -27,6 +27,7 @@
         <p class="sidebar-section-label">Application</p>
         <button class="sidebar-link button-reset" data-dashboard-view="overview" title="Home"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="sidebar-link-text">Home</span></button>
         <button class="sidebar-link button-reset" data-dashboard-view="plan" title="My Plan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="sidebar-link-text">My Plan</span></button>
+        <button class="sidebar-link button-reset" data-dashboard-view="chatbot" title="AI Chatbot"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg><span class="sidebar-link-text">AI Chatbot</span></button>
         <button class="sidebar-link button-reset" data-dashboard-view="billing" title="Billing"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span class="sidebar-link-text">Billing</span></button>
       </div>
       <div class="sidebar-section">
@@ -106,6 +107,60 @@
             <div id="plan-loading" style="text-align:center;padding:48px 20px;color:var(--gray-400)">
               <p style="font-size:14px">Loading your plan...</p>
             </div>
+          </div>
+        </div>
+
+        <!-- CHATBOT VIEW -->
+        <div id="dash-view-chatbot" class="dash-view">
+          <div class="chatbot-layout">
+            <aside class="chatbot-sidebar">
+              <button class="chatbot-new-chat button-reset" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New chat
+              </button>
+              <label class="chatbot-search-wrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search chats..." readonly>
+              </label>
+              <div class="chatbot-history-group">
+                <p class="chatbot-history-label">Today</p>
+                <button class="chatbot-history-item active button-reset" type="button">New chat</button>
+                <button class="chatbot-history-item button-reset" type="button">Meal plan adjustments</button>
+                <button class="chatbot-history-item button-reset" type="button">Leg day recovery tips</button>
+              </div>
+              <div class="chatbot-history-group">
+                <p class="chatbot-history-label">Older</p>
+                <button class="chatbot-history-item button-reset" type="button">Weekly macro check-in</button>
+              </div>
+            </aside>
+
+            <section class="chatbot-main">
+              <div class="chatbot-context-pill">
+                <span>🧠</span>
+                AI gebruikt context uit je huidige My Plan
+              </div>
+
+              <div class="chatbot-empty-state">
+                <h2>How can I help you with your fitness plan today?</h2>
+                <p>Ask anything about your training split, nutrition targets, or recovery routine.</p>
+                <div class="chatbot-suggestions">
+                  <button class="chatbot-suggestion button-reset" type="button">Pas mijn schema aan voor 4 dagen trainen</button>
+                  <button class="chatbot-suggestion button-reset" type="button">Maak een meal prep versie van mijn voedingsplan</button>
+                  <button class="chatbot-suggestion button-reset" type="button">Hoe haal ik mijn eiwitdoel elke dag?</button>
+                </div>
+              </div>
+
+              <div class="chatbot-input-shell">
+                <textarea rows="3" placeholder="Ask me anything about your plan..." readonly></textarea>
+                <div class="chatbot-input-footer">
+                  <button class="chatbot-model-btn button-reset" type="button">Fitness Assistant</button>
+                  <button class="chatbot-send-btn button-reset" type="button" aria-label="Send">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+              </div>
+              <p class="chatbot-disclaimer">Functionaliteit volgt later. Deze preview toont alleen de UI/UX-flow.</p>
+            </section>
           </div>
         </div>
 

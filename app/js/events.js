@@ -141,6 +141,8 @@ export function bindEvents() {
         navigate("/app/ai");
       } else if (view === "plan") {
         navigate("/app/plan");
+      } else if (view === "chatbot") {
+        navigate("/app/chatbot");
       } else {
         navigate("/app/");
       }

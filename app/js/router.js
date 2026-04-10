@@ -13,6 +13,7 @@ function getNormalizedAppPath() {
 export const PAGE_PATHS = {
   overview: "/app/",
   plan: "/app/plan",
+  chatbot: "/app/chatbot",
   billing: "/app/billing",
   settings: "/app/settings",
   ai: "/app/ai",
@@ -54,9 +55,10 @@ export function preInitRoute() {
     path === "/app/billing"  ? "billing"  :
     path === "/app/settings" ? "settings" :
     path === "/app/plan"     ? "plan"     :
+    path === "/app/chatbot"  ? "chatbot"  :
     path === "/app/ai"       ? "ai"       : "overview";
 
-  const labels = { billing: "Billing", settings: "Settings", plan: "My Plan", ai: "AI Test" };
+  const labels = { billing: "Billing", settings: "Settings", plan: "My Plan", chatbot: "AI Chatbot", ai: "AI Test" };
   const label  = labels[viewName] || "Home";
 
   const topbarLabel = document.getElementById("dashboard-topbar-label");
@@ -99,6 +101,10 @@ export function renderRoute() {
     }
     if (path === "/app/plan") {
       showDashboardView("plan");
+      return;
+    }
+    if (path === "/app/chatbot") {
+      showDashboardView("chatbot");
       return;
     }
     if (path === "/app/billing") {
