@@ -84,6 +84,8 @@ export function getFirebaseErrorMessage(code) {
     "auth/cancelled-popup-request": null,
     "auth/popup-blocked": "Popup blocked. Allow popups for this site.",
     "auth/requires-recent-login": "Please sign in again to perform this action.",
+    "auth/invalid-action-code": "De link is ongeldig of al gebruikt. Vraag een nieuwe aan.",
+    "auth/expired-action-code": "De link is verlopen. Vraag een nieuwe magic link aan.",
   };
   if (code in messages) return messages[code];
   return "Something went wrong. Please try again.";

@@ -15,6 +15,8 @@ export const els = {
   signinPasswordField: document.getElementById("signin-password-field"),
   signinMagicInfo: document.getElementById("signin-magic-info"),
   signinModeToggle: document.getElementById("signin-mode-toggle"),
+  signinForgotToggle: document.getElementById("signin-forgot-toggle"),
+  signinForgotInfo: document.getElementById("signin-forgot-info"),
   signinSubmit: document.getElementById("signin-submit"),
   signupSubmit: document.getElementById("signup-submit"),
   signinGoogle: document.getElementById("signin-google"),
