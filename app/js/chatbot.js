@@ -2,13 +2,11 @@ import {
   collection,
   addDoc,
   getDoc,
-  getDocs,
   doc,
   updateDoc,
   deleteDoc,
+  onSnapshot,
   serverTimestamp,
-  query,
-  orderBy,
   arrayUnion,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { state } from "./state.js";
@@ -20,6 +18,7 @@ let isLoading = false;
 let allConversations = []; // cached conversation list
 let _bound = false; // prevent double-binding
 let _activeMenuConvId = null; // tracks which context menu is open
+let _unsubConversations = null; // Firestore real-time listener cleanup fn
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function el(id) {
@@ -108,22 +107,36 @@ function renderConversationList(conversations, filterText = "") {
   container.innerHTML = html;
 }
 
-// ─── Load conversations from Firestore ───────────────────────────────────────
-async function loadConversations() {
+// ─── Subscribe to conversations (real-time) ───────────────────────────────────
+function subscribeConversations() {
   if (!state.currentUser || !state.firestore) return;
-  try {
-    const uid = state.currentUser.uid;
-    const q = query(
-      collection(state.firestore, "users", uid, "conversations"),
-      orderBy("updatedAt", "desc")
-    );
-    const snap = await getDocs(q);
-    allConversations = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    renderConversationList(allConversations);
-  } catch {
-    // Silently fail — user may not have any conversations yet
-    renderConversationList([]);
+
+  // Tear down any previous listener first
+  if (_unsubConversations) {
+    _unsubConversations();
+    _unsubConversations = null;
   }
+
+  const uid = state.currentUser.uid;
+  const colRef = collection(state.firestore, "users", uid, "conversations");
+
+  _unsubConversations = onSnapshot(
+    colRef,
+    (snap) => {
+      allConversations = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const aTime = a.updatedAt?.toMillis?.() ?? 0;
+          const bTime = b.updatedAt?.toMillis?.() ?? 0;
+          return bTime - aTime;
+        });
+      renderConversationList(allConversations);
+    },
+    (err) => {
+      console.error("[Chatbot] Firestore listener error:", err);
+      renderConversationList([]);
+    }
+  );
 }
 
 // ─── Select and load a conversation ──────────────────────────────────────────
@@ -302,8 +315,8 @@ async function sendMessage(text) {
           }
         );
         currentConversationId = docRef.id;
-      } catch {
-        // Non-fatal — continue without persistence
+      } catch (err) {
+        console.error("[Chatbot] Failed to create conversation in Firestore:", err);
       }
     } else if (currentConversationId && state.firestore) {
       // Append user message to existing conversation
@@ -315,8 +328,8 @@ async function sendMessage(text) {
             updatedAt: serverTimestamp(),
           }
         );
-      } catch {
-        // Non-fatal
+      } catch (err) {
+        console.error("[Chatbot] Failed to append user message to Firestore:", err);
       }
     }
 
@@ -353,8 +366,8 @@ async function sendMessage(text) {
               updatedAt: serverTimestamp(),
             }
           );
-        } catch {
-          // Non-fatal
+        } catch (err) {
+          console.error("[Chatbot] Failed to save AI response to Firestore:", err);
         }
       }
 
@@ -367,15 +380,14 @@ async function sendMessage(text) {
               doc(state.firestore, "users", uid, "conversations", currentConversationId),
               { title: aiTitle }
             );
-            const idx = allConversations.findIndex((c) => c.id === currentConversationId);
-            if (idx !== -1) allConversations[idx].title = aiTitle;
-          } catch {
-            // Non-fatal
+          } catch (err) {
+            console.error("[Chatbot] Failed to update conversation title:", err);
           }
         }
       }
     }
-  } catch {
+  } catch (err) {
+    console.error("[Chatbot] sendMessage error:", err);
     if (thinkingEl) thinkingEl.remove();
     appendMessage("assistant", "Could not reach the AI service. Please check your connection and try again.", true);
   }
@@ -385,9 +397,6 @@ async function sendMessage(text) {
   if (input) input.disabled = false;
   if (input && input.value.trim().length > 0 && sendBtn) sendBtn.disabled = false;
   if (input) input.focus();
-
-  // Refresh conversation list
-  await loadConversations();
 }
 
 // ─── AI title generation ──────────────────────────────────────────────────────
@@ -500,17 +509,18 @@ function startRename(convId) {
 
 async function commitRename(convId, newTitle) {
   if (!state.currentUser || !state.firestore) return;
+  // Optimistic local update while Firestore syncs
+  const idx = allConversations.findIndex((c) => c.id === convId);
+  if (idx !== -1) allConversations[idx].title = newTitle;
+  renderConversationList(allConversations);
   try {
     const uid = state.currentUser.uid;
     await updateDoc(
       doc(state.firestore, "users", uid, "conversations", convId),
       { title: newTitle }
     );
-    const idx = allConversations.findIndex((c) => c.id === convId);
-    if (idx !== -1) allConversations[idx].title = newTitle;
-    renderConversationList(allConversations);
-  } catch {
-    renderConversationList(allConversations);
+  } catch (err) {
+    console.error("[Chatbot] Failed to rename conversation:", err);
   }
 }
 
@@ -518,15 +528,16 @@ async function commitRename(convId, newTitle) {
 async function deleteConversation(convId) {
   closeConvMenu();
   if (convId === currentConversationId) startNewChat();
+  // Optimistic local removal
+  allConversations = allConversations.filter((c) => c.id !== convId);
+  renderConversationList(allConversations);
   if (!state.currentUser || !state.firestore) return;
   try {
     const uid = state.currentUser.uid;
     await deleteDoc(doc(state.firestore, "users", uid, "conversations", convId));
-  } catch {
-    // Non-fatal
+  } catch (err) {
+    console.error("[Chatbot] Failed to delete conversation:", err);
   }
-  allConversations = allConversations.filter((c) => c.id !== convId);
-  renderConversationList(allConversations);
 }
 
 // ─── Sidebar toggle ───────────────────────────────────────────────────────────
@@ -538,8 +549,8 @@ function toggleSidebar() {
 // ─── Main init function ───────────────────────────────────────────────────────
 export async function initChatbot() {
   if (_bound) {
-    // Re-entering — just refresh the conversation list
-    await loadConversations();
+    // Re-entering — listener is still active, just re-render the current state
+    renderConversationList(allConversations);
     return;
   }
   _bound = true;
@@ -635,6 +646,6 @@ export async function initChatbot() {
   // Initial state: show welcome
   startNewChat();
 
-  // Load conversation history
-  await loadConversations();
+  // Subscribe to conversation history (real-time updates)
+  subscribeConversations();
 }
