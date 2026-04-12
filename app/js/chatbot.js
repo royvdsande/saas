@@ -5,6 +5,7 @@ import {
   getDocs,
   doc,
   updateDoc,
+  deleteDoc,
   serverTimestamp,
   query,
   orderBy,
@@ -18,6 +19,7 @@ let currentMessages = []; // {role, content} array for API
 let isLoading = false;
 let allConversations = []; // cached conversation list
 let _bound = false; // prevent double-binding
+let _activeMenuConvId = null; // tracks which context menu is open
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function el(id) {
@@ -355,6 +357,23 @@ async function sendMessage(text) {
           // Non-fatal
         }
       }
+
+      // Auto-name the conversation after the first exchange
+      if (currentMessages.length === 2 && currentConversationId && state.firestore) {
+        const aiTitle = await generateConversationTitle(text);
+        if (aiTitle) {
+          try {
+            await updateDoc(
+              doc(state.firestore, "users", uid, "conversations", currentConversationId),
+              { title: aiTitle }
+            );
+            const idx = allConversations.findIndex((c) => c.id === currentConversationId);
+            if (idx !== -1) allConversations[idx].title = aiTitle;
+          } catch {
+            // Non-fatal
+          }
+        }
+      }
     }
   } catch {
     if (thinkingEl) thinkingEl.remove();
@@ -369,6 +388,145 @@ async function sendMessage(text) {
 
   // Refresh conversation list
   await loadConversations();
+}
+
+// ─── AI title generation ──────────────────────────────────────────────────────
+async function generateConversationTitle(firstUserMessage) {
+  try {
+    const token = await state.currentUser.getIdToken();
+    const res = await fetch("/api/chat-title", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: firstUserMessage }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.title || null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── Context menu ─────────────────────────────────────────────────────────────
+function closeConvMenu() {
+  const existing = document.getElementById("chatbot-conv-menu");
+  if (existing) existing.remove();
+  _activeMenuConvId = null;
+}
+
+function showConvMenu(anchorBtn, convId) {
+  closeConvMenu();
+  _activeMenuConvId = convId;
+
+  const menu = document.createElement("div");
+  menu.id = "chatbot-conv-menu";
+  menu.className = "chatbot-conv-menu";
+  menu.innerHTML = `
+    <button class="chatbot-conv-menu-item" data-action="rename">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Rename
+    </button>
+    <button class="chatbot-conv-menu-item chatbot-conv-menu-item--danger" data-action="delete">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Delete
+    </button>`;
+
+  // Position near the anchor button
+  document.body.appendChild(menu);
+  const rect = anchorBtn.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  let top = rect.bottom + 4;
+  let left = rect.left;
+  if (left + menuRect.width > window.innerWidth - 8) {
+    left = rect.right - menuRect.width;
+  }
+  if (top + menuRect.height > window.innerHeight - 8) {
+    top = rect.top - menuRect.height - 4;
+  }
+  menu.style.top = `${top}px`;
+  menu.style.left = `${left}px`;
+
+  menu.addEventListener("click", (e) => {
+    const item = e.target.closest("[data-action]");
+    if (!item) return;
+    if (item.dataset.action === "rename") startRename(convId);
+    if (item.dataset.action === "delete") deleteConversation(convId);
+  });
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener("click", closeConvMenu, { once: true });
+  }, 0);
+}
+
+// ─── Rename conversation ──────────────────────────────────────────────────────
+function startRename(convId) {
+  closeConvMenu();
+  const item = document.querySelector(`.chatbot-history-item[data-conv-id="${convId}"]`);
+  if (!item) return;
+  const titleSpan = item.querySelector(".chatbot-history-title");
+  if (!titleSpan) return;
+
+  const currentTitle = allConversations.find((c) => c.id === convId)?.title || "";
+  const input = document.createElement("input");
+  input.className = "chatbot-rename-input";
+  input.value = currentTitle;
+  titleSpan.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function restore() {
+    const span = document.createElement("span");
+    span.className = "chatbot-history-title";
+    span.textContent = currentTitle;
+    input.replaceWith(span);
+  }
+
+  async function commit() {
+    const newTitle = input.value.trim();
+    if (!newTitle || newTitle === currentTitle) { restore(); return; }
+    await commitRename(convId, newTitle);
+  }
+
+  input.addEventListener("blur", commit);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+    if (e.key === "Escape") { input.removeEventListener("blur", commit); restore(); }
+  });
+}
+
+async function commitRename(convId, newTitle) {
+  if (!state.currentUser || !state.firestore) return;
+  try {
+    const uid = state.currentUser.uid;
+    await updateDoc(
+      doc(state.firestore, "users", uid, "conversations", convId),
+      { title: newTitle }
+    );
+    const idx = allConversations.findIndex((c) => c.id === convId);
+    if (idx !== -1) allConversations[idx].title = newTitle;
+    renderConversationList(allConversations);
+  } catch {
+    renderConversationList(allConversations);
+  }
+}
+
+// ─── Delete conversation ──────────────────────────────────────────────────────
+async function deleteConversation(convId) {
+  closeConvMenu();
+  if (convId === currentConversationId) startNewChat();
+  if (!state.currentUser || !state.firestore) return;
+  try {
+    const uid = state.currentUser.uid;
+    await deleteDoc(doc(state.firestore, "users", uid, "conversations", convId));
+  } catch {
+    // Non-fatal
+  }
+  allConversations = allConversations.filter((c) => c.id !== convId);
+  renderConversationList(allConversations);
 }
 
 // ─── Sidebar toggle ───────────────────────────────────────────────────────────
@@ -433,10 +591,10 @@ export async function initChatbot() {
 
   // Bind conversation list clicks (delegated)
   el("chatbot-history")?.addEventListener("click", (e) => {
-    // Ignore the "..." menu button itself
     const menuBtn = e.target.closest(".chatbot-history-menu");
     if (menuBtn) {
       e.stopPropagation();
+      showConvMenu(menuBtn, menuBtn.dataset.menuConvId);
       return;
     }
     const item = e.target.closest(".chatbot-history-item");
