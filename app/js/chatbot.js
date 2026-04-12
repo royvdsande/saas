@@ -386,6 +386,12 @@ export async function initChatbot() {
   }
   _bound = true;
 
+  // Collapse sidebar by default on mobile
+  if (window.innerWidth <= 640) {
+    const shell = el("dash-view-ai");
+    if (shell) shell.classList.add("sidebar-hidden");
+  }
+
   // Bind new chat button
   el("chatbot-new-btn")?.addEventListener("click", () => {
     startNewChat();
