@@ -51,6 +51,18 @@
         <a class="btn btn-outline btn-full nav-auth-logged-in hidden" href="/app/">Dashboard</a>
       </div>
     </div>
+    <script>
+      (function () {
+        var btn = document.getElementById('burger-pricing');
+        var menu = document.getElementById('menu-pricing');
+        if (!btn || !menu) return;
+        btn.addEventListener('click', function () {
+          var open = !menu.classList.contains('open');
+          menu.classList.toggle('open', open);
+          btn.classList.toggle('open', open);
+        });
+      })();
+    </script>
 
     <div class="pricing-hero">
       <h1>Simple, honest pricing</h1>

@@ -1,14 +1,43 @@
-export function setStatus(element, message, variant = "info") {
-  if (!element) return;
-  if (!message) {
-    element.hidden = true;
-    element.textContent = "";
-    element.dataset.variant = "";
-    return;
+function getToastContainer() {
+  let c = document.getElementById("toast-container");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "toast-container";
+    c.className = "toast-container";
+    document.body.appendChild(c);
   }
-  element.hidden = false;
-  element.dataset.variant = variant;
-  element.textContent = message;
+  return c;
+}
+
+export function showToast(message, variant = "info", duration = 4500) {
+  const container = getToastContainer();
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.dataset.variant = variant;
+  const msg = document.createElement("span");
+  msg.className = "toast-message";
+  msg.textContent = message;
+  const btn = document.createElement("button");
+  btn.className = "toast-close";
+  btn.setAttribute("aria-label", "Close");
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  toast.appendChild(msg);
+  toast.appendChild(btn);
+  container.appendChild(toast);
+
+  const remove = () => {
+    if (toast.classList.contains("removing")) return;
+    clearTimeout(timer);
+    toast.classList.add("removing");
+    toast.addEventListener("animationend", () => toast.remove(), { once: true });
+  };
+  const timer = setTimeout(remove, duration);
+  btn.addEventListener("click", remove);
+}
+
+export function setStatus(element, message, variant = "info") {
+  if (element) { element.hidden = true; element.textContent = ""; element.dataset.variant = ""; }
+  if (message) showToast(message, variant);
 }
 
 export function setLoadingState(button, isLoading) {

@@ -19,17 +19,8 @@ function updateAuthNavigation() {
 }
 
 function bindShellEvents() {
-  document.querySelectorAll(".nav-burger").forEach((button) => {
-    button.addEventListener("click", () => {
-      const menu = document.getElementById(button.dataset.menuTarget);
-      const isOpen = menu?.classList.contains("open");
-      closeMobileMenus();
-      if (!isOpen) {
-        menu?.classList.add("open");
-        button.classList.add("open");
-      }
-    });
-  });
+  // Burger toggle is handled by inline scripts on each page so it works
+  // immediately without waiting for Firebase modules to finish loading.
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".nav") && !event.target.closest(".mobile-menu")) {

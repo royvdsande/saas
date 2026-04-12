@@ -53,6 +53,18 @@
       <a class="btn btn-outline btn-full nav-auth-logged-in hidden" href="/app/">Dashboard</a>
     </div>
   </div>
+  <script>
+    (function () {
+      var btn = document.getElementById('burger-landing');
+      var menu = document.getElementById('menu-landing');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', function () {
+        var open = !menu.classList.contains('open');
+        menu.classList.toggle('open', open);
+        btn.classList.toggle('open', open);
+      });
+    })();
+  </script>
 
   <main>
     <!-- HERO -->
