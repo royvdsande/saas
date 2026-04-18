@@ -1137,6 +1137,46 @@ body { overflow: hidden; }
   margin-top: 8px;
 }
 
+/* ── Conversation context menu ── */
+.chatbot-conv-menu {
+  position: fixed;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .10);
+  z-index: 300;
+  min-width: 148px;
+  padding: 4px 0;
+}
+.chatbot-conv-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--gray-700);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+.chatbot-conv-menu-item:hover { background: var(--gray-50); }
+.chatbot-conv-menu-item--danger { color: #ef4444; }
+.chatbot-conv-menu-item--danger:hover { background: #fef2f2; }
+
+/* ── Inline rename input ── */
+.chatbot-rename-input {
+  width: 100%;
+  font-size: 13px;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  padding: 1px 4px;
+  outline: none;
+  background: var(--white);
+  min-width: 0;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .chatbot-sidebar { width: 200px; }
