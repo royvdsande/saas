@@ -1,6 +1,6 @@
 import {
   collection,
-  addDoc,
+  setDoc,
   getDoc,
   doc,
   updateDoc,
@@ -19,6 +19,54 @@ let allConversations = []; // cached conversation list
 let _bound = false; // prevent double-binding
 let _activeMenuConvId = null; // tracks which context menu is open
 let _unsubConversations = null; // Firestore real-time listener cleanup fn
+
+// ─── localStorage storage layer ──────────────────────────────────────────────
+function lsKey() {
+  return `binas:chat-convs:${state.currentUser?.uid || "anon"}`;
+}
+
+function loadLocal() {
+  try { return JSON.parse(localStorage.getItem(lsKey()) || "[]"); } catch { return []; }
+}
+
+function saveLocal(convs) {
+  try {
+    const trimmed = convs.slice(0, 100).map((c) => ({
+      ...c,
+      messages: (c.messages || []).slice(-200),
+    }));
+    localStorage.setItem(lsKey(), JSON.stringify(trimmed));
+  } catch (err) {
+    console.warn("[Chatbot] localStorage save failed:", err);
+  }
+}
+
+function upsertLocal(conv) {
+  const all = loadLocal();
+  const idx = all.findIndex((c) => c.id === conv.id);
+  if (idx !== -1) all[idx] = { ...all[idx], ...conv };
+  else all.unshift(conv);
+  saveLocal(all);
+  return all;
+}
+
+function removeLocal(id) {
+  const all = loadLocal().filter((c) => c.id !== id);
+  saveLocal(all);
+  return all;
+}
+
+function genId() {
+  return `c_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function toMillis(ts) {
+  if (!ts) return 0;
+  if (typeof ts === "number") return ts;
+  if (ts.toMillis) return ts.toMillis();
+  if (ts instanceof Date) return ts.getTime();
+  return 0;
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function el(id) {
@@ -107,11 +155,15 @@ function renderConversationList(conversations, filterText = "") {
   container.innerHTML = html;
 }
 
-// ─── Subscribe to conversations (real-time) ───────────────────────────────────
+// ─── Subscribe to conversations ───────────────────────────────────────────────
 function subscribeConversations() {
+  // 1. Show localStorage data immediately (works offline / without Firestore)
+  allConversations = loadLocal().sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+  renderConversationList(allConversations);
+
   if (!state.currentUser || !state.firestore) return;
 
-  // Tear down any previous listener first
+  // Tear down any previous listener
   if (_unsubConversations) {
     _unsubConversations();
     _unsubConversations = null;
@@ -120,50 +172,66 @@ function subscribeConversations() {
   const uid = state.currentUser.uid;
   const colRef = collection(state.firestore, "users", uid, "conversations");
 
+  // 2. Subscribe to Firestore — merge remote docs into localStorage if available
   _unsubConversations = onSnapshot(
     colRef,
     (snap) => {
-      allConversations = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => {
-          const aTime = a.updatedAt?.toMillis?.() ?? 0;
-          const bTime = b.updatedAt?.toMillis?.() ?? 0;
-          return bTime - aTime;
-        });
+      if (snap.empty) return; // nothing remote; keep showing local data
+      const remote = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+      // Merge: remote wins over local on same id; local-only entries are kept
+      const local = loadLocal();
+      const merged = [...remote];
+      for (const lc of local) {
+        if (!merged.find((r) => r.id === lc.id)) merged.push(lc);
+      }
+
+      allConversations = merged.sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+      saveLocal(allConversations);
       renderConversationList(allConversations);
     },
     (err) => {
+      // Firestore unavailable — keep using localStorage, log for debugging
       console.error("[Chatbot] Firestore listener error:", err);
-      renderConversationList([]);
     }
   );
 }
 
 // ─── Select and load a conversation ──────────────────────────────────────────
 async function selectConversation(id) {
-  if (!state.currentUser || !state.firestore) return;
+  if (!state.currentUser) return;
   currentConversationId = id;
   currentMessages = [];
 
-  // Update active state in list
   renderConversationList(allConversations);
 
-  // Hide welcome, show messages
   const welcome = el("chatbot-welcome");
   const messages = el("chatbot-messages");
   if (welcome) welcome.style.display = "none";
   if (messages) {
     messages.style.display = "flex";
-    messages.innerHTML = `<div class="chatbot-thinking"><span></span><span></span><span></span></div>`;
+    messages.innerHTML = "";
   }
 
+  // Try local cache first (instant, no network)
+  const localConv = allConversations.find((c) => c.id === id) || loadLocal().find((c) => c.id === id);
+  if (localConv?.messages?.length) {
+    localConv.messages.forEach((m) => {
+      currentMessages.push({ role: m.role, content: m.content });
+      appendMessage(m.role, m.content);
+    });
+    scrollToBottom();
+    return;
+  }
+
+  // Fall back to Firestore if not in local cache
+  if (!state.firestore) return;
+  if (messages) messages.innerHTML = `<div class="chatbot-thinking"><span></span><span></span><span></span></div>`;
   try {
     const uid = state.currentUser.uid;
     const snap = await getDoc(doc(state.firestore, "users", uid, "conversations", id));
-    if (!snap.exists()) return;
-    const data = snap.data();
-    const storedMessages = data.messages || [];
-
+    if (!snap.exists()) { if (messages) messages.innerHTML = ""; return; }
+    const storedMessages = snap.data().messages || [];
     if (messages) messages.innerHTML = "";
     storedMessages.forEach((m) => {
       currentMessages.push({ role: m.role, content: m.content });
@@ -300,36 +368,48 @@ async function sendMessage(text) {
 
   try {
     const uid = state.currentUser.uid;
+    const now = Date.now();
 
-    // Create conversation in Firestore if this is the first message
-    if (!currentConversationId && state.firestore) {
+    if (!currentConversationId) {
+      // ── New conversation ──────────────────────────────────────────────────
       const title = text.length > 45 ? text.slice(0, 45) + "…" : text;
-      try {
-        const docRef = await addDoc(
-          collection(state.firestore, "users", uid, "conversations"),
-          {
-            title,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            messages: [{ role: "user", content: text }],
-          }
-        );
-        currentConversationId = docRef.id;
-      } catch (err) {
-        console.error("[Chatbot] Failed to create conversation in Firestore:", err);
+      currentConversationId = genId();
+
+      // Save to localStorage immediately (guaranteed)
+      const newConv = {
+        id: currentConversationId,
+        title,
+        createdAt: now,
+        updatedAt: now,
+        messages: [{ role: "user", content: text }],
+      };
+      allConversations = upsertLocal(newConv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+      renderConversationList(allConversations);
+
+      // Mirror to Firestore in background (best-effort)
+      if (state.firestore) {
+        setDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
+          title,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          messages: [{ role: "user", content: text }],
+        }).catch((err) => console.error("[Chatbot] Firestore create failed:", err));
       }
-    } else if (currentConversationId && state.firestore) {
-      // Append user message to existing conversation
-      try {
-        await updateDoc(
-          doc(state.firestore, "users", uid, "conversations", currentConversationId),
-          {
-            messages: arrayUnion({ role: "user", content: text }),
-            updatedAt: serverTimestamp(),
-          }
-        );
-      } catch (err) {
-        console.error("[Chatbot] Failed to append user message to Firestore:", err);
+    } else {
+      // ── Existing conversation — append user message ────────────────────────
+      const conv = allConversations.find((c) => c.id === currentConversationId);
+      if (conv) {
+        conv.messages = [...(conv.messages || []), { role: "user", content: text }];
+        conv.updatedAt = now;
+        allConversations = upsertLocal(conv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+        renderConversationList(allConversations);
+      }
+
+      if (state.firestore) {
+        updateDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
+          messages: arrayUnion({ role: "user", content: text }),
+          updatedAt: serverTimestamp(),
+        }).catch((err) => console.error("[Chatbot] Firestore update failed:", err));
       }
     }
 
@@ -356,34 +436,39 @@ async function sendMessage(text) {
       currentMessages.push({ role: "assistant", content: reply });
       appendMessage("assistant", reply);
 
-      // Save AI response to Firestore
-      if (currentConversationId && state.firestore) {
-        try {
-          await updateDoc(
-            doc(state.firestore, "users", uid, "conversations", currentConversationId),
-            {
-              messages: arrayUnion({ role: "assistant", content: reply }),
-              updatedAt: serverTimestamp(),
-            }
-          );
-        } catch (err) {
-          console.error("[Chatbot] Failed to save AI response to Firestore:", err);
+      // Save AI response to localStorage
+      if (currentConversationId) {
+        const conv = allConversations.find((c) => c.id === currentConversationId);
+        if (conv) {
+          conv.messages = [...(conv.messages || []), { role: "assistant", content: reply }];
+          conv.updatedAt = now;
+          allConversations = upsertLocal(conv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+          renderConversationList(allConversations);
+        }
+        if (state.firestore) {
+          updateDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
+            messages: arrayUnion({ role: "assistant", content: reply }),
+            updatedAt: serverTimestamp(),
+          }).catch((err) => console.error("[Chatbot] Firestore AI save failed:", err));
         }
       }
 
       // Auto-name the conversation after the first exchange
-      if (currentMessages.length === 2 && currentConversationId && state.firestore) {
-        const aiTitle = await generateConversationTitle(text);
-        if (aiTitle) {
-          try {
-            await updateDoc(
-              doc(state.firestore, "users", uid, "conversations", currentConversationId),
-              { title: aiTitle }
-            );
-          } catch (err) {
-            console.error("[Chatbot] Failed to update conversation title:", err);
+      if (currentMessages.length === 2 && currentConversationId) {
+        generateConversationTitle(text).then((aiTitle) => {
+          if (!aiTitle || !currentConversationId) return;
+          const conv2 = allConversations.find((c) => c.id === currentConversationId);
+          if (conv2) {
+            conv2.title = aiTitle;
+            allConversations = upsertLocal(conv2).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+            renderConversationList(allConversations);
           }
-        }
+          if (state.firestore) {
+            updateDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
+              title: aiTitle,
+            }).catch(() => {});
+          }
+        });
       }
     }
   } catch (err) {
@@ -508,19 +593,19 @@ function startRename(convId) {
 }
 
 async function commitRename(convId, newTitle) {
-  if (!state.currentUser || !state.firestore) return;
-  // Optimistic local update while Firestore syncs
-  const idx = allConversations.findIndex((c) => c.id === convId);
-  if (idx !== -1) allConversations[idx].title = newTitle;
-  renderConversationList(allConversations);
-  try {
-    const uid = state.currentUser.uid;
-    await updateDoc(
-      doc(state.firestore, "users", uid, "conversations", convId),
+  // Update localStorage immediately
+  const conv = allConversations.find((c) => c.id === convId);
+  if (conv) {
+    conv.title = newTitle;
+    allConversations = upsertLocal(conv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+    renderConversationList(allConversations);
+  }
+  // Mirror to Firestore in background
+  if (state.currentUser && state.firestore) {
+    updateDoc(
+      doc(state.firestore, "users", state.currentUser.uid, "conversations", convId),
       { title: newTitle }
-    );
-  } catch (err) {
-    console.error("[Chatbot] Failed to rename conversation:", err);
+    ).catch((err) => console.error("[Chatbot] Firestore rename failed:", err));
   }
 }
 
@@ -528,15 +613,13 @@ async function commitRename(convId, newTitle) {
 async function deleteConversation(convId) {
   closeConvMenu();
   if (convId === currentConversationId) startNewChat();
-  // Optimistic local removal
-  allConversations = allConversations.filter((c) => c.id !== convId);
+  // Remove from localStorage immediately
+  allConversations = removeLocal(convId).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
   renderConversationList(allConversations);
-  if (!state.currentUser || !state.firestore) return;
-  try {
-    const uid = state.currentUser.uid;
-    await deleteDoc(doc(state.firestore, "users", uid, "conversations", convId));
-  } catch (err) {
-    console.error("[Chatbot] Failed to delete conversation:", err);
+  // Mirror to Firestore in background
+  if (state.currentUser && state.firestore) {
+    deleteDoc(doc(state.firestore, "users", state.currentUser.uid, "conversations", convId))
+      .catch((err) => console.error("[Chatbot] Firestore delete failed:", err));
   }
 }
 
