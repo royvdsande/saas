@@ -1,0 +1,149 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+.daily-body {
+  background: #0a0a0a;
+  color: #ffffff;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  overflow-x: hidden;
+}
+
+.daily-back {
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.32);
+  text-decoration: none;
+  border-radius: 999px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.daily-back:hover,
+.daily-back:focus-visible {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.05);
+  outline: none;
+}
+
+.daily-main {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+
+.daily-streak {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  margin-bottom: 40px;
+}
+
+.daily-question {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin-bottom: 44px;
+  max-width: 520px;
+  min-height: 1.18em;
+}
+
+.daily-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.daily-btn {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 13px 38px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+  letter-spacing: 0.01em;
+}
+.daily-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.daily-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.daily-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.daily-btn.is-selected {
+  background: rgba(255, 255, 255, 0.92);
+  color: #0a0a0a;
+  border-color: rgba(255, 255, 255, 0.92);
+}
+
+.daily-confirmation {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.42);
+  line-height: 1.5;
+  max-width: 360px;
+  min-height: 1.5em;
+  margin-bottom: 56px;
+}
+
+.daily-answered {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.32);
+  margin-top: -40px;
+  margin-bottom: 40px;
+  letter-spacing: 0.04em;
+}
+
+.daily-history {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.daily-dot {
+  aspect-ratio: 1 / 1;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.18s ease;
+}
+.daily-dot.is-yes {
+  background: rgba(255, 255, 255, 0.92);
+}
+.daily-dot.is-today {
+  outline: 1px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 1px;
+}
+
+@media (max-width: 480px) {
+  .daily-history { max-width: 100%; }
+  .daily-actions { flex-direction: row; }
+  .daily-btn { padding: 12px 28px; }
+}
