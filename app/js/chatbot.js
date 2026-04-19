@@ -63,8 +63,12 @@ function genId() {
 function toMillis(ts) {
   if (!ts) return 0;
   if (typeof ts === "number") return ts;
-  if (ts.toMillis) return ts.toMillis();
+  if (typeof ts.toMillis === "function") return ts.toMillis();
   if (ts instanceof Date) return ts.getTime();
+  // Firestore Timestamp serialized to JSON (plain {seconds, nanoseconds}).
+  if (typeof ts.seconds === "number") {
+    return ts.seconds * 1000 + Math.floor((ts.nanoseconds || 0) / 1e6);
+  }
   return 0;
 }
 
@@ -81,8 +85,9 @@ function getAvatarInitial() {
 }
 
 function isToday(timestamp) {
-  if (!timestamp) return false;
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  const ms = toMillis(timestamp);
+  if (!ms) return false;
+  const date = new Date(ms);
   const now = new Date();
   return (
     date.getFullYear() === now.getFullYear() &&
@@ -176,17 +181,43 @@ function subscribeConversations() {
   _unsubConversations = onSnapshot(
     colRef,
     (snap) => {
-      if (snap.empty) return; // nothing remote; keep showing local data
       const remote = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-      // Merge: remote wins over local on same id; local-only entries are kept
       const local = loadLocal();
-      const merged = [...remote];
-      for (const lc of local) {
-        if (!merged.find((r) => r.id === lc.id)) merged.push(lc);
+
+      // Merge per-id: prefer whichever version has more messages (messages are
+      // only appended via arrayUnion, never removed, so "more" == "fresher").
+      // Fall back to newer updatedAt when message counts are equal. This avoids
+      // a stale remote snapshot wiping out local messages that haven't synced.
+      const byId = new Map();
+      for (const lc of local) byId.set(lc.id, lc);
+      for (const rc of remote) {
+        const lc = byId.get(rc.id);
+        if (!lc) { byId.set(rc.id, rc); continue; }
+        const lLen = (lc.messages || []).length;
+        const rLen = (rc.messages || []).length;
+        if (rLen > lLen) byId.set(rc.id, rc);
+        else if (rLen === lLen && toMillis(rc.updatedAt) > toMillis(lc.updatedAt)) {
+          // Remote has same messages but fresher metadata (e.g. AI-generated title)
+          byId.set(rc.id, { ...lc, ...rc, messages: lc.messages });
+        }
       }
 
-      allConversations = merged.sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+      // Drop local-only entries that were explicitly deleted remotely.
+      // A remote delete produces a snapshot where the doc is absent; we only
+      // trust this when Firestore has at least one doc (otherwise an initial
+      // empty snapshot would nuke offline-created chats).
+      if (!snap.empty) {
+        const remoteIds = new Set(remote.map((r) => r.id));
+        for (const lc of local) {
+          // Keep local-only conversations that were never synced (no server
+          // timestamp yet) — they haven't had a chance to appear remotely.
+          const neverSynced = typeof lc.updatedAt === "number";
+          if (!remoteIds.has(lc.id) && !neverSynced) byId.delete(lc.id);
+        }
+      }
+
+      allConversations = Array.from(byId.values())
+        .sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
       saveLocal(allConversations);
       renderConversationList(allConversations);
     },
