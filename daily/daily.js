@@ -18,13 +18,14 @@ const firebaseConfig = {
   measurementId: "G-1LLBGZNRNC",
 };
 
-const CACHE_KEY = "daily:cache:v1";
+const CACHE_KEY = "daily:cache:v2";
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const els = {
-  streak: document.getElementById("daily-streak"),
+  body: document.body,
+  streakText: document.getElementById("daily-streak-text"),
   question: document.getElementById("daily-question"),
   yes: document.getElementById("daily-btn-yes"),
   no: document.getElementById("daily-btn-no"),
@@ -35,9 +36,52 @@ const els = {
 
 let currentUid = null;
 let isSubmitting = false;
+let currentLang = "en";
+
+// i18n — just a few strings; question/confirmation come from server
+const STRINGS = {
+  en: {
+    loading: "Loading",
+    startStreak: "Start your streak",
+    dayStreak: (n) => (n === 1 ? "1 day streak" : `${n} day streak`),
+    lockedYes: "Locked in for today",
+    lockedNo: "See you tomorrow",
+    preparing: "Preparing today's prompt…",
+    failed: "Couldn't load today's prompt",
+    retryHint: "Try refreshing in a moment",
+    yes: "Yes",
+    no: "No",
+  },
+  nl: {
+    loading: "Laden",
+    startStreak: "Start je streak",
+    dayStreak: (n) => (n === 1 ? "1 dag streak" : `${n} dagen streak`),
+    lockedYes: "Vastgelegd voor vandaag",
+    lockedNo: "Tot morgen",
+    preparing: "Vraag van vandaag wordt gemaakt…",
+    failed: "Vraag van vandaag kon niet laden",
+    retryHint: "Probeer zo opnieuw",
+    yes: "Ja",
+    no: "Nee",
+  },
+};
+
+function detectLang() {
+  const raw = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+  const code = raw.split(/[-_]/)[0];
+  return code === "nl" ? "nl" : "en";
+}
+
+function t() {
+  return STRINGS[currentLang] || STRINGS.en;
+}
 
 function todayUTC() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function localHour() {
+  return new Date().getHours();
 }
 
 function readCache() {
@@ -55,6 +99,8 @@ function writeCache(uid, data) {
     const payload = {
       uid,
       date: data.today,
+      bucket: data.bucket,
+      lang: data.lang,
       question: data.question,
       confirmation: data.confirmation,
       todayAnswer: data.todayAnswer,
@@ -63,7 +109,7 @@ function writeCache(uid, data) {
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
   } catch {
-    // localStorage unavailable — ignore
+    // ignore
   }
 }
 
@@ -71,10 +117,17 @@ function clearCache() {
   try { localStorage.removeItem(CACHE_KEY); } catch {}
 }
 
+function bucketFromHour(h) {
+  if (h >= 5 && h < 12) return "morning";
+  if (h >= 12 && h < 17) return "midday";
+  if (h >= 17 && h < 22) return "evening";
+  return "night";
+}
+
 function formatStreak(streak) {
-  if (!streak) return "Start your streak";
-  if (streak === 1) return "1 day streak";
-  return `${streak} day streak`;
+  const s = t();
+  if (!streak) return s.startStreak;
+  return s.dayStreak(streak);
 }
 
 function renderHistory(recentYes, today) {
@@ -92,9 +145,51 @@ function renderHistory(recentYes, today) {
   els.history.innerHTML = cells.join("");
 }
 
-function render(data) {
+function setLabels() {
+  const s = t();
+  els.yes.textContent = s.yes;
+  els.no.textContent = s.no;
+  els.streakText.textContent = s.loading;
+}
+
+function setLoading(isLoading) {
+  els.body.classList.toggle("is-loading-state", isLoading);
+  els.question.classList.toggle("is-loading", isLoading);
+  if (isLoading) {
+    // Keep skeleton until first real render
+  } else {
+    // Remove any shimmer markers
+  }
+}
+
+function renderSkeleton() {
+  els.question.innerHTML =
+    '<span class="skeleton-line" style="display:inline-block;width:320px;max-width:90%;height:1.1em;vertical-align:middle"></span>';
+  els.confirmation.textContent = t().preparing;
+  els.streakText.textContent = t().loading;
+  els.yes.disabled = true;
+  els.no.disabled = true;
+  setLoading(true);
+}
+
+function render(data, { animate = false } = {}) {
   if (!data) return;
-  els.streak.textContent = formatStreak(data.streak || 0);
+  setLoading(false);
+
+  // Optional re-trigger of entrance animation on fresh data
+  if (animate) {
+    [els.streakText.parentElement, els.question, els.yes.parentElement, els.confirmation, els.history]
+      .filter(Boolean)
+      .forEach((el) => {
+        el.style.animation = "none";
+        // force reflow so the animation can replay
+        // eslint-disable-next-line no-unused-expressions
+        el.offsetHeight;
+        el.style.animation = "";
+      });
+  }
+
+  els.streakText.textContent = formatStreak(data.streak || 0);
   els.question.textContent = data.question || "";
   els.confirmation.textContent = data.confirmation || "";
 
@@ -109,16 +204,24 @@ function render(data) {
 
   if (answered) {
     els.answered.hidden = false;
-    els.answered.textContent =
-      data.todayAnswer === "yes" ? "Locked in for today." : "See you tomorrow.";
+    els.answered.textContent = data.todayAnswer === "yes" ? t().lockedYes : t().lockedNo;
   } else {
     els.answered.hidden = true;
     els.answered.textContent = "";
   }
 }
 
+function clientParams() {
+  return {
+    lang: detectLang(),
+    hour: localHour(),
+  };
+}
+
 async function fetchState(idToken) {
-  const res = await fetch("/api/daily-prompt", {
+  const { lang, hour } = clientParams();
+  const url = `/api/daily-prompt?lang=${encodeURIComponent(lang)}&hour=${encodeURIComponent(hour)}`;
+  const res = await fetch(url, {
     method: "GET",
     headers: { Authorization: `Bearer ${idToken}` },
   });
@@ -127,13 +230,14 @@ async function fetchState(idToken) {
 }
 
 async function submitAnswer(idToken, answer) {
+  const { lang, hour } = clientParams();
   const res = await fetch("/api/daily-prompt", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${idToken}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ action: "answer", answer }),
+    body: JSON.stringify({ action: "answer", answer, lang, hour }),
   });
   if (!res.ok) throw new Error(`Submit failed: ${res.status}`);
   return res.json();
@@ -152,10 +256,10 @@ async function handleAnswerClick(answer) {
   try {
     const idToken = await user.getIdToken();
     const data = await submitAnswer(idToken, answer);
+    currentLang = data.lang || currentLang;
     render(data);
     writeCache(currentUid, data);
   } catch {
-    // Re-enable on failure so user can retry
     els.yes.disabled = false;
     els.no.disabled = false;
     els.yes.classList.remove("is-selected");
@@ -172,9 +276,22 @@ function bindButtons() {
 
 async function bootForUser(user) {
   currentUid = user.uid;
+  currentLang = detectLang();
+  setLabels();
 
+  // Attempt cache-first render for instant paint
   const cached = readCache();
-  if (cached && cached.uid === currentUid && cached.date === todayUTC()) {
+  const today = todayUTC();
+  const currentBucket = bucketFromHour(localHour());
+
+  const cacheFresh =
+    cached &&
+    cached.uid === currentUid &&
+    cached.date === today &&
+    cached.bucket === currentBucket &&
+    cached.lang === currentLang;
+
+  if (cacheFresh) {
     render({
       question: cached.question,
       confirmation: cached.confirmation,
@@ -182,18 +299,25 @@ async function bootForUser(user) {
       streak: cached.streak,
       recentYes: cached.recentYes,
       today: cached.date,
+      bucket: cached.bucket,
+      lang: cached.lang,
     });
+  } else {
+    renderSkeleton();
   }
 
   try {
     const idToken = await user.getIdToken();
     const data = await fetchState(idToken);
-    render(data);
+    currentLang = data.lang || currentLang;
+    setLabels();
+    render(data, { animate: !cacheFresh });
     writeCache(currentUid, data);
   } catch {
-    if (!cached) {
-      els.question.textContent = "Couldn't load today's prompt.";
-      els.confirmation.textContent = "Try refreshing in a moment.";
+    if (!cacheFresh) {
+      setLoading(false);
+      els.question.textContent = t().failed;
+      els.confirmation.textContent = t().retryHint;
     }
   }
 }
