@@ -794,7 +794,7 @@ body { overflow: hidden; }
 }
 
 .chatbot-history-group {
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 .chatbot-history-label {
@@ -803,7 +803,7 @@ body { overflow: hidden; }
   color: var(--gray-400);
   text-transform: uppercase;
   letter-spacing: .05em;
-  padding: 8px 10px 4px;
+  padding: 6px 10px 2px;
 }
 
 .chatbot-history-item {
@@ -812,7 +812,7 @@ body { overflow: hidden; }
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  padding: 8px 10px;
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
   font-size: 13px;
   color: var(--gray-600);

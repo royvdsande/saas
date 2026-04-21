@@ -663,8 +663,7 @@ function toggleSidebar() {
 // ─── Main init function ───────────────────────────────────────────────────────
 export async function initChatbot() {
   if (_bound) {
-    // Re-entering — listener is still active, just re-render the current state
-    renderConversationList(allConversations);
+    subscribeConversations();
     return;
   }
   _bound = true;
