@@ -14,6 +14,7 @@ import { state } from "./state.js";
 // ─── Module state ───────────────────────────────────────────────────────────
 let currentConversationId = null;
 let currentMessages = []; // {role, content} array for API
+let currentModel = 'gpt-4o-mini';
 let isLoading = false;
 let allConversations = []; // cached conversation list
 let _bound = false; // prevent double-binding
@@ -351,21 +352,32 @@ function formatMessageContent(text) {
     .replace(/\n/g, "<br>");
 }
 
-// ─── Thinking indicator ───────────────────────────────────────────────────────
-function showThinking() {
+// ─── Streaming message element ────────────────────────────────────────────────
+function createStreamingMessage() {
   const container = el("chatbot-messages");
   if (!container) return null;
-  const div = document.createElement("div");
-  div.className = "chatbot-message chatbot-message--assistant";
-  div.id = "chatbot-thinking-indicator";
-  div.innerHTML = `
+  const wrapper = document.createElement("div");
+  wrapper.className = "chatbot-message chatbot-message--assistant";
+  wrapper.innerHTML = `
     <div class="chatbot-avatar chatbot-avatar--ai">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" fill="white"/></svg>
     </div>
-    <div class="chatbot-thinking"><span></span><span></span><span></span></div>`;
-  container.appendChild(div);
+    <div class="chatbot-message-body">
+      <div class="chatbot-message-content chatbot-streaming"></div>
+      <div class="chatbot-message-actions" hidden>
+        <button class="chatbot-action-btn button-reset" title="Copy" data-copy="">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>`;
+  container.appendChild(wrapper);
   scrollToBottom();
-  return div;
+  return {
+    wrapper,
+    contentEl: wrapper.querySelector('.chatbot-message-content'),
+    actionsEl: wrapper.querySelector('.chatbot-message-actions'),
+    copyBtn: wrapper.querySelector('[data-copy]'),
+  };
 }
 
 // ─── Send a message ───────────────────────────────────────────────────────────
@@ -394,8 +406,8 @@ async function sendMessage(text) {
   currentMessages.push({ role: "user", content: text });
   scrollToBottom();
 
-  // Show thinking indicator
-  const thinkingEl = showThinking();
+  // Create streaming message element immediately (no thinking dots)
+  const streamMsg = createStreamingMessage();
 
   try {
     const uid = state.currentUser.uid;
@@ -406,7 +418,6 @@ async function sendMessage(text) {
       const title = text.length > 45 ? text.slice(0, 45) + "…" : text;
       currentConversationId = genId();
 
-      // Save to localStorage immediately (guaranteed)
       const newConv = {
         id: currentConversationId,
         title,
@@ -417,7 +428,6 @@ async function sendMessage(text) {
       allConversations = upsertLocal(newConv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
       renderConversationList(allConversations);
 
-      // Mirror to Firestore in background (best-effort)
       if (state.firestore) {
         setDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
           title,
@@ -444,7 +454,7 @@ async function sendMessage(text) {
       }
     }
 
-    // Call the API
+    // Call the API with streaming
     const token = await state.currentUser.getIdToken();
     const res = await fetch("/api/chat", {
       method: "POST",
@@ -452,59 +462,98 @@ async function sendMessage(text) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ messages: currentMessages }),
+      body: JSON.stringify({ messages: currentMessages, model: currentModel }),
     });
 
-    const data = await res.json();
-
-    // Remove thinking indicator
-    if (thinkingEl) thinkingEl.remove();
-
     if (!res.ok) {
+      if (streamMsg) streamMsg.wrapper.remove();
+      const data = await res.json().catch(() => ({}));
       appendMessage("assistant", data.message || "Something went wrong. Please try again.", true);
-    } else {
-      const reply = data.message;
-      currentMessages.push({ role: "assistant", content: reply });
-      appendMessage("assistant", reply);
+      return;
+    }
 
-      // Save AI response to localStorage
-      if (currentConversationId) {
-        const conv = allConversations.find((c) => c.id === currentConversationId);
-        if (conv) {
-          conv.messages = [...(conv.messages || []), { role: "assistant", content: reply }];
-          conv.updatedAt = now;
-          allConversations = upsertLocal(conv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+    // Consume SSE stream and update message content as chunks arrive
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullContent = '';
+    let streamError = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (raw === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.error) { streamError = parsed.error; continue; }
+          if (parsed.content && streamMsg) {
+            fullContent += parsed.content;
+            streamMsg.contentEl.innerHTML = formatMessageContent(fullContent);
+            scrollToBottom();
+          }
+        } catch {}
+      }
+    }
+
+    if (streamError && !fullContent) {
+      if (streamMsg) streamMsg.wrapper.remove();
+      appendMessage("assistant", streamError, true);
+      return;
+    }
+
+    const reply = fullContent || "Sorry, I could not generate a response.";
+    currentMessages.push({ role: "assistant", content: reply });
+
+    // Finalize streaming message: show copy button, remove cursor
+    if (streamMsg) {
+      streamMsg.contentEl.classList.remove('chatbot-streaming');
+      streamMsg.actionsEl.hidden = false;
+      streamMsg.copyBtn.dataset.copy = reply;
+    }
+
+    // Save AI response to localStorage + Firestore
+    if (currentConversationId) {
+      const conv = allConversations.find((c) => c.id === currentConversationId);
+      if (conv) {
+        conv.messages = [...(conv.messages || []), { role: "assistant", content: reply }];
+        conv.updatedAt = now;
+        allConversations = upsertLocal(conv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+        renderConversationList(allConversations);
+      }
+      if (state.firestore) {
+        updateDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
+          messages: arrayUnion({ role: "assistant", content: reply }),
+          updatedAt: serverTimestamp(),
+        }).catch((err) => console.error("[Chatbot] Firestore AI save failed:", err));
+      }
+    }
+
+    // Auto-name the conversation after the first exchange
+    if (currentMessages.length === 2 && currentConversationId) {
+      generateConversationTitle(text).then((aiTitle) => {
+        if (!aiTitle || !currentConversationId) return;
+        const conv2 = allConversations.find((c) => c.id === currentConversationId);
+        if (conv2) {
+          conv2.title = aiTitle;
+          allConversations = upsertLocal(conv2).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
           renderConversationList(allConversations);
         }
         if (state.firestore) {
           updateDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
-            messages: arrayUnion({ role: "assistant", content: reply }),
-            updatedAt: serverTimestamp(),
-          }).catch((err) => console.error("[Chatbot] Firestore AI save failed:", err));
+            title: aiTitle,
+          }).catch(() => {});
         }
-      }
-
-      // Auto-name the conversation after the first exchange
-      if (currentMessages.length === 2 && currentConversationId) {
-        generateConversationTitle(text).then((aiTitle) => {
-          if (!aiTitle || !currentConversationId) return;
-          const conv2 = allConversations.find((c) => c.id === currentConversationId);
-          if (conv2) {
-            conv2.title = aiTitle;
-            allConversations = upsertLocal(conv2).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
-            renderConversationList(allConversations);
-          }
-          if (state.firestore) {
-            updateDoc(doc(state.firestore, "users", uid, "conversations", currentConversationId), {
-              title: aiTitle,
-            }).catch(() => {});
-          }
-        });
-      }
+      });
     }
   } catch (err) {
     console.error("[Chatbot] sendMessage error:", err);
-    if (thinkingEl) thinkingEl.remove();
+    if (streamMsg) streamMsg.wrapper.remove();
     appendMessage("assistant", "Could not reach the AI service. Please check your connection and try again.", true);
   }
 
@@ -707,6 +756,11 @@ export async function initChatbot() {
       }
     });
   }
+
+  // Bind model selector
+  el("chatbot-model-select")?.addEventListener("change", (e) => {
+    currentModel = e.target.value;
+  });
 
   // Bind search
   el("chatbot-search")?.addEventListener("input", (e) => {

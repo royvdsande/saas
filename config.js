@@ -28,7 +28,7 @@ const BINAS_CONFIG = {
       bonus: 0,
       price: "4,99",
       popular: false,
-      priceId: "PLACEHOLDER_CREDITS_100",
+      priceId: "price_1TObTkLzjWXxGtsSi10xKR3a",
     },
     {
       id: "credits_500",
@@ -38,7 +38,7 @@ const BINAS_CONFIG = {
       bonus: 50,
       price: "19,99",
       popular: true,
-      priceId: "PLACEHOLDER_CREDITS_500",
+      priceId: "price_1TObTPLzjWXxGtsS6lMytjv3",
     },
     {
       id: "credits_1000",
@@ -48,7 +48,7 @@ const BINAS_CONFIG = {
       bonus: 150,
       price: "34,99",
       popular: false,
-      priceId: "PLACEHOLDER_CREDITS_1000",
+      priceId: "price_1TOatFLzjWXxGtsSC7l4mLjg",
     },
   ],
 
