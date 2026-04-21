@@ -709,6 +709,71 @@ function toggleSidebar() {
   if (shell) shell.classList.toggle("sidebar-hidden");
 }
 
+// ─── Model picker ─────────────────────────────────────────────────────────────
+const MODELS = [
+  { id: "gpt-4o-mini", name: "GPT-4o Mini", desc: "Fast and efficient — great for everyday questions" },
+  { id: "gpt-4o", name: "GPT-4o", desc: "Most capable — best for complex reasoning" },
+  { id: "gpt-4-turbo", name: "GPT-4 Turbo", desc: "Strong performance with broad knowledge" },
+];
+
+function closeModelPicker() {
+  document.getElementById("chatbot-model-popover")?.remove();
+  el("chatbot-model-btn")?.setAttribute("aria-expanded", "false");
+}
+
+function toggleModelPicker() {
+  const existing = document.getElementById("chatbot-model-popover");
+  if (existing) { closeModelPicker(); return; }
+
+  const btn = el("chatbot-model-btn");
+  if (!btn) return;
+
+  const popover = document.createElement("div");
+  popover.id = "chatbot-model-popover";
+  popover.className = "chatbot-model-popover";
+  popover.setAttribute("role", "menu");
+  popover.innerHTML = MODELS.map((m) => `
+    <button class="chatbot-model-item${m.id === currentModel ? " active" : ""}" data-model-id="${m.id}" role="menuitem">
+      <div class="chatbot-model-item-body">
+        <span class="chatbot-model-item-name">${escapeHtml(m.name)}</span>
+        <span class="chatbot-model-item-desc">${escapeHtml(m.desc)}</span>
+      </div>
+      <svg class="chatbot-model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </button>
+  `).join("");
+
+  document.body.appendChild(popover);
+
+  // Position above the button (input sits near bottom of chat)
+  const rect = btn.getBoundingClientRect();
+  const pRect = popover.getBoundingClientRect();
+  let left = rect.left;
+  if (left + pRect.width > window.innerWidth - 8) {
+    left = Math.max(8, window.innerWidth - pRect.width - 8);
+  }
+  let top = rect.top - pRect.height - 6;
+  if (top < 8) top = rect.bottom + 6;
+  popover.style.top = `${top}px`;
+  popover.style.left = `${left}px`;
+
+  btn.setAttribute("aria-expanded", "true");
+
+  popover.addEventListener("click", (e) => {
+    const item = e.target.closest("[data-model-id]");
+    if (!item) return;
+    e.stopPropagation();
+    currentModel = item.dataset.modelId;
+    const selected = MODELS.find((m) => m.id === currentModel);
+    const nameEl = document.getElementById("chatbot-model-name");
+    if (nameEl && selected) nameEl.textContent = selected.name;
+    closeModelPicker();
+  });
+
+  setTimeout(() => {
+    document.addEventListener("click", closeModelPicker, { once: true });
+  }, 0);
+}
+
 // ─── Main init function ───────────────────────────────────────────────────────
 export async function initChatbot() {
   if (_bound) {
@@ -757,9 +822,10 @@ export async function initChatbot() {
     });
   }
 
-  // Bind model selector
-  el("chatbot-model-select")?.addEventListener("change", (e) => {
-    currentModel = e.target.value;
+  // Bind model picker
+  el("chatbot-model-btn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleModelPicker();
   });
 
   // Bind search
