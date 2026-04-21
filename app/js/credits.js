@@ -226,6 +226,7 @@ export async function startCreditsCheckout(packageId, triggerButton = null) {
       mode: "payment",
       price: pkg.priceId,
       quantity: 1,
+      allow_promotion_codes: true,
       success_url: `${origin}/app/settings?tab=credits&checkout=success`,
       cancel_url: `${origin}/app/settings?tab=credits&checkout=cancel`,
       metadata: {
