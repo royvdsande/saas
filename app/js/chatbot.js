@@ -758,7 +758,7 @@ function toggleModelPicker() {
   popover.className = "chatbot-model-popover";
   popover.setAttribute("role", "menu");
   popover.innerHTML = MODELS.map((m) => `
-    <button class="chatbot-model-item${m.id === currentModel ? " active" : ""}" data-model-id="${m.id}" role="menuitem">
+    <button class="chatbot-model-item button-reset${m.id === currentModel ? " active" : ""}" data-model-id="${m.id}" role="menuitem">
       <div class="chatbot-model-item-body">
         <span class="chatbot-model-item-name">${escapeHtml(m.name)}</span>
         <span class="chatbot-model-item-desc">${escapeHtml(m.desc)}</span>
