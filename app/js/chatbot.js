@@ -85,15 +85,14 @@ function getAvatarInitial() {
   return name.charAt(0).toUpperCase();
 }
 
-function isToday(timestamp) {
+function isThisMonth(timestamp) {
   const ms = toMillis(timestamp);
   if (!ms) return false;
   const date = new Date(ms);
   const now = new Date();
   return (
     date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
+    date.getMonth() === now.getMonth()
   );
 }
 
@@ -123,38 +122,39 @@ function renderConversationList(conversations, filterText = "") {
     return;
   }
 
-  const todayItems = filtered.filter((c) => isToday(c.updatedAt || c.createdAt));
-  const olderItems = filtered.filter((c) => !isToday(c.updatedAt || c.createdAt));
+  const pinnedItems = filtered.filter((c) => c.pinned);
+  const unpinned = filtered.filter((c) => !c.pinned);
+  const thisMonthItems = unpinned.filter((c) => isThisMonth(c.updatedAt || c.createdAt));
+  const olderItems = unpinned.filter((c) => !isThisMonth(c.updatedAt || c.createdAt));
+
+  const renderItem = (c) => {
+    const isActive = c.id === currentConversationId;
+    return `
+      <button class="chatbot-history-item button-reset${isActive ? " active" : ""}${c.pinned ? " pinned" : ""}" data-conv-id="${c.id}">
+        <span class="chatbot-history-title">${escapeHtml(c.title || "New chat")}</span>
+        <button class="chatbot-history-menu button-reset" data-menu-conv-id="${c.id}" title="Options" tabindex="-1">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+      </button>`;
+  };
 
   let html = "";
 
-  if (todayItems.length > 0) {
-    html += `<div class="chatbot-history-group"><p class="chatbot-history-label">Today</p>`;
-    todayItems.forEach((c) => {
-      const isActive = c.id === currentConversationId;
-      html += `
-        <button class="chatbot-history-item button-reset${isActive ? " active" : ""}" data-conv-id="${c.id}">
-          <span class="chatbot-history-title">${escapeHtml(c.title || "New chat")}</span>
-          <button class="chatbot-history-menu button-reset" data-menu-conv-id="${c.id}" title="Options" tabindex="-1">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-          </button>
-        </button>`;
-    });
+  if (pinnedItems.length > 0) {
+    html += `<div class="chatbot-history-group"><p class="chatbot-history-label">Pinned</p>`;
+    pinnedItems.forEach((c) => { html += renderItem(c); });
+    html += `</div>`;
+  }
+
+  if (thisMonthItems.length > 0) {
+    html += `<div class="chatbot-history-group"><p class="chatbot-history-label">This Month</p>`;
+    thisMonthItems.forEach((c) => { html += renderItem(c); });
     html += `</div>`;
   }
 
   if (olderItems.length > 0) {
     html += `<div class="chatbot-history-group"><p class="chatbot-history-label">Older</p>`;
-    olderItems.forEach((c) => {
-      const isActive = c.id === currentConversationId;
-      html += `
-        <button class="chatbot-history-item button-reset${isActive ? " active" : ""}" data-conv-id="${c.id}">
-          <span class="chatbot-history-title">${escapeHtml(c.title || "New chat")}</span>
-          <button class="chatbot-history-menu button-reset" data-menu-conv-id="${c.id}" title="Options" tabindex="-1">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-          </button>
-        </button>`;
-    });
+    olderItems.forEach((c) => { html += renderItem(c); });
     html += `</div>`;
   }
 
@@ -595,6 +595,9 @@ function showConvMenu(anchorBtn, convId) {
   closeConvMenu();
   _activeMenuConvId = convId;
 
+  const conv = allConversations.find((c) => c.id === convId);
+  const isPinned = !!conv?.pinned;
+
   const menu = document.createElement("div");
   menu.id = "chatbot-conv-menu";
   menu.className = "chatbot-conv-menu";
@@ -602,6 +605,10 @@ function showConvMenu(anchorBtn, convId) {
     <button class="chatbot-conv-menu-item" data-action="rename">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Rename
+    </button>
+    <button class="chatbot-conv-menu-item" data-action="pin">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+      ${isPinned ? "Unpin" : "Pin"}
     </button>
     <button class="chatbot-conv-menu-item chatbot-conv-menu-item--danger" data-action="delete">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
@@ -627,6 +634,7 @@ function showConvMenu(anchorBtn, convId) {
     const item = e.target.closest("[data-action]");
     if (!item) return;
     if (item.dataset.action === "rename") startRename(convId);
+    if (item.dataset.action === "pin") togglePin(convId);
     if (item.dataset.action === "delete") deleteConversation(convId);
   });
 
@@ -689,6 +697,23 @@ async function commitRename(convId, newTitle) {
   }
 }
 
+// ─── Pin / unpin conversation ────────────────────────────────────────────────
+async function togglePin(convId) {
+  closeConvMenu();
+  const conv = allConversations.find((c) => c.id === convId);
+  if (!conv) return;
+  const nextPinned = !conv.pinned;
+  conv.pinned = nextPinned;
+  allConversations = upsertLocal(conv).sort((a, b) => toMillis(b.updatedAt) - toMillis(a.updatedAt));
+  renderConversationList(allConversations);
+  if (state.currentUser && state.firestore) {
+    updateDoc(
+      doc(state.firestore, "users", state.currentUser.uid, "conversations", convId),
+      { pinned: nextPinned }
+    ).catch((err) => console.error("[Chatbot] Firestore pin failed:", err));
+  }
+}
+
 // ─── Delete conversation ──────────────────────────────────────────────────────
 async function deleteConversation(convId) {
   closeConvMenu();
@@ -733,7 +758,7 @@ function toggleModelPicker() {
   popover.className = "chatbot-model-popover";
   popover.setAttribute("role", "menu");
   popover.innerHTML = MODELS.map((m) => `
-    <button class="chatbot-model-item${m.id === currentModel ? " active" : ""}" data-model-id="${m.id}" role="menuitem">
+    <button class="chatbot-model-item button-reset${m.id === currentModel ? " active" : ""}" data-model-id="${m.id}" role="menuitem">
       <div class="chatbot-model-item-body">
         <span class="chatbot-model-item-name">${escapeHtml(m.name)}</span>
         <span class="chatbot-model-item-desc">${escapeHtml(m.desc)}</span>
