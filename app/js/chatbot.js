@@ -85,15 +85,14 @@ function getAvatarInitial() {
   return name.charAt(0).toUpperCase();
 }
 
-function isToday(timestamp) {
+function isThisMonth(timestamp) {
   const ms = toMillis(timestamp);
   if (!ms) return false;
   const date = new Date(ms);
   const now = new Date();
   return (
     date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
+    date.getMonth() === now.getMonth()
   );
 }
 
@@ -123,14 +122,14 @@ function renderConversationList(conversations, filterText = "") {
     return;
   }
 
-  const todayItems = filtered.filter((c) => isToday(c.updatedAt || c.createdAt));
-  const olderItems = filtered.filter((c) => !isToday(c.updatedAt || c.createdAt));
+  const thisMonthItems = filtered.filter((c) => isThisMonth(c.updatedAt || c.createdAt));
+  const olderItems = filtered.filter((c) => !isThisMonth(c.updatedAt || c.createdAt));
 
   let html = "";
 
-  if (todayItems.length > 0) {
-    html += `<div class="chatbot-history-group"><p class="chatbot-history-label">Today</p>`;
-    todayItems.forEach((c) => {
+  if (thisMonthItems.length > 0) {
+    html += `<div class="chatbot-history-group"><p class="chatbot-history-label">This Month</p>`;
+    thisMonthItems.forEach((c) => {
       const isActive = c.id === currentConversationId;
       html += `
         <button class="chatbot-history-item button-reset${isActive ? " active" : ""}" data-conv-id="${c.id}">
