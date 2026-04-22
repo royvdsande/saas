@@ -885,11 +885,9 @@ body { overflow: hidden; }
 }
 
 .chatbot-panel-header {
-  height: 44px;
   display: flex;
   align-items: center;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--gray-100);
+  padding: 10px 12px 0;
   flex-shrink: 0;
 }
 
