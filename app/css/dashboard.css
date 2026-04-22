@@ -726,46 +726,72 @@ body { overflow: hidden; }
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--gray-200);
-  background: var(--gray-50);
+  background: var(--white);
   overflow: hidden;
+  transition: width .28s cubic-bezier(0.4, 0, 0.2, 1),
+              border-right-color .28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chatbot-sidebar-inner {
+  width: 248px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  opacity: 1;
+  transition: opacity .22s ease;
 }
 
 .chatbot-shell.sidebar-hidden .chatbot-sidebar {
-  display: none;
+  width: 0;
+  border-right-color: transparent;
+}
+
+.chatbot-shell.sidebar-hidden .chatbot-sidebar-inner {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .chatbot-sidebar-top {
-  padding: 12px 8px 4px;
+  padding: 12px 10px 6px;
 }
 
 .chatbot-new-btn {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 9px 12px;
+  border: 1px solid var(--gray-200);
   border-radius: var(--radius-sm);
+  background: var(--white);
   font-size: 14px;
   font-weight: 500;
-  color: var(--gray-600);
+  color: var(--black);
   cursor: pointer;
-  transition: background .12s, color .12s;
-  text-align: left;
+  transition: background .12s, border-color .12s, box-shadow .12s;
+  text-align: center;
 }
 .chatbot-new-btn:hover {
-  background: var(--gray-100);
-  color: var(--black);
+  background: var(--gray-50);
+  border-color: var(--gray-300);
 }
 
 .chatbot-search-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 8px 8px;
+  margin: 4px 10px 10px;
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--gray-200);
   background: var(--white);
+  transition: border-color .12s, box-shadow .12s;
+}
+.chatbot-search-wrap:focus-within {
+  border-color: var(--gray-300);
 }
 .chatbot-search-icon { color: var(--gray-400); flex-shrink: 0; }
 .chatbot-search-input {
@@ -1259,6 +1285,7 @@ body { overflow: hidden; }
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .chatbot-sidebar { width: 200px; }
+  .chatbot-sidebar-inner { width: 200px; }
   .chatbot-messages { padding: 16px; }
   .chatbot-welcome-title { font-size: 20px; }
 }
