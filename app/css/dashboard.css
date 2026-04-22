@@ -837,14 +837,14 @@ body { overflow: hidden; }
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  padding: 9px 10px;
+  padding: 12px 12px;
   border-radius: var(--radius-sm);
   font-size: 14px;
   color: var(--gray-700);
   cursor: pointer;
   text-align: left;
   transition: background .1s, color .1s;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 .chatbot-history-item:hover { background: var(--gray-100); color: var(--black); }
 .chatbot-history-item.active { background: var(--gray-100); color: var(--black); font-weight: 500; }
@@ -1244,19 +1244,20 @@ body { overflow: hidden; }
   position: fixed;
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .10);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, .10);
   z-index: 300;
-  min-width: 148px;
-  padding: 4px 0;
+  min-width: 160px;
+  padding: 6px;
 }
 .chatbot-conv-menu-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 8px 14px;
-  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
   color: var(--gray-700);
   background: none;
   border: none;
