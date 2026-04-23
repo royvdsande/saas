@@ -10,6 +10,7 @@ import {
 } from "/app/js/auth.js";
 import { els } from "/app/js/elements.js";
 import { setSigninMode } from "/app/js/ui.js";
+import { t, translateCurrentPage } from "/js/i18n.js";
 
 function updatePasswordHint(input, hintEl) {
   if (!hintEl) return;
@@ -17,13 +18,13 @@ function updatePasswordHint(input, hintEl) {
   const xIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
   const checkIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
   if (len === 0) {
-    hintEl.innerHTML = `${xIcon} 6 or more characters`;
+    hintEl.innerHTML = `${xIcon} ${t("auth.password.min", "6 or more characters")}`;
     hintEl.style.color = "var(--gray-400, #9ca3af)";
   } else if (len < 6) {
-    hintEl.innerHTML = `${xIcon} 6 or more characters`;
+    hintEl.innerHTML = `${xIcon} ${t("auth.password.min", "6 or more characters")}`;
     hintEl.style.color = "#dc2626";
   } else {
-    hintEl.innerHTML = `${checkIcon} Looks good`;
+    hintEl.innerHTML = `${checkIcon} ${t("auth.password.good", "Looks good")}`;
     hintEl.style.color = "#16a34a";
   }
 }
@@ -48,7 +49,7 @@ function showPostCheckoutBanner() {
   banner.className = "auth-checkout-banner";
   banner.innerHTML = `
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-    <span>Your plan and subscription are ready! Create an account to save everything.</span>
+    <span>${t("auth.banner.postCheckout", "Your plan and subscription are ready! Create an account to save everything.")}</span>
   `;
   banner.style.cssText = "display:flex;align-items:center;gap:10px;padding:14px 18px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;margin-bottom:20px;font-size:14px;color:#065f46;line-height:1.4;";
 
@@ -111,6 +112,7 @@ function preserveCheckoutParams() {
 }
 
 async function init() {
+  translateCurrentPage();
   state.currentPageId = "page-auth";
   initFirebase();
   bindPasswordToggles();
