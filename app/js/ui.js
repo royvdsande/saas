@@ -57,15 +57,22 @@ export function toggleAccountMenu() {
 export function setSigninMode(mode) {
   state.signinMode = mode;
   const isPassword = mode === "password";
+  const isMagic = mode === "magic";
+  const isForgot = mode === "forgot";
 
   els.signinPasswordField?.classList.toggle("hidden", !isPassword);
-  els.signinMagicInfo?.classList.toggle("hidden", isPassword);
+  els.signinMagicInfo?.classList.toggle("hidden", !isMagic);
+  els.signinForgotInfo?.classList.toggle("hidden", !isForgot);
 
   if (els.signinModeToggle) {
-    els.signinModeToggle.textContent = isPassword ? "Stuur magic link" : "Gebruik wachtwoord";
+    els.signinModeToggle.textContent = isMagic ? "Gebruik wachtwoord" : "Magic link";
+  }
+  if (els.signinForgotToggle) {
+    els.signinForgotToggle.textContent = isForgot ? "← Annuleer" : "Wachtwoord vergeten?";
   }
   if (els.signinSubmit) {
-    els.signinSubmit.textContent = isPassword ? "Inloggen" : "Stuur magic link";
-    els.signinSubmit.dataset.originalLabel = isPassword ? "Inloggen" : "Stuur magic link";
+    const label = isForgot ? "Stuur reset-link" : isMagic ? "Stuur magic link" : "Inloggen";
+    els.signinSubmit.textContent = label;
+    els.signinSubmit.dataset.originalLabel = label;
   }
 }

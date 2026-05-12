@@ -37,7 +37,10 @@
         <div class="field" id="signin-password-field">
           <div class="field-row">
             <label>Password</label>
-            <span class="forgot" id="signin-mode-toggle">Send magic link</span>
+            <span style="display:flex;gap:12px;align-items:center">
+              <span class="forgot" id="signin-forgot-toggle">Wachtwoord vergeten?</span>
+              <span class="forgot" id="signin-mode-toggle">Magic link</span>
+            </span>
           </div>
           <div class="field-wrap">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -47,7 +50,11 @@
         </div>
         <div id="signin-magic-info" class="auth-mode-info hidden">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          We'll send a temporary login link to your email address.
+          We sturen een tijdelijke inloglink naar je e-mailadres.
+        </div>
+        <div id="signin-forgot-info" class="auth-mode-info hidden">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          We sturen een wachtwoord-resetlink naar je e-mailadres.
         </div>
         <button class="auth-submit" id="signin-submit" type="submit">Sign in</button>
       </form>

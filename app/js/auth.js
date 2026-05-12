@@ -2,6 +2,7 @@ import {
   isSignInWithEmailLink,
   signInWithEmailLink,
   sendSignInLinkToEmail,
+  sendPasswordResetEmail,
   GoogleAuthProvider,
   signInWithPopup,
   linkWithPopup,
@@ -65,6 +66,8 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
   initFirebase();
   setLoadingState(button, true, "Creating account...");
   setStatus(statusEl, "", "info");
+  // Prevent onAuthStateChanged from redirecting away before updateProfile completes
+  state.isSigningUp = true;
 
   try {
     const currentUser = state.auth.currentUser;
@@ -90,7 +93,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
       "Welcome! We've sent a verification email. Please check your inbox.",
       "info"
     );
-    navigate("/app/");
+    window.location.replace("/app/");
   } catch (error) {
     // If linking fails because email already in use, fall back to regular signup
     if (error.code === "auth/email-already-in-use" && state.auth.currentUser?.isAnonymous) {
@@ -102,7 +105,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
         await updateProfile(result.user, { displayName: name });
         await sendEmailVerification(result.user);
         state.currentUser = result.user;
-        navigate("/app/");
+        window.location.replace("/app/");
         return;
       } catch (innerError) {
         const msg = getFirebaseErrorMessage(innerError.code);
@@ -114,6 +117,7 @@ export async function signUpWithEmailPassword(name, email, password, statusEl, b
     const msg = getFirebaseErrorMessage(error.code);
     setStatus(statusEl, msg, "error");
   } finally {
+    state.isSigningUp = false;
     setLoadingState(button, false);
   }
 }
@@ -206,32 +210,78 @@ export async function signInWithGoogle(statusEl, button) {
   }
 }
 
+const PENDING_MAGIC_LINK_KEY = "pendingMagicLinkHref";
+
 export async function completeMagicLinkSignIn() {
   initFirebase();
   if (!isSignInWithEmailLink(state.auth, window.location.href)) {
     return;
   }
 
-  let email = localStorage.getItem(storedEmailKey);
+  const email = localStorage.getItem(storedEmailKey);
   if (!email) {
-    email = window.prompt("Confirm your email address to sign in:");
-  }
-
-  if (!email) {
-    setStatus(els.signinStatus, "Sign in cancelled: no email address confirmed.", "error");
+    // Different device/browser: store the link URL and ask the user to confirm their email
+    // via the existing sign-in form (the submit handler checks for this key).
+    sessionStorage.setItem(PENDING_MAGIC_LINK_KEY, window.location.href);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    setStatus(
+      els.signinStatus,
+      "Vul je e-mailadres in en klik op 'Inloggen' om het aanmelden te voltooien.",
+      "info"
+    );
     return;
   }
 
+  await _doMagicLinkSignIn(email, window.location.href);
+}
+
+async function _doMagicLinkSignIn(email, href) {
   try {
-    const result = await signInWithEmailLink(state.auth, email, window.location.href);
+    const result = await signInWithEmailLink(state.auth, email, href);
     state.currentUser = result.user;
     localStorage.removeItem(storedEmailKey);
-    window.history.replaceState({}, document.title, window.location.pathname);
-    navigate("/app/");
+    sessionStorage.removeItem(PENDING_MAGIC_LINK_KEY);
+    window.location.replace("/app/");
   } catch (error) {
     const msg = getFirebaseErrorMessage(error.code);
-    setStatus(els.signinStatus, msg || "Magic link sign in failed.", "error");
-    window.location.replace("/auth/login");
+    setStatus(els.signinStatus, msg || "Aanmelden via magic link mislukt.", "error");
+  }
+}
+
+export async function finishMagicLinkSignIn(email, statusEl, button) {
+  if (!email) {
+    setStatus(statusEl, "Voer je e-mailadres in.", "error");
+    return;
+  }
+  const href = sessionStorage.getItem(PENDING_MAGIC_LINK_KEY);
+  if (!href) {
+    setStatus(statusEl, "Magic link verlopen of al gebruikt. Vraag een nieuwe aan.", "error");
+    return;
+  }
+  setLoadingState(button, true, "Aanmelden...");
+  try {
+    await _doMagicLinkSignIn(email, href);
+  } finally {
+    setLoadingState(button, false);
+  }
+}
+
+export async function sendPasswordResetForEmail(email, statusEl, button) {
+  if (!email) {
+    setStatus(statusEl, "Voer je e-mailadres in.", "error");
+    return;
+  }
+  initFirebase();
+  setLoadingState(button, true, "Verzenden...");
+  setStatus(statusEl, "", "info");
+  try {
+    await sendPasswordResetEmail(state.auth, email);
+    setStatus(statusEl, "Reset-e-mail verzonden! Controleer je inbox.", "success");
+  } catch (error) {
+    const msg = getFirebaseErrorMessage(error.code);
+    setStatus(statusEl, msg || "Kon geen reset-e-mail verzenden.", "error");
+  } finally {
+    setLoadingState(button, false);
   }
 }
 

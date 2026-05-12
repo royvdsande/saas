@@ -49,6 +49,7 @@ export const state = {
   firebaseApp: null,
   auth: null,
   firestore: null,
+  isSigningUp: false,
 };
 
 export function initFirebase() {

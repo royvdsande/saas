@@ -2,6 +2,8 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/fi
 import { initFirebase, state } from "/app/js/state.js";
 import {
   completeMagicLinkSignIn,
+  finishMagicLinkSignIn,
+  sendPasswordResetForEmail,
   signInWithEmailPassword,
   signInWithGoogle,
   signUpWithEmailPassword,
@@ -60,10 +62,23 @@ function showPostCheckoutBanner() {
 function bindAuthEvents() {
   els.signinForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
+
+    // Complete a pending magic link sign-in (opened on a different device/browser)
+    if (sessionStorage.getItem("pendingMagicLinkHref")) {
+      await finishMagicLinkSignIn(els.signinEmail.value.trim(), els.signinStatus, els.signinSubmit);
+      return;
+    }
+
     if (state.signinMode === "magic") {
       await sendMagicLink(els.signinEmail.value.trim(), els.signinStatus, els.signinSubmit, "signin");
       return;
     }
+
+    if (state.signinMode === "forgot") {
+      await sendPasswordResetForEmail(els.signinEmail.value.trim(), els.signinStatus, els.signinSubmit);
+      return;
+    }
+
     // For login with existing account after checkout, store anonymous UID for data migration
     if (isPostCheckout && state.auth.currentUser?.isAnonymous) {
       localStorage.setItem("ob_anonymous_uid", state.auth.currentUser.uid);
@@ -88,7 +103,11 @@ function bindAuthEvents() {
   });
 
   els.signinModeToggle?.addEventListener("click", () => {
-    setSigninMode(state.signinMode === "password" ? "magic" : "password");
+    setSigninMode(state.signinMode === "magic" ? "password" : "magic");
+  });
+
+  els.signinForgotToggle?.addEventListener("click", () => {
+    setSigninMode(state.signinMode === "forgot" ? "password" : "forgot");
   });
 
   els.signinGoogle?.addEventListener("click", () => signInWithGoogle(els.signinStatus, els.signinGoogle));
@@ -120,6 +139,9 @@ async function init() {
   await completeMagicLinkSignIn();
   onAuthStateChanged(state.auth, (user) => {
     if (user && !user.isAnonymous) {
+      // Skip redirect while signUpWithEmailPassword is in progress — it will
+      // call window.location.replace itself after updateProfile completes.
+      if (state.isSigningUp) return;
       // Redirect immediately — the dashboard's own onAuthStateChanged
       // in main.js will handle loading account data after the page lands.
       if (isPostCheckout) {
